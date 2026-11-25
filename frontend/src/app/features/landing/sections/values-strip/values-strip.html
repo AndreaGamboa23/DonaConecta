@@ -1,0 +1,19 @@
+<section class="bg-dark text-white py-4" aria-label="Valores de DonaConecta">
+  <div class="container">
+    <div class="row g-4 align-items-center">
+      @for (value of values; track value.title; let first = $first) {
+        <div class="col-12 col-sm-6 col-lg-3" [class.border-lg-start]="!first">
+          <div class="d-flex align-items-center gap-3 px-lg-2">
+            <span class="dc-tile-icon bg-primary-subtle text-primary flex-shrink-0">
+              <app-icon [name]="value.icon" />
+            </span>
+            <div>
+              <h2 class="h6 fw-bold mb-1">{{ value.title }}</h2>
+              <p class="small dc-footer-note mb-0">{{ value.text }}</p>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</section>

@@ -1,0 +1,29 @@
+<section id="participa" class="container-fluid py-5 py-lg-6 overflow-hidden">
+  <div class="container position-relative">
+    <div class="dc-cta-panel rounded-5 shadow-sm p-4 p-md-5 p-xl-6 position-relative overflow-hidden">
+      <div class="dc-blob bg-white opacity-50 position-absolute top-0 end-0 w-25 h-100"></div>
+      <div class="row align-items-center g-4 position-relative">
+        <div class="col-12 col-lg-8">
+          <span class="dc-eyebrow mb-3">Participación comunitaria</span>
+          <h2 class="display-5 fw-bold mb-3">
+            El cambio comienza cuando decidimos ayudar juntos.
+          </h2>
+          <p class="lead mb-0">
+            Un paquete de alimentos, una frazada o un cuaderno pueden mejorar el día de alguien.
+            Cuando muchas personas aportan, el impacto llega más lejos.
+          </p>
+        </div>
+        <div class="col-12 col-lg-4">
+          <div class="d-flex flex-column gap-3">
+            <a routerLink="/como-donar" class="btn btn-primary btn-lg">
+              <app-icon name="box" /> Ver qué puedes donar
+            </a>
+            <a [routerLink]="['/']" fragment="como-funciona" class="btn btn-outline-dark btn-lg">
+              Conocer el proceso
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

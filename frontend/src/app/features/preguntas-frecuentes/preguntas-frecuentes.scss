@@ -1,0 +1,7 @@
+:host {
+  display: block;
+}
+
+details summary::marker {
+  color: var(--dc-blue);
+}

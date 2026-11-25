@@ -1,0 +1,11 @@
+:host {
+  display: inline-flex;
+}
+
+.dc-mark-cut {
+  stroke: var(--dc-white);
+}
+
+.dc-mark-inverted .dc-mark-cut {
+  stroke: var(--dc-navy);
+}

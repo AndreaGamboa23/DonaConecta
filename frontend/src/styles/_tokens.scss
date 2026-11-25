@@ -1,0 +1,60 @@
+// Design tokens de DonaConecta.
+// Declaran los valores de marca y personalizan Bootstrap ANTES de su importación.
+
+$dc-navy: #12304a;
+$dc-blue: #3679a8;
+$dc-blue-soft: #dcebf5;
+$dc-cream: #f7f5ef;
+$dc-white: #ffffff;
+$dc-green: #80b69a;
+$dc-amber: #d5a451;
+$dc-error: #b3261e;
+
+$dc-blue-deep: #0d2437;
+$dc-amber-soft: #f4e6cd;
+$dc-green-soft: #e4f0e9;
+
+$dc-font-heading: 'Manrope', 'Segoe UI', system-ui, sans-serif;
+$dc-font-body: 'Inter', 'Segoe UI', system-ui, sans-serif;
+
+// --- Variables Bootstrap personalizadas ---
+$primary: $dc-blue;
+$secondary: $dc-navy;
+$success: $dc-green;
+$info: $dc-blue-soft;
+$warning: $dc-amber;
+$danger: $dc-error;
+$light: $dc-cream;
+$dark: $dc-navy;
+
+$body-bg: $dc-white;
+$body-color: $dc-navy;
+$font-family-sans-serif: $dc-font-body;
+$headings-font-family: $dc-font-heading;
+$headings-font-weight: 800;
+$headings-color: $dc-navy;
+$headings-line-height: 1.12;
+$display-font-weight: 800;
+$line-height-base: 1.65;
+$paragraph-margin-bottom: 1.25rem;
+
+$border-radius: 0.9rem;
+$border-radius-sm: 0.6rem;
+$border-radius-lg: 1.35rem;
+$border-radius-xl: 2rem;
+$box-shadow-sm: 0 0.4rem 1.2rem rgba(18, 48, 74, 0.07);
+$box-shadow: 0 0.9rem 2.4rem rgba(18, 48, 74, 0.11);
+$box-shadow-lg: 0 1.5rem 3.5rem rgba(18, 48, 74, 0.16);
+
+$grid-gutter-width: 1.5rem;
+$btn-font-weight: 600;
+$btn-padding-y: 0.75rem;
+$btn-padding-x: 1.35rem;
+$btn-border-radius: 0.6rem;
+$btn-border-radius-sm: 0.5rem;
+$btn-border-radius-lg: 0.85rem;
+$card-border-width: 0;
+$card-border-radius: 1.35rem;
+$navbar-brand-font-size: 1.3rem;
+$nav-link-color: rgba(18, 48, 74, 0.72);
+$nav-link-hover-color: $dc-navy;

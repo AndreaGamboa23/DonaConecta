@@ -1,0 +1,18 @@
+// Única entrada global de estilos de DonaConecta.
+// Fuentes autoalojadas (licencia OFL-1.1, verificada en Fase 04).
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
+@import '@fontsource/manrope/600.css';
+@import '@fontsource/manrope/700.css';
+@import '@fontsource/manrope/800.css';
+
+// Tokens primero: Bootstrap los consume al compilar.
+@import './styles/tokens';
+@import 'bootstrap/scss/bootstrap';
+
+// Ajustes posteriores y reglas de identidad.
+@import './styles/bootstrap-overrides';
+@import './styles/global';
+@import './styles/components';

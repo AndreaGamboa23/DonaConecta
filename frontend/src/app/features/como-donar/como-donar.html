@@ -1,0 +1,241 @@
+<section class="bg-light position-relative overflow-hidden py-5 py-lg-6">
+  <div class="container position-relative">
+    <nav aria-label="Ruta de navegación">
+      <ol class="breadcrumb small mb-4">
+        <li class="breadcrumb-item"><a routerLink="/">Inicio</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Cómo donar</li>
+      </ol>
+    </nav>
+
+    <div class="row align-items-center gy-5">
+      <div class="col-12 col-lg-7">
+        <span class="dc-eyebrow mb-3">Guía para donar · Bienes materiales</span>
+        <h1 class="display-4 fw-bold mb-4">
+          Tu donación material puede llegar más lejos cuando sabemos cómo coordinarla.
+        </h1>
+        <p class="lead text-secondary mb-4">
+          Aquí encontrarás qué bienes se reciben, en qué estado deben estar y cómo será el
+          proceso de entrega. DonaConecta no recibe dinero ni realiza transferencias.
+        </p>
+        <div class="d-flex flex-column flex-sm-row flex-wrap gap-3">
+          <a [routerLink]="['/como-donar']" fragment="bienes" class="btn btn-primary btn-lg">
+            Ver qué puedes donar
+          </a>
+          <a routerLink="/preguntas-frecuentes" class="btn btn-outline-dark btn-lg">
+            Preguntas frecuentes
+          </a>
+        </div>
+        <div class="d-flex flex-wrap align-items-center gap-3 mt-4">
+          <span class="badge rounded-pill text-bg-success">Solo bienes materiales</span>
+          <span class="badge rounded-pill text-bg-primary">Sin pagos</span>
+          <span class="small text-secondary mb-0">Sin registro obligatorio para leer esta guía</span>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-5">
+        <div class="card border-0 shadow-sm rounded-5 overflow-hidden position-relative">
+          <div class="dc-blob bg-primary-subtle position-absolute top-0 end-0 w-75 h-75"></div>
+          <div class="card-body p-4 p-md-5 position-relative">
+            <span class="dc-tile-icon bg-white text-primary shadow-sm mb-3">
+              <app-icon name="heart" />
+            </span>
+            <h2 class="h3 fw-bold mb-3">Una comunidad, muchas manos.</h2>
+            <p class="text-secondary mb-0">
+              Cada producto en buen estado puede apoyar la labor de comedores, albergues y
+              refugios de Huancayo. La tecnología solo ayuda a ordenar la solidaridad.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="que-es" class="container py-5 py-lg-6">
+  <div class="row g-4 align-items-center">
+    <div class="col-12 col-lg-7">
+      <span class="dc-eyebrow mb-3">Donar en especie</span>
+      <h2 class="display-6 fw-bold mb-3">¿Qué significa donar en DonaConecta?</h2>
+      <p class="lead text-secondary mb-3">
+        Significa ofrecer bienes materiales útiles para una organización social: alimentos,
+        abrigo, higiene, cuidado animal o útiles escolares.
+      </p>
+      <p class="text-secondary mb-0">
+        La plataforma está pensada para que la oferta y la necesidad se encuentren con
+        claridad, se coordine la entrega y la recepción pueda confirmarse posteriormente.
+      </p>
+    </div>
+    <div class="col-12 col-lg-5">
+      <div class="alert alert-success border-0 rounded-4 p-4 mb-0">
+        <h3 class="h5 fw-bold mb-3">Límites claros</h3>
+        <ul class="list-unstyled d-grid gap-2 mb-0">
+          <li class="d-flex gap-2"><span aria-hidden="true">✓</span> No pedimos dinero.</li>
+          <li class="d-flex gap-2"><span aria-hidden="true">✓</span> No hacemos transferencias.</li>
+          <li class="d-flex gap-2"><span aria-hidden="true">✓</span> No guardamos donaciones en el navegador.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="bienes" class="bg-primary-subtle py-5 py-lg-6">
+  <div class="container">
+    <div class="row g-4 align-items-end mb-4">
+      <div class="col-12 col-lg-8">
+        <span class="dc-eyebrow mb-3">Bienes aceptados</span>
+        <h2 class="display-6 fw-bold mb-0">Cinco categorías para empezar</h2>
+      </div>
+      <div class="col-12 col-lg-4">
+        <p class="text-secondary mb-0">
+          Son ejemplos informativos. No representan solicitudes activas ni necesidades reales
+          publicadas.
+        </p>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      @for (category of categories; track category.title) {
+        <div class="col-12 col-md-6 col-lg-4">
+          <article class="card h-100 shadow-sm rounded-4">
+            <div class="card-body p-4">
+              <span
+                class="dc-tile-icon mb-3"
+                [class.bg-primary-subtle]="category.tone === 'blue'"
+                [class.bg-success-subtle]="category.tone === 'green'"
+                [class.bg-warning-subtle]="category.tone === 'amber'"
+                [class.text-primary]="category.tone === 'blue'"
+                [class.text-success]="category.tone === 'green'"
+                [class.text-warning]="category.tone === 'amber'"
+              >
+                <app-icon [name]="category.icon" />
+              </span>
+              <h3 class="h5 fw-bold mb-2">{{ category.title }}</h3>
+              <p class="small text-secondary mb-0">{{ category.text }}</p>
+            </div>
+          </article>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<section id="estado" class="container py-5 py-lg-6">
+  <div class="row g-4">
+    <div class="col-12 col-lg-5">
+      <span class="dc-eyebrow mb-3">Recomendaciones</span>
+      <h2 class="display-6 fw-bold mb-3">Cómo preparar tus bienes</h2>
+      <p class="text-secondary mb-4">
+        Estas recomendaciones ayudan a que la entrega sea respetuosa y útil para quienes la
+        reciben.
+      </p>
+      <a [routerLink]="['/como-donar']" fragment="pasos" class="btn btn-outline-primary">
+        Ver el proceso previsto
+      </a>
+    </div>
+    <div class="col-12 col-lg-7">
+      <ul class="list-group list-group-flush shadow-sm rounded-4 overflow-hidden">
+        @for (recommendation of recommendations; track recommendation; let i = $index) {
+          <li class="list-group-item d-flex gap-3 py-3">
+            <span class="dc-step-number flex-shrink-0">{{ i + 1 }}</span>
+            <span class="align-self-center">{{ recommendation }}</span>
+          </li>
+        }
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="pasos" class="bg-dark text-white py-5 py-lg-6">
+  <div class="container">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-4">
+      <div>
+        <span class="dc-eyebrow dc-eyebrow-light mb-3">Proceso previsto</span>
+        <h2 class="display-6 fw-bold mb-0">Nueve pasos para una donación clara</h2>
+      </div>
+      <div class="d-flex flex-wrap gap-2">
+        <span class="badge rounded-pill text-bg-success">Orientación disponible</span>
+        <span class="badge rounded-pill text-bg-secondary">Planificado</span>
+      </div>
+    </div>
+
+    <p class="text-white-50 mb-5">
+      Esta guía muestra el proceso completo. Solo los pasos marcados como disponibles pueden
+      realizarse hoy; el registro, los compromisos y el seguimiento se activarán en fases
+      posteriores.
+    </p>
+
+    <div class="row g-3 g-md-4">
+      @for (step of steps; track step.number) {
+        <div class="col-12 col-md-6 col-xl-4">
+          <article class="card h-100 border-0 rounded-4 bg-white text-body">
+            <div class="card-body p-4">
+              <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                <span class="dc-tile-icon bg-primary-subtle text-primary">
+                  <app-icon [name]="step.icon" />
+                </span>
+                <span class="fw-bold text-primary fs-4 lh-1">{{ step.number }}</span>
+              </div>
+              <h3 class="h6 fw-bold mb-2">{{ step.title }}</h3>
+              <p class="small text-secondary mb-3">{{ step.text }}</p>
+              @if (step.available) {
+                <span class="badge text-bg-success">Orientación disponible</span>
+              } @else {
+                <span class="badge text-bg-secondary">Planificado</span>
+              }
+            </div>
+          </article>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<section id="seguimiento" class="container py-5 py-lg-6">
+  <div class="row g-4">
+    <div class="col-12 col-lg-5">
+      <span class="dc-eyebrow mb-3">Seguimiento y confirmación</span>
+      <h2 class="display-6 fw-bold mb-3">Una entrega no termina hasta confirmarse</h2>
+      <p class="lead text-secondary mb-3">
+        El estado de la entrega permitirá saber en qué etapa se encuentra la donación.
+      </p>
+      <p class="text-secondary mb-0">
+        La ubicación GPS será opcional y no cambiará el estado automáticamente: la
+        institución deberá confirmar la recepción real.
+      </p>
+    </div>
+    <div class="col-12 col-lg-7">
+      <ol class="list-group list-group-numbered list-group-flush shadow-sm rounded-4 overflow-hidden">
+        @for (state of deliveryStates; track state) {
+          <li class="list-group-item d-flex align-items-center gap-3 py-3">
+            <span class="text-primary"><app-icon name="check" /></span>
+            <span>{{ state }}</span>
+          </li>
+        }
+      </ol>
+      <p class="small text-secondary mt-3 mb-0">
+        Secuencia prevista. Aún no existe seguimiento activo porque requiere backend,
+        autenticación y base de datos.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="container-fluid py-5 py-lg-6">
+  <div class="container">
+    <div class="dc-cta-panel rounded-5 p-4 p-md-5">
+      <div class="row align-items-center g-4">
+        <div class="col-12 col-lg-8">
+          <span class="dc-eyebrow mb-3">Siguiente paso</span>
+          <h2 class="display-6 fw-bold mb-2">¿Aún tienes dudas?</h2>
+          <p class="lead mb-0">
+            Revisa las preguntas frecuentes o conoce el propósito que hay detrás de DonaConecta.
+          </p>
+        </div>
+        <div class="col-12 col-lg-4 d-flex flex-column gap-3">
+          <a routerLink="/preguntas-frecuentes" class="btn btn-primary btn-lg">Ver preguntas</a>
+          <a routerLink="/nosotros" class="btn btn-outline-dark btn-lg">Conocer el proyecto</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

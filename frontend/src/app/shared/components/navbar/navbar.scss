@@ -1,0 +1,29 @@
+.navbar {
+  --bs-navbar-padding-y: 0.65rem;
+}
+
+.nav-link {
+  color: inherit;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0.75rem;
+  right: 0.75rem;
+  bottom: 0.15rem;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--dc-amber);
+  transform: scaleX(0);
+  transition: transform 0.2s ease;
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+  transform: scaleX(1);
+}
+
+.nav-link.active {
+  color: var(--dc-navy);
+}

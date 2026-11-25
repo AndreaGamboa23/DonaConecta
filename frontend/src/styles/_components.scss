@@ -1,0 +1,108 @@
+// Clases de identidad DonaConecta.
+// Solo detalles que Bootstrap no resuelve por sí mismo: formas orgánicas,
+// conectores narrativos, etiquetas de sección y marcos de imagen.
+
+.dc-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: var(--dc-font-body);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: $dc-blue;
+}
+
+.dc-eyebrow::before {
+  content: '';
+  width: 1.75rem;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+}
+
+.dc-eyebrow-light {
+  color: $dc-amber;
+}
+
+.dc-blob {
+  border-radius: 46% 54% 62% 38% / 42% 38% 62% 58%;
+}
+
+.dc-photo-slot {
+  position: relative;
+  overflow: hidden;
+  border-radius: $border-radius-lg;
+  background: $dc-blue-soft;
+}
+
+.dc-photo-slot img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.dc-photo-note {
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+}
+
+.dc-timeline {
+  position: relative;
+}
+
+.dc-timeline::before {
+  content: '';
+  position: absolute;
+  top: 1.5rem;
+  bottom: 1.5rem;
+  left: 1.35rem;
+  width: 2px;
+  background: linear-gradient($dc-blue, $dc-green);
+  border-radius: 2px;
+}
+
+.dc-step-number {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  background: $dc-white;
+  color: $dc-blue;
+  font-family: var(--dc-font-heading);
+  font-weight: 800;
+  box-shadow: $box-shadow-sm;
+}
+
+.dc-tile-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 1rem;
+  flex-shrink: 0;
+}
+
+.dc-cta-panel {
+  background: $dc-amber-soft;
+  border: 1px solid rgba(213, 164, 81, 0.35);
+}
+
+.dc-footer-note {
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.dc-link-light {
+  color: rgba(255, 255, 255, 0.78);
+  text-decoration: none;
+}
+
+.dc-link-light:hover {
+  color: $dc-white;
+  text-decoration: underline;
+}

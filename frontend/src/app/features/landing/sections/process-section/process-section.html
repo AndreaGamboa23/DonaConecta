@@ -1,0 +1,42 @@
+<section id="como-funciona" class="container py-5 py-lg-6">
+  <div class="row gy-5">
+    <div class="col-12 col-lg-4">
+      <div class="position-lg-sticky top-0 pt-lg-5">
+        <span class="dc-eyebrow mb-3">Cuatro etapas</span>
+        <h2 class="display-5 fw-bold mb-3">Cómo funciona DonaConecta</h2>
+        <p class="lead text-secondary mb-4">
+          Un recorrido sencillo para que tu donación llegue a quien la necesita y pueda ser
+          seguida con claridad.
+        </p>
+        <a routerLink="/como-donar" class="btn btn-outline-primary">Ver qué puedes donar</a>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-8">
+      <div class="dc-timeline ps-4">
+        @for (step of steps; track step.number) {
+          <article class="d-flex gap-3 gap-md-4 pb-4 pb-md-5">
+            <span class="dc-step-number flex-shrink-0">{{ step.number }}</span>
+            <div class="flex-grow-1 pt-1">
+              <div class="d-flex align-items-center gap-3 mb-2">
+                <span
+                  class="dc-tile-icon shadow-sm"
+                  [class.bg-primary-subtle]="step.tone === 'blue'"
+                  [class.bg-success-subtle]="step.tone === 'green'"
+                  [class.bg-warning-subtle]="step.tone === 'amber'"
+                  [class.text-primary]="step.tone === 'blue'"
+                  [class.text-success]="step.tone === 'green'"
+                  [class.text-warning]="step.tone === 'amber'"
+                >
+                  <app-icon [name]="step.icon" />
+                </span>
+                <h3 class="h4 fw-bold mb-0">{{ step.title }}</h3>
+              </div>
+              <p class="text-secondary mb-0 pe-lg-4">{{ step.text }}</p>
+            </div>
+          </article>
+        }
+      </div>
+    </div>
+  </div>
+</section>
