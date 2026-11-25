@@ -143,3 +143,71 @@ def listar_compromisos_donante(id_donante: int) -> list[dict]:
             }
             for r in rows
         ]
+
+def listar_compromisos_representante(id_representante: int) -> list[dict]:
+    sql = """
+        SELECT c.id_compromiso, c.cantidad_comprometida, c.comentario, c.estado, c.creado_en,
+               n.titulo AS necesidad, cat.unidad_medida_base, i.nombre_comercial AS institucion,
+               u.nombres + ' ' + u.apellidos AS donante, u.telefono AS telefono_donante
+        FROM compromisos_donacion c
+        INNER JOIN necesidades n ON n.id_necesidad = c.id_necesidad
+        INNER JOIN categorias_bien cat ON cat.id_categoria = n.id_categoria
+        INNER JOIN instituciones i ON i.id_institucion = n.id_institucion
+        INNER JOIN usuarios u ON u.id_usuario = c.id_donante
+        WHERE i.id_representante = ?
+        ORDER BY c.creado_en DESC;
+    """
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        rows = cursor.execute(sql, (id_representante,)).fetchall()
+        return [
+            {
+                "id_compromiso": r.id_compromiso,
+                "necesidad": r.necesidad,
+                "institucion": r.institucion,
+                "donante": r.donante,
+                "telefono_donante": r.telefono_donante,
+                "cantidad_comprometida": float(r.cantidad_comprometida),
+                "unidad_medida_base": r.unidad_medida_base,
+                "comentario": r.comentario,
+                "estado": r.estado,
+                "creado_en": str(r.creado_en),
+            }
+            for r in rows
+        ]
+
+def confirmar_recepcion_entrega(id_compromiso: int, id_representante: int) -> dict:
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        comp = cursor.execute(
+            """
+            SELECT c.id_compromiso, c.cantidad_comprometida, c.estado
+            FROM compromisos_donacion c
+            INNER JOIN necesidades n ON n.id_necesidad = c.id_necesidad
+            INNER JOIN instituciones i ON i.id_institucion = n.id_institucion
+            WHERE c.id_compromiso = ? AND i.id_representante = ?;
+            """,
+            (id_compromiso, id_representante),
+        ).fetchone()
+        if not comp:
+            raise ValueError("Compromiso no encontrado o no pertenece a tu institucion")
+        if comp.estado == "COMPLETADO":
+            raise ValueError("Esta entrega ya fue confirmada anteriormente")
+
+        cursor.execute(
+            """
+            INSERT INTO entregas (id_compromiso, cantidad_entregada, fecha_recepcion, confirmada_por, estado)
+            VALUES (?, ?, SYSDATETIME(), ?, 'CONFIRMADA');
+            """,
+            (id_compromiso, comp.cantidad_comprometida, id_representante),
+        )
+        cursor.execute(
+            """
+            UPDATE compromisos_donacion
+            SET estado = 'COMPLETADO', actualizado_en = SYSDATETIME()
+            WHERE id_compromiso = ?;
+            """,
+            (id_compromiso,),
+        )
+        conn.commit()
+        return {"id_compromiso": id_compromiso, "estado": "COMPLETADO"}

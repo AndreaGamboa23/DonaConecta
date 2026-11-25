@@ -1,9 +1,11 @@
 ﻿from fastapi import APIRouter, Depends, HTTPException, status
 from app.core.security import requerir_roles
 from app.repositories.donaciones_repo import (
+    confirmar_recepcion_entrega,
     crear_compromiso,
     crear_necesidad,
     listar_compromisos_donante,
+    listar_compromisos_representante,
     listar_necesidades_activas,
 )
 from app.schemas.donaciones_schema import CrearCompromisoRequest, CrearNecesidadRequest
@@ -39,3 +41,18 @@ def registrar_compromiso_donacion(
 @router.get("/compromisos/mis-compromisos")
 def mis_compromisos(usuario: dict = Depends(requerir_roles("DONANTE"))):
     return listar_compromisos_donante(usuario["id_usuario"])
+
+@router.get("/compromisos/institucion")
+def compromisos_de_mi_institucion(usuario: dict = Depends(requerir_roles("REPRESENTANTE"))):
+    return listar_compromisos_representante(usuario["id_usuario"])
+
+@router.patch("/compromisos/{id_compromiso}/confirmar-entrega")
+def confirmar_entrega(
+    id_compromiso: int,
+    usuario: dict = Depends(requerir_roles("REPRESENTANTE")),
+):
+    try:
+        resultado = confirmar_recepcion_entrega(id_compromiso, usuario["id_usuario"])
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return {"mensaje": "Entrega confirmada correctamente", "compromiso": resultado}

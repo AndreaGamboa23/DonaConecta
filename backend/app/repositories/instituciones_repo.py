@@ -99,3 +99,33 @@ def actualizar_verificacion_institucion(
             "nombre_comercial": existe.nombre_comercial,
             "estado_verificacion": estado_verificacion,
         }
+
+def listar_instituciones_pendientes() -> list[dict]:
+    sql = """
+        SELECT i.id_institucion, i.ruc, i.razon_social, i.nombre_comercial,
+               i.tipo_institucion, i.descripcion, i.distrito, i.direccion, i.estado_verificacion,
+               u.nombres + ' ' + u.apellidos AS representante, u.correo AS correo_representante
+        FROM instituciones i
+        INNER JOIN usuarios u ON u.id_usuario = i.id_representante
+        WHERE i.estado_verificacion = 'PENDIENTE' AND i.activo = 1
+        ORDER BY i.creado_en ASC;
+    """
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        rows = cursor.execute(sql).fetchall()
+        return [
+            {
+                "id_institucion": r.id_institucion,
+                "ruc": r.ruc,
+                "razon_social": r.razon_social,
+                "nombre_comercial": r.nombre_comercial,
+                "tipo_institucion": r.tipo_institucion,
+                "descripcion": r.descripcion,
+                "distrito": r.distrito,
+                "direccion": r.direccion,
+                "estado_verificacion": r.estado_verificacion,
+                "representante": r.representante,
+                "correo_representante": r.correo_representante,
+            }
+            for r in rows
+        ]

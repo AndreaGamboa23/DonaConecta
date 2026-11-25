@@ -3,6 +3,7 @@ from app.core.security import requerir_roles
 from app.repositories.instituciones_repo import (
     actualizar_verificacion_institucion,
     crear_institucion,
+    listar_instituciones_pendientes,
     listar_instituciones_verificadas,
 )
 from app.schemas.instituciones_schema import (
@@ -23,6 +24,12 @@ def registrar_institucion(
 ):
     nueva = crear_institucion(usuario["id_usuario"], datos.model_dump())
     return {"mensaje": "Institucion registrada en estado PENDIENTE", "institucion": nueva}
+
+@router.get("/admin/instituciones/pendientes")
+def obtener_instituciones_pendientes(
+    usuario: dict = Depends(requerir_roles("ADMINISTRADOR")),
+):
+    return listar_instituciones_pendientes()
 
 @router.patch("/admin/instituciones/{id_institucion}/verificar")
 def verificar_institucion(
