@@ -33,7 +33,7 @@ def verificar_institucion(
     actualizada = actualizar_verificacion_institucion(
         id_institucion=id_institucion,
         estado_verificacion=datos.estado_verificacion,
-        observaciones=datos.observaciones,
+        id_admin=usuario["id_usuario"],
     )
     if not actualizada:
         raise HTTPException(status_code=404, detail="Institucion no encontrada")

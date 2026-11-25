@@ -7,41 +7,51 @@ def crear_institucion(id_representante: int, datos: dict) -> dict:
         row = cursor.execute(
             """
             INSERT INTO instituciones (
-                id_representante, nombre, ruc, tipo_institucion,
-                direccion, distrito, provincia, departamento, descripcion
+                id_representante, ruc, razon_social, nombre_comercial,
+                tipo_institucion, descripcion, distrito, direccion
             )
             OUTPUT INSERTED.id_institucion, INSERTED.estado_verificacion
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?);
             """,
             (
                 id_representante,
-                datos["nombre"],
-                datos.get("ruc"),
+                datos["ruc"],
+                datos["razon_social"],
+                datos["nombre_comercial"],
                 datos["tipo_institucion"],
-                datos["direccion"],
-                datos["distrito"],
-                datos["provincia"],
-                datos["departamento"],
                 datos.get("descripcion"),
+                datos["distrito"],
+                datos["direccion"],
             ),
         ).fetchone()
+        id_inst = int(row.id_institucion)
+        cursor.execute(
+            """
+            INSERT INTO puntos_acopio (id_institucion, nombre_punto, distrito, direccion)
+            VALUES (?, ?, ?, ?);
+            """,
+            (id_inst, f"Sede Principal - {datos['nombre_comercial']}", datos["distrito"], datos["direccion"]),
+        )
         conn.commit()
         return {
-            "id_institucion": int(row.id_institucion),
-            "nombre": datos["nombre"],
-            "ruc": datos.get("ruc"),
+            "id_institucion": id_inst,
+            "ruc": datos["ruc"],
+            "razon_social": datos["razon_social"],
+            "nombre_comercial": datos["nombre_comercial"],
             "tipo_institucion": datos["tipo_institucion"],
             "distrito": datos["distrito"],
+            "direccion": datos["direccion"],
             "estado_verificacion": row.estado_verificacion,
         }
 
 def listar_instituciones_verificadas() -> list[dict]:
     sql = """
-        SELECT id_institucion, nombre, ruc, tipo_institucion,
-               direccion, distrito, provincia, departamento, descripcion, estado_verificacion
-        FROM instituciones
-        WHERE estado_verificacion = 'VERIFICADA'
-        ORDER BY nombre;
+        SELECT i.id_institucion, i.ruc, i.razon_social, i.nombre_comercial,
+               i.tipo_institucion, i.descripcion, i.distrito, i.direccion, i.estado_verificacion,
+               (SELECT TOP 1 p.id_punto_acopio FROM puntos_acopio p WHERE p.id_institucion = i.id_institucion AND p.activo = 1) AS id_punto_acopio
+        FROM instituciones i
+        WHERE i.estado_verificacion = 'VERIFICADA' AND i.activo = 1
+        ORDER BY i.nombre_comercial;
     """
     with get_connection() as conn:
         cursor = conn.cursor()
@@ -49,26 +59,26 @@ def listar_instituciones_verificadas() -> list[dict]:
         return [
             {
                 "id_institucion": r.id_institucion,
-                "nombre": r.nombre,
                 "ruc": r.ruc,
+                "razon_social": r.razon_social,
+                "nombre_comercial": r.nombre_comercial,
                 "tipo_institucion": r.tipo_institucion,
-                "direccion": r.direccion,
-                "distrito": r.distrito,
-                "provincia": r.provincia,
-                "departamento": r.departamento,
                 "descripcion": r.descripcion,
+                "distrito": r.distrito,
+                "direccion": r.direccion,
                 "estado_verificacion": r.estado_verificacion,
+                "id_punto_acopio": r.id_punto_acopio,
             }
             for r in rows
         ]
 
 def actualizar_verificacion_institucion(
-    id_institucion: int, estado_verificacion: str, observaciones: Optional[str]
+    id_institucion: int, estado_verificacion: str, id_admin: int
 ) -> Optional[dict]:
     with get_connection() as conn:
         cursor = conn.cursor()
         existe = cursor.execute(
-            "SELECT id_institucion, nombre FROM instituciones WHERE id_institucion = ?;",
+            "SELECT id_institucion, nombre_comercial FROM instituciones WHERE id_institucion = ?;",
             (id_institucion,),
         ).fetchone()
         if not existe:
@@ -77,16 +87,15 @@ def actualizar_verificacion_institucion(
             """
             UPDATE instituciones
             SET estado_verificacion = ?,
-                observaciones_verificacion = ?,
-                verificado_en = SYSDATETIME()
+                verificada_por = ?,
+                verificada_en = SYSDATETIME()
             WHERE id_institucion = ?;
             """,
-            (estado_verificacion, observaciones, id_institucion),
+            (estado_verificacion, id_admin, id_institucion),
         )
         conn.commit()
         return {
             "id_institucion": id_institucion,
-            "nombre": existe.nombre,
+            "nombre_comercial": existe.nombre_comercial,
             "estado_verificacion": estado_verificacion,
-            "observaciones_verificacion": observaciones,
         }
