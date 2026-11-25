@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+﻿import { Routes } from '@angular/router';
 import { PublicLayout } from './layouts/public-layout/public-layout';
 
 export const routes: Routes = [
@@ -45,6 +45,17 @@ export const routes: Routes = [
           description:
             'Respuestas claras sobre donaciones materiales, registro, privacidad, seguimiento GPS y mensajería en DonaConecta.',
         },
+      },
+      {
+        path: 'iniciar-sesion',
+        loadComponent: () => import('./features/auth/login/login').then((modulo) => modulo.Login),
+        title: 'Iniciar sesión | DonaConecta',
+      },
+      {
+        path: 'registro',
+        loadComponent: () =>
+          import('./features/auth/registro/registro').then((modulo) => modulo.Registro),
+        title: 'Crear cuenta | DonaConecta',
       },
       {
         path: '**',

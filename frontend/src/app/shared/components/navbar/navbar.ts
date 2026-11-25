@@ -1,5 +1,6 @@
-import { Component, signal } from '@angular/core';
+﻿import { Component, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from '../../../core/auth/auth.service';
 import { Brand } from '../brand/brand';
 
 @Component({
@@ -10,9 +11,9 @@ import { Brand } from '../brand/brand';
   styleUrl: './navbar.scss',
 })
 export class Navbar {
+  readonly auth = inject(AuthService);
   readonly menuOpen = signal(false);
 
-  /** Solo páginas implementadas. Las rutas planificadas no se enlazan todavía. */
   readonly links = [
     { label: 'Inicio', route: '/', exact: true },
     { label: 'Cómo donar', route: '/como-donar', exact: false },
