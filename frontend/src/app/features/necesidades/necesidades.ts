@@ -322,7 +322,7 @@ export class Necesidades implements OnInit {
         },
         error: (err) => {
           this.guardando.set(false);
-          this.errorGlobal.set(err?.error?.detail || 'No se pudo publicar la necesidad');
+          this.errorGlobal.set(typeof err?.error?.detail === 'string' ? err.error.detail : 'Completa todos los campos obligatorios (mínimo 5 caracteres en descripción)');
         },
       });
   }
@@ -359,3 +359,4 @@ export class Necesidades implements OnInit {
     return Math.min(100, Math.round((nec.cantidad_comprometida / nec.cantidad_requerida) * 100));
   }
 }
+
