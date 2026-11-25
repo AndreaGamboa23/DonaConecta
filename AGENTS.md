@@ -14,6 +14,8 @@ animales de Huancayo, Junín, Perú.
 - Gestiona **exclusivamente donaciones de bienes materiales**.
 - **No** procesa pagos, transferencias bancarias ni donaciones monetarias.
 - Objetivo académico: Ingeniería de Sistemas e Informática — Universidad Continental.
+- Debe demostrar los conocimientos de desarrollo web, programación backend y bases de datos
+  vistos en clases, con código comprensible y sostenible ante el docente.
 - Repositorio: `https://github.com/AndreaGamboa23/DonaConecta.git`.
 
 ---
@@ -39,13 +41,18 @@ animales de Huancayo, Junín, Perú.
 | Capa | Tecnologías |
 |---|---|
 | Frontend | Angular 22, TypeScript, HTML5, Bootstrap 5, CSS y SCSS |
-| Backend | Python 3.13, FastAPI, Uvicorn, Pydantic |
-| Base de datos | Microsoft SQL Server 2025 Express, T-SQL, pyodbc |
+| Backend | Python 3.13, FastAPI, Uvicorn, Pydantic, PyODBC, WebSockets |
+| Base de datos | Microsoft SQL Server 2025 Express, T-SQL, PyODBC |
+| Gestor de entornos | `uv` en evaluación, siguiendo el procedimiento de clases; no duplicar gestores |
 | Versionamiento y herramientas | Git, GitHub, OpenCode, Visual Studio Code |
 
 - No sustituir estas tecnologías.
 - No agregar dependencias innecesarias. Toda dependencia nueva debe justificarse
   técnicamente y documentarse en `docs/decisiones-tecnicas.md`.
+- Evaluar `uv` como gestor de dependencias y entornos virtuales en la Fase 07, antes de
+  instalar backend. No introducir gestores incompatibles o duplicados.
+- No versionar `.venv/`, `__pycache__/`, archivos `.env` ni credenciales; `.env.example`
+  debe permanecer sin valores sensibles.
 - No usar Tailwind CSS, Angular Material ni otros frameworks de diseño adicionales.
 - No usar Firebase, Supabase, MongoDB, SQLite ni otras bases de datos sustitutas.
 - No crear nuevamente el proyecto Angular existente.
@@ -140,11 +147,14 @@ Arquitectura cliente-servidor modular y organizada por capas, sin complejidad in
 **Frontend:** `core`, `shared`, `layouts`, `features`, `services`, `guards`,
 `interceptors`, `interfaces`, `routing`, `assets`, `styles`.
 
-**Backend:** `main.py`, `core`, `routers`, `services`, `repositories`, `models`,
-`schemas`, `database`, `dependencies`, `tests`.
+**Backend:** referencia obligatoria `backend/src/backend/` con `apis/`, `repositories/`,
+`schemas/`, `services/`, `database/`, `security/`, `core/`, `websockets/`, `__init__.py` y
+`main.py`. La carpeta `backend/tests/` y los archivos de configuración se crearán solo cuando
+exista una necesidad real en las fases autorizadas.
 
-Separar correctamente presentación, lógica de negocio y persistencia. El frontend nunca
-accede directamente a SQL Server: toda operación pasa por APIs REST reales.
+Separar correctamente presentación, lógica de negocio y persistencia. `main.py` no concentra
+todas las responsabilidades. El frontend nunca accede directamente a SQL Server: toda operación
+pasa por APIs REST reales; los WebSockets solo complementan los eventos en tiempo real.
 
 ---
 
@@ -155,9 +165,12 @@ accede directamente a SQL Server: toda operación pasa por APIs REST reales.
 - Controlador: `ODBC Driver 18 for SQL Server`. Autenticación local: Windows.
 - `Encrypt=yes` y `TrustServerCertificate=yes` **solo en el entorno local autorizado**.
   En producción debe validarse un certificado confiable (`TrustServerCertificate=no`).
-- Normalización hasta **tercera forma normal (3FN)**.
+- Diseñar modelo **conceptual, lógico y físico**, con modelo entidad-relación y cardinalidades.
+- Normalizar desde 1FN y 2FN hasta **tercera forma normal (3FN)**.
 - Usar claves primarias, claves foráneas, restricciones `UNIQUE` y `CHECK`,
   integridad referencial, campos obligatorios, índices justificados y transacciones.
+- Emplear `JOIN`, vistas y procedimientos almacenados solo cuando estén justificados;
+  planificar respaldos, restauración y auditoría desde el diseño.
 - Consultas **parametrizadas**; prohibida la concatenación de cadenas SQL.
 - Prevenir compromisos que superen las cantidades disponibles mediante control
   transaccional (bloqueo y validación en repositorio/servicio).
@@ -172,6 +185,12 @@ accede directamente a SQL Server: toda operación pasa por APIs REST reales.
 
 Perfiles del sistema: **visitante**, **donante**, **representante de organización** y
 **administrador**. Los módulos respetan los requisitos del diagnóstico de la Fase 01.
+
+El modelo de datos y las APIs deberán contemplar, en las fases correspondientes: usuarios,
+registro voluntario de donantes, registro y verificación de instituciones, roles y permisos,
+directorio público, necesidades, categorías de bienes, compromisos de donación, entregas
+parciales y totales, confirmaciones de recepción, puntos de acopio, horarios, GPS autorizado,
+chat privado, notificaciones, evidencias, historiales, dashboards y auditoría.
 
 - Todas las operaciones de negocio se comunican mediante **APIs REST reales** y persisten
   en SQL Server.
@@ -198,7 +217,11 @@ Perfiles del sistema: **visitante**, **donante**, **representante de organizaci�
 - Configuración y secretos en variables de entorno; `.env` ignorado por Git.
 - Protección de datos personales; DTO de respuesta explícitos sin campos sensibles
   como `PasswordHash` o tokens.
-- Validación de archivos: extensión, MIME, tamaño y nombre.
+- Validación de archivos: extensión, MIME, tamaño y nombre; documentos privados fuera de rutas públicas.
+- Evaluar AES-256-GCM solo para datos recuperables que lo justifiquen; no desarrollar criptografía propia.
+- HTTPS/TLS y WSS en los entornos que correspondan; CORS restringido y rate limiting en operaciones sensibles.
+- Autorización por rol **y** propiedad del recurso, también en WebSockets.
+- Gestión segura de claves y secretos; rotación y versión documentadas si se implementa cifrado.
 - Manejo seguro de errores: sin stack traces ni credenciales en respuestas.
 - Principio de mínimo privilegio. No exponer credenciales en código ni en GitHub.
 
@@ -350,6 +373,21 @@ DonaConecta no es una landing de anclas: es una SPA con páginas independientes.
 - Perfiles: visitante (no autenticado), donante, representante institucional y
   administrador. El registro público nunca crea administradores.
 
+**Plan de experiencia como aplicación de servicios (desde Fase 04.4, solo documental):**
+
+- La portada funciona como entrada a servicios, no como una landing de anclas. El visitante debe
+  encontrar primero accesos reales: explorar categorías, guía de donación, proyecto y ayuda.
+- Navegación pública prevista cuando existan las páginas correspondientes: Inicio, Explorar
+  necesidades, Instituciones, Puntos de acopio, Cómo donar, Mis donaciones, Mensajes,
+  Notificaciones y Perfil. Los módulos privados solo se enlazarán después de autenticación y
+  autorización en backend; hasta entonces no se muestran como enlaces funcionales.
+- En móvil, la futura barra inferior autenticada contendrá Inicio, Explorar, Mis donaciones,
+  Mensajes y Perfil. No se crearán pestañas inactivas ni contadores falsos. Esta barra se
+  implementará con la PWA (Fase 18) y solo para sesiones válidas.
+- La sensación de aplicación debe lograrse con jerarquía clara, paneles de acceso, iconografía
+  consistente, estados reales y microinteracciones sutiles; nunca copiando la identidad visual ni
+  el comportamiento de aplicaciones comerciales de reparto.
+
 ---
 
 ## 16. Seguridad y privacidad desde el diseño (requisito permanente)
@@ -395,6 +433,8 @@ La seguridad se implementa progresivamente en todas las fases, no solo al final.
 | 03 | Organización de arquitectura en `frontend/`, `backend/`, `database/` y `docs/`. | Ejecutada |
 | 04 | Diseño visual profesional, Bootstrap e identidad original. | Ejecutada |
 | 04.2 | Ampliación funcional documental, navegación pública independiente y plan de seguridad. | Ejecutada |
+| 04.3 | Rediseño visual fotográfico con ilustraciones generadas con IA, optimización de imágenes y verificación responsive. | Ejecutada |
+| 04.4 | Contraste legible del hero, imagen principal confirmada, limpieza de mensajes técnicos y portada como acceso a servicios. | Ejecutada |
 | 05 | Modelo entidad-relación y normalización 3FN. | Pendiente |
 | 06 | Implementación de Microsoft SQL Server. | Pendiente |
 | 07 | Backend FastAPI, conexión y arquitectura de servicios. | Pendiente |
@@ -417,3 +457,106 @@ implementar `/como-donar`, `/nosotros`, `/preguntas-frecuentes` y 404; conectar 
 existentes con Angular Router; mantener la calidad visual; verificar build, pruebas y
 navegación. No implementar GPS real, mensajería, autenticación, cifrado de datos de negocio,
 API ni base de datos. No comenzar Fase 05 sin autorización explícita.
+
+**Alcance autorizado y resultado de la Fase 04.3:** integrar únicamente las cuatro ilustraciones
+generadas con IA proporcionadas por el usuario; conservar los originales y crear derivados WebP
+optimizados y móviles sin instalar dependencias; rediseñar la portada, `/como-donar`, `/nosotros`,
+FAQ, 404, navbar y footer manteniendo rutas, fragmentos, `RouterLinkActive` y `<details>` reales;
+actualizar `AGENTS.md` y documentación visual/técnica; verificar build, pruebas, imágenes,
+enlaces, menú móvil, contraste, accesibilidad y ausencia de desbordamiento en 360, 390, 576, 768,
+1024, 1440 y 1920 px. No se agregó funcionalidad de negocio, autenticación, GPS, chat, API ni
+base de datos; las imágenes se declaran ilustrativas y la valoración estética final queda pendiente
+de revisión humana. No comenzar Fase 05 sin autorización explícita.
+
+**Alcance autorizado de la Fase 04.4:** corregir el contraste de los encabezados sobre fotografía
+sin `!important`; usar `nosotros-comunidad.webp` como hero principal y `hero-comunidad.webp` en la
+guía de bienes materiales; eliminar de la interfaz aclaraciones repetidas, mensajes de fases,
+construcción y lenguaje dirigido al programador; concentrar los créditos visuales en
+`/nosotros#creditos-visuales` con enlace discreto desde el pie; reorganizar la portada como entrada
+a servicios mediante accesos reales, sin buscador ni ubicación simulados; optimizar navbar, footer
+y experiencia móvil; actualizar documentación; verificar build, pruebas, rutas, enlaces, imágenes,
+contraste efectivo, accesibilidad, menú móvil, consola y `git status`. No implementar
+autenticación, GPS real, chat, API, cifrado de negocio ni base de datos. No comenzar Fase 05 sin
+autorización explícita.
+
+**Resultado de la Fase 04.4:** el hero usa `nosotros-comunidad` con título blanco y destacado crema;
+`hero-comunidad` pasó a la guía de bienes materiales. La portada incorpora cuatro accesos reales y
+las categorías enlazan a `/como-donar#bienes`. Se eliminaron los mensajes técnicos de la interfaz y
+los créditos visuales quedaron centralizados en `/nosotros#creditos-visuales`. Build: 494.03 kB
+(92.51 kB transferidos) y seis chunks diferidos; pruebas: 3 archivos y 5 pruebas aprobadas.
+Verificación CDP: 5 rutas con título/meta propios y un solo `h1`, 35 combinaciones de ancho y ruta
+sin desbordamiento ni imágenes rotas, 0 errores de consola y 0 fallos de red, menú móvil
+`false → true → false`, FAQ real y fragmentos activos. Contraste efectivo del título muestreado
+sobre la imagen: 12.03:1 medio, 9.06:1 en el percentil 90 y 3.87:1 en el peor 0.1% a 1440 px;
+9.70:1 / 6.20:1 / 4.57:1 a 390 px. El texto es negrita de 66.24 px y 37.05 px respectivamente,
+por lo que supera el umbral AA de 3:1 para texto grande. La valoración estética final sigue
+pendiente de revisión humana; el modelo no puede inspeccionar capturas ni imágenes.
+
+---
+
+## 18. Requisitos permanentes de arquitectura académica, API REST y base de datos
+
+Esta sección complementa las secciones 3, 6 a 9 y 16. Toda fase posterior debe respetarla.
+
+### 18.1 Arquitectura y capas
+
+- Cliente-servidor: Angular consume APIs HTTP/WebSocket; FastAPI es el único acceso a SQL Server.
+- Backend de referencia: `backend/src/backend/` con `apis/`, `repositories/`, `schemas/`,
+  `services/`, `database/`, `security/`, `core/`, `websockets/`, `__init__.py` y `main.py`.
+- Responsabilidades: las APIs reciben peticiones y verifican autenticación/autorización;
+  `schemas/` valida entradas y salidas con Pydantic; `services/` contiene reglas de negocio;
+  `repositories/` ejecuta consultas parametrizadas con PyODBC; `database/` gestiona conexiones
+  y transacciones; `security/` implementa hashing, cifrado, autenticación y autorización;
+  `websockets/` gestiona conexiones autorizadas para mensajería y seguimiento GPS.
+- `main.py` solo configura la aplicación y registra enrutamiento; no concentra las
+  responsabilidades. Se evita sobreingeniería y se prioriza código explicable en sustentación.
+- Evaluar `uv` como gestor de dependencias y entornos siguiendo clases. No instalar todavía,
+  no duplicar gestores y no versionar `.venv/`, `__pycache__/` ni `.env`.
+
+### 18.2 API REST
+
+- Usar `GET` para consultar, `POST` para crear, `PUT` para reemplazar completamente, `PATCH`
+  para modificar parcialmente y `DELETE` solo cuando las reglas de negocio lo permitan.
+- Prohibido usar `GET` para operaciones que modifiquen datos. Diferenciar `PUT` de `PATCH`.
+  No implementar métodos innecesarios solo para completar un CRUD.
+- Convención propuesta, a validar en Fase 05/07: `/api/v1/usuarios`, `/api/v1/instituciones`,
+  `/api/v1/necesidades`, `/api/v1/donaciones`, `/api/v1/entregas`,
+  `/api/v1/puntos-de-acopio`, `/api/v1/conversaciones`, `/api/v1/notificaciones` y
+  `/api/v1/seguimientos`.
+- Emplear parámetros de ruta, parámetros de consulta, filtros, paginación y cuerpos JSON según
+  corresponda. Las respuestas usan esquemas Pydantic consistentes.
+- Códigos: `200`, `201`, `202`, `204`, `400`, `401`, `403`, `404`, `409`, `422`, `429` y `500`
+  según el caso. Formato de error homogéneo, sin trazas, credenciales ni mensajes de SQL Server.
+- FastAPI debe exponer OpenAPI, Swagger UI y ReDoc en desarrollo. En producción se evalúa
+  restringir la documentación. Cada operación documenta parámetros, esquemas, respuestas,
+  errores, autenticación y permisos.
+- Proteger la trazabilidad de donaciones, entregas y recepciones; preferir baja lógica o
+  cambios de estado antes que eliminación física cuando existan relaciones.
+
+### 18.3 Frontend Angular
+
+- Mantener la arquitectura modular existente: interfaces TypeScript, servicios, páginas,
+  layouts, componentes, rutas, guards e interceptores dentro de los módulos funcionales.
+- Usar `HttpClient` y Observables para APIs reales; centralizar errores, sesión y headers en
+  servicios/interceptores. Evitar llamadas repetitivas o lógica de negocio dentro de componentes.
+- No conectar Angular directamente con SQL Server ni usar `localStorage` como base de datos.
+
+### 18.4 Base de datos y tiempo real
+
+- Diseñar modelos conceptual, lógico y físico; entidad-relación, cardinalidades, 1FN, 2FN y
+  3FN; PK, FK, `UNIQUE`, `CHECK`, integridad referencial, JOIN, vistas y procedimientos
+  justificados; índices, transacciones, concurrencia, respaldos, restauración y auditoría.
+- REST persiste operaciones y consulta datos reales. WebSockets solo transporta eventos de
+  mensajería privada, GPS autorizado, cambios de estado y notificaciones; valida identidad y
+  autorización de cada participante y persiste lo necesario en SQL Server.
+- No rastreo permanente, no coordenadas públicas y no sustituir confirmación de recepción por GPS.
+
+### 18.5 Trabajo en equipo y alcance actual
+
+- El frontend se trabaja en `frontend/`; backend y base de datos en `backend/` y `database/`.
+  No modificar ramas ni archivos de otro integrante sin coordinación.
+- Acordar antes de implementar: modelo de datos, nombres de campos, rutas, métodos HTTP,
+  esquemas JSON, estados, reglas de negocio, contratos de integración y seguridad.
+- **Alcance actual:** solo registrar estos requisitos en documentación compartida. No crear
+  backend, dependencias, tablas definitivas ni scripts SQL sin autorización de fase. No
+  reorganizar el frontend existente ni interrumpir o reemplazar Fase 04.4.

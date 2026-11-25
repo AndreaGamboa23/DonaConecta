@@ -41,41 +41,30 @@ export class PreguntasFrecuentes {
     {
       question: '¿Ya puedo registrar una donación o seguir una entrega?',
       answer:
-        'No. Los compromisos, entregas y seguimiento están planificados, pero requieren autenticación, backend y SQL Server. Hoy solo está disponible la orientación informativa.',
+        'Todavía no. Por ahora puedes informarte y preparar tus bienes. El registro y el seguimiento se activarán cuando la plataforma de servicios esté lista para usar.',
     },
   ];
 
   protected readonly privacyQuestions: Pregunta[] = [
     {
-      question: '¿El seguimiento GPS es obligatorio?',
+      question: '¿El seguimiento GPS será obligatorio?',
       answer:
-        'No. Está previsto como una función voluntaria, limitada a una entrega específica, con inicio manual, indicador visible y botón para detenerlo. No estará disponible hasta la fase correspondiente.',
+        'No. Cuando esté disponible, será voluntario, se iniciará manualmente y podrás detenerlo. No se usará como comprobante de entrega ni para rastrear a las personas.',
     },
     {
       question: '¿Podré hablar con una institución desde la plataforma?',
       answer:
-        'La mensajería interna está planificada para fases posteriores. Será privada y persistirá en SQL Server con autorización en backend, incluso en las conexiones en tiempo real.',
+        'La mensajería llegará como parte de los servicios de la plataforma. Será privada entre las personas participantes y no sustituirá la confirmación de recepción de la institución.',
     },
     {
       question: '¿Cómo se protegerán mis datos personales?',
       answer:
-        'La estrategia está documentada en seguridad y privacidad: mínimo privilegio, autorización por recurso, contraseñas con Argon2id, secretos fuera del repositorio y comunicaciones cifradas. Estas páginas informativas no solicitan datos personales ni los guardan en el navegador.',
+        'Consultar estas páginas no solicita datos personales ni los guarda en el navegador. Las futuras funciones de cuenta tendrán acceso limitado, autorización por recurso y contraseñas protegidas.',
     },
     {
       question: '¿Una ubicación compartida confirma que entregué la donación?',
       answer:
         'No. La recepción deberá ser confirmada por la institución. Las coordenadas nunca se usarán como prueba irrefutable de entrega o identidad.',
     },
-  ];
-
-  protected readonly moduleStates = [
-    { module: 'Portada y navegación pública', state: 'Disponible', phase: '04 / 04.2' },
-    { module: 'Guía para donar y preguntas frecuentes', state: 'Disponible', phase: '04.2' },
-    { module: 'Catálogo de necesidades', state: 'Planificado', phase: '11' },
-    { module: 'Registro y autenticación', state: 'Planificado', phase: '09' },
-    { module: 'Puntos de acopio y mapas', state: 'Planificado', phase: '13' },
-    { module: 'Seguimiento GPS', state: 'Planificado', phase: '14' },
-    { module: 'Mensajería interna', state: 'Planificado', phase: '15' },
-    { module: 'Dashboards y estadísticas reales', state: 'Planificado', phase: '17' },
   ];
 }

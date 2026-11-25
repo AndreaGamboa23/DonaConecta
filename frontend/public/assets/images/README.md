@@ -1,40 +1,61 @@
-# Recursos visuales pendientes — DonaConecta
+# Recursos visuales — DonaConecta
 
-Esta carpeta está preparada para recibir fotografías autorizadas. **Actualmente no contiene
-imágenes**: el diseño usa composiciones SVG originales mientras se consiguen recursos con
-licencia verificable.
+Esta carpeta contiene las cuatro ilustraciones WebP proporcionadas para la Fase 04.3 y sus
+derivados optimizados. **No son fotografías de actividades reales**: son imágenes generadas con
+IA, usadas solo como recursos ilustrativos. La aclaración se concentra en `Nosotros >
+Créditos visuales`, con un acceso discreto desde el pie de página; no se repite sobre cada imagen.
 
-Regla: solo incorporar fotografías con licencia verificable o proporcionadas por el usuario,
-documentando autor, fuente y licencia en `docs/sistema-diseno.md`. Las fotografías son
-ilustrativas: **no deben presentarse como actividades reales de DonaConecta** y llevan una
-aclaración visible en la interfaz.
+## Procedencia
 
-## Imágenes solicitadas
+| Archivo original | Autor / fuente | Licencia o autorización | Uso |
+|---|---|---|---|
+| `hero-comunidad.webp` | Generado con IA, proporcionado por el usuario para DonaConecta | Uso autorizado por el usuario para este proyecto; modelo/herramienta no declarada | Hero de `/como-donar` (bienes materiales) |
+| `como-donar.webp` | Generado con IA, proporcionado por el usuario para DonaConecta | Uso autorizado por el usuario para este proyecto; modelo/herramienta no declarada | Introducción de categorías de la portada |
+| `nosotros-comunidad.webp` | Generado con IA, proporcionado por el usuario para DonaConecta | Uso autorizado por el usuario para este proyecto; modelo/herramienta no declarada | Hero principal de la portada |
+| `juntos-transformamos.webp` | Generado con IA, proporcionado por el usuario para DonaConecta | Uso autorizado por el usuario para este proyecto; modelo/herramienta no declarada | Cierre de participación de la portada |
 
-| Archivo sugerido | Tema | Orientación | Resolución mínima | Sección |
-|---|---|---|---|---|
-| `hero-comunidad.webp` | Personas de la comunidad organizando y compartiendo cajas de alimentos o frazadas; luz natural, tonos cálidos, composición con espacio para texto. | Horizontal 4:3 | 1600 × 1200 px | Hero (`HeroSection`) |
-| `categoria-alimentos.webp` | Sacos y cajas de alimentos no perecibles. | Horizontal 16:9 | 1200 × 675 px | Qué puedes donar |
-| `categoria-abrigo.webp` | Frazadas y ropa de abrigo dobladas. | Horizontal 16:9 | 1200 × 675 px | Qué puedes donar |
-| `categoria-higiene.webp` | Productos de higiene y limpieza sobre fondo neutro. | Horizontal 16:9 | 1200 × 675 px | Qué puedes donar |
-| `categoria-animales.webp` | Alimento y utensilios para animales; evitar imágenes de sufrimiento. | Horizontal 16:9 | 1200 × 675 px | Qué puedes donar |
-| `categoria-escolares.webp` | Cuadernos, lápices y mochilas. | Horizontal 16:9 | 1200 × 675 px | Qué puedes donar |
-| `proposito-huancayo.webp` | Contexto andino de Huancayo; personas trabajando o comerciando, sin explotar vulnerabilidad. | Horizontal 4:3 | 1600 × 1200 px | Nosotros (`PurposeSection`) |
+La reasignación de la Fase 04.4 se basa en la revisión del usuario: `nosotros-comunidad.webp`
+muestra personas colaborando en un entorno comunitario andino con espacio a la izquierda para el
+texto; `hero-comunidad.webp` muestra cajas, manos y productos, por lo que corresponde a la guía de
+bienes materiales. `/nosotros` usa ahora un bloque abstracto con la paleta institucional.
 
-## Integración
+No se afirma que las personas representadas sean integrantes, donantes, beneficiarios u
+organizaciones verificadas de DonaConecta. No se usan testimonios ni cifras derivadas de estas
+imágenes.
 
-Cada sección tiene una propiedad `photoSrc` inicializada en `''`:
+## Inspección técnica y optimización
 
-- `frontend/src/app/features/landing/sections/hero-section/hero-section.ts`
-- `frontend/src/app/features/landing/sections/purpose-section/purpose-section.ts`
+Los cuatro originales se verificaron como:
 
-Las categorías usan el campo `image` de cada objeto en `categories-section.ts`.
+- Contenedor `RIFF/WEBP`, codificación **VP8L (WebP sin pérdida)**.
+- Dimensiones **1672 × 941 px** (aprox. 16:9).
+- Tamaños entre **1.62 MB y 1.86 MB**.
+- Chunk **C2PA** de procedencia conservado en los originales.
 
-Al colocar un archivo, reemplazar `''` por su ruta, por ejemplo:
+No había ImageMagick, `cwebp`, ffmpeg ni Pillow instalados. Para evitar dependencias nuevas se
+usó el codificador WebP nativo de Microsoft Edge mediante Chrome DevTools Protocol, sin instalar
+paquetes ni desactivar protecciones de npm. Se generaron derivados **VP8 con pérdida**:
 
-```ts
-protected readonly photoSrc = 'assets/images/hero-comunidad.webp';
-```
+| Original | Original | Optimizado | Móvil (960 × 540) | Diferencia media por canal |
+|---|---:|---:|---:|---:|
+| `hero-comunidad.webp` | 1789.3 KB | 205.8 KB | 83.0 KB | 2.19 / 255 |
+| `como-donar.webp` | 1623.1 KB | 149.7 KB | 60.1 KB | 1.95 / 255 |
+| `nosotros-comunidad.webp` | 1768.4 KB | 191.6 KB | 78.6 KB | 2.10 / 255 |
+| `juntos-transformamos.webp` | 1856.1 KB | 224.6 KB | 92.4 KB | 2.18 / 255 |
 
-Mientras la ruta esté vacía, la interfaz muestra la composición SVG original. No se usan
-enlaces externos ni imágenes rotas.
+Los derivados conservan el perfil de color (`ICCP`) y eliminan el chunk C2PA para reducir peso;
+los originales **no se eliminaron** y siguen siendo la copia de procedencia. La diferencia media
+por canal es ~2/255, verificada al comparar los originales y los optimizados redimensionados a
+960 × 540 en el navegador.
+
+## Archivos usados por la interfaz
+
+- `*-opt.webp`: versión de escritorio, 1672 × 941 px.
+- `*-movil.webp`: versión móvil, 960 × 540 px, seleccionada con `<source media="(max-width: 575.98px)">`.
+- Las etiquetas `<img>` declaran `width`, `height`, `sizes` y `srcset` para evitar desplazamiento
+  de layout.
+- La imagen del hero principal usa `loading="eager"` y `fetchpriority="high"`.
+- Las imágenes posteriores al primer viewport usan `loading="lazy"`.
+
+No se recortan estas ilustraciones para simular cinco fotografías de categorías. Las categorías
+son bloques editoriales con color, tipografía e iconografía propia.

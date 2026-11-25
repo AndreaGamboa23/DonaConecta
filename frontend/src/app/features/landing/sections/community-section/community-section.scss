@@ -1,9 +1,57 @@
 :host {
   display: block;
-  background: var(--dc-white);
 }
 
-.dc-cta-panel .btn app-icon {
-  vertical-align: -0.35rem;
-  margin-inline-end: 0.35rem;
+.dc-community {
+  min-height: 34rem;
+  background: #0d2437;
+  isolation: isolate;
+}
+
+.dc-community-overlay {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(13, 36, 55, 0.96) 0%,
+      rgba(13, 36, 55, 0.88) 40%,
+      rgba(13, 36, 55, 0.42) 76%,
+      rgba(13, 36, 55, 0.24) 100%
+    ),
+    linear-gradient(0deg, rgba(13, 36, 55, 0.6) 0%, rgba(13, 36, 55, 0) 45%);
+}
+
+.dc-community-title {
+  max-width: 48rem;
+  color: var(--dc-white);
+  font-size: clamp(2.25rem, 4.5vw, 4.25rem);
+  line-height: 1.05;
+  letter-spacing: -0.045em;
+  text-shadow: 0 0.15rem 1.2rem rgba(13, 36, 55, 0.35);
+}
+
+.dc-community-copy {
+  max-width: 40rem;
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.dc-community-arc {
+  position: absolute;
+  right: -7rem;
+  bottom: -10rem;
+  width: 30rem;
+  height: 30rem;
+  border: 1px solid rgba(244, 230, 205, 0.2);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+@media (max-width: 575.98px) {
+  .dc-community-overlay {
+    background: linear-gradient(0deg, rgba(13, 36, 55, 0.96) 0%, rgba(13, 36, 55, 0.72) 100%);
+  }
+
+  .dc-community-title {
+    font-size: clamp(2.1rem, 9vw, 3rem);
+  }
 }

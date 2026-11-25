@@ -11,10 +11,11 @@ import { Brand } from '../brand/brand';
 })
 export class Footer {
   readonly links = [
-    { label: 'Inicio', route: '/' },
-    { label: 'Cómo donar', route: '/como-donar' },
-    { label: 'Nosotros', route: '/nosotros' },
-    { label: 'Preguntas frecuentes', route: '/preguntas-frecuentes' },
+    { label: 'Inicio', route: '/', fragment: '' },
+    { label: 'Cómo donar', route: '/como-donar', fragment: '' },
+    { label: 'Nosotros', route: '/nosotros', fragment: '' },
+    { label: 'Preguntas frecuentes', route: '/preguntas-frecuentes', fragment: '' },
+    { label: 'Créditos visuales', route: '/nosotros', fragment: 'creditos-visuales' },
   ];
 
   readonly categories = [

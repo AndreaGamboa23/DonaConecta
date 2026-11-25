@@ -4,6 +4,7 @@ import { CommunitySection } from './sections/community-section/community-section
 import { HeroSection } from './sections/hero-section/hero-section';
 import { ProcessSection } from './sections/process-section/process-section';
 import { PurposeSection } from './sections/purpose-section/purpose-section';
+import { QuickAccess } from './sections/quick-access/quick-access';
 import { ValuesStrip } from './sections/values-strip/values-strip';
 
 @Component({
@@ -11,6 +12,7 @@ import { ValuesStrip } from './sections/values-strip/values-strip';
   standalone: true,
   imports: [
     HeroSection,
+    QuickAccess,
     ValuesStrip,
     CategoriesSection,
     ProcessSection,

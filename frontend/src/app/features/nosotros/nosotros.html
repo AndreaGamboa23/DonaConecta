@@ -1,103 +1,109 @@
-<section class="bg-light position-relative overflow-hidden py-5 py-lg-6">
-  <div class="container position-relative">
+<section class="dc-page-hero position-relative text-white overflow-hidden">
+  <span class="dc-page-hero-glow d-none d-lg-block" aria-hidden="true"></span>
+
+  <div class="container position-relative dc-section-space">
     <nav aria-label="Ruta de navegación">
-      <ol class="breadcrumb small mb-4">
+      <ol class="breadcrumb small mb-4 dc-breadcrumb-light">
         <li class="breadcrumb-item"><a routerLink="/">Inicio</a></li>
         <li class="breadcrumb-item active" aria-current="page">Nosotros</li>
       </ol>
     </nav>
 
-    <div class="row align-items-center gy-5">
-      <div class="col-12 col-lg-7">
-        <span class="dc-eyebrow mb-3">Sobre DonaConecta</span>
-        <h1 class="display-4 fw-bold mb-4">
+    <div class="row">
+      <div class="col-12 col-xl-9">
+        <span class="dc-eyebrow dc-eyebrow-light mb-3">Sobre DonaConecta</span>
+        <h1 class="dc-page-title fw-bold mb-4">
           Una comunidad, muchas manos, un mismo propósito.
         </h1>
-        <p class="lead text-secondary mb-4">
+        <p class="dc-page-copy mb-4">
           DonaConecta es un proyecto académico de Ingeniería de Sistemas e Informática de la
           Universidad Continental, pensado para Huancayo, Junín.
         </p>
-        <p class="text-secondary mb-4">
+        <p class="dc-page-copy mb-4">
           Buscamos ordenar la solidaridad comunitaria para que los bienes materiales lleguen a
           comedores, albergues y refugios con información clara y seguimiento responsable.
         </p>
         <div class="d-flex flex-column flex-sm-row flex-wrap gap-3">
-          <a routerLink="/como-donar" class="btn btn-primary btn-lg">Cómo donar</a>
-          <a routerLink="/preguntas-frecuentes" class="btn btn-outline-dark btn-lg">
+          <a routerLink="/como-donar" class="btn btn-warning btn-lg px-4">Cómo donar</a>
+          <a routerLink="/preguntas-frecuentes" class="btn btn-outline-light btn-lg px-4">
             Preguntas frecuentes
           </a>
         </div>
       </div>
+    </div>
+  </div>
+</section>
 
+<section class="dc-section-space bg-white">
+  <div class="container">
+    <div class="row g-4 g-lg-5 align-items-center">
       <div class="col-12 col-lg-5">
-        <div class="card border-0 shadow-sm rounded-5 h-100">
-          <div class="card-body p-4 p-md-5 d-flex flex-column justify-content-center">
-            <span class="dc-tile-icon bg-primary-subtle text-primary mb-3">
-              <app-icon name="spark" />
-            </span>
-            <p class="h4 fw-bold mb-2">Conexiones que transforman</p>
-            <p class="text-secondary mb-0">
-              La tecnología no reemplaza la solidaridad: la ayuda a organizarse, comunicarse y
-              rendir cuentas.
-            </p>
-            <hr class="my-4" />
-            <p class="small text-secondary mb-0">
-              Contexto: Huancayo, Junín, Perú · Proyecto universitario.
-            </p>
-          </div>
+        <span class="dc-eyebrow mb-3">Conexiones que transforman</span>
+        <h2 class="display-6 fw-bold mb-3">
+          La tecnología no reemplaza la solidaridad.
+        </h2>
+        <p class="text-secondary mb-0">
+          La ayuda a organizarse, comunicarse y rendir cuentas. Cada pantalla busca que una
+          persona pueda entender qué donar, cómo hacerlo y qué ocurre después de su entrega.
+        </p>
+      </div>
+      <div class="col-12 col-lg-7">
+        <div class="dc-narrative-panel rounded-5 p-4 p-lg-5">
+          <span class="dc-narrative-mark fw-bold mb-3">Una comunidad.</span>
+          <p class="dc-narrative-quote fw-bold mb-3">Muchas manos. Un mismo propósito.</p>
+          <p class="text-secondary mb-0">
+            Contexto: Huancayo, Junín, Perú · Proyecto universitario. Publicamos información
+            verificable, no historias ni cifras sin fuente.
+          </p>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<section class="container py-5 py-lg-6">
-  <div class="row g-4 mb-4">
-    <div class="col-12 col-lg-8">
-      <span class="dc-eyebrow mb-3">Nuestra idea</span>
-      <h2 class="display-6 fw-bold mb-0">Tres principios que guían cada pantalla</h2>
-    </div>
-    <div class="col-12 col-lg-4">
-      <p class="lead text-secondary mb-0">
-        La identidad visual y la arquitectura buscan transmitir cuidado, no solo eficiencia.
-      </p>
-    </div>
-  </div>
-
-  <div class="row g-4">
-    @for (principle of principles; track principle.title) {
-      <div class="col-12 col-md-6 col-lg-4">
-        <article class="card h-100 shadow-sm rounded-4">
-          <div class="card-body p-4">
-            <span
-              class="dc-tile-icon mb-3"
-              [class.bg-primary-subtle]="principle.tone === 'blue'"
-              [class.bg-success-subtle]="principle.tone === 'green'"
-              [class.bg-warning-subtle]="principle.tone === 'amber'"
-              [class.text-primary]="principle.tone === 'blue'"
-              [class.text-success]="principle.tone === 'green'"
-              [class.text-warning]="principle.tone === 'amber'"
-            >
-              <app-icon [name]="principle.icon" />
-            </span>
-            <h3 class="h5 fw-bold mb-2">{{ principle.title }}</h3>
-            <p class="text-secondary mb-0">{{ principle.text }}</p>
-          </div>
-        </article>
+<section class="dc-section-space bg-light">
+  <div class="container">
+    <div class="row g-4 mb-5 mb-lg-6">
+      <div class="col-12 col-lg-8">
+        <span class="dc-eyebrow mb-3">Nuestra idea</span>
+        <h2 class="display-6 fw-bold mb-0">Tres principios que guían cada pantalla</h2>
       </div>
-    }
+      <div class="col-12 col-lg-4">
+        <p class="lead text-secondary mb-0">
+          La identidad visual y la arquitectura buscan transmitir cuidado, no solo eficiencia.
+        </p>
+      </div>
+    </div>
+
+    <div class="row g-3 g-lg-4">
+      @for (principle of principles; track principle.title; let i = $index) {
+        <div class="col-12 col-md-6 col-xl-4">
+          <article class="dc-category-card card h-100 p-4 p-lg-5" [class.dc-tone-blue]="i === 0" [class.dc-tone-green]="i === 1" [class.dc-tone-amber]="i === 2">
+            <div class="d-flex justify-content-between align-items-start gap-3 mb-4">
+              <span class="dc-category-index" aria-hidden="true">0{{ i + 1 }}</span>
+              <span class="dc-tile-icon bg-white bg-opacity-75 text-primary shadow-sm">
+                <app-icon [name]="principle.icon" />
+              </span>
+            </div>
+            <h3 class="h4 fw-bold mb-3">{{ principle.title }}</h3>
+            <p class="text-secondary mb-0">{{ principle.text }}</p>
+          </article>
+        </div>
+      }
+    </div>
   </div>
 </section>
 
-<section class="bg-dark text-white py-5 py-lg-6">
-  <div class="container">
-    <div class="row g-4">
+<section class="dc-commitments-section position-relative overflow-hidden text-white dc-section-space">
+  <span class="dc-commitments-arc d-none d-lg-block" aria-hidden="true"></span>
+  <div class="container position-relative">
+    <div class="row g-4 g-lg-5">
       <div class="col-12 col-lg-5">
         <span class="dc-eyebrow dc-eyebrow-light mb-3">Compromisos</span>
-        <h2 class="display-6 fw-bold mb-3">Lo que DonaConecta defiende</h2>
+        <h2 class="dc-commitments-title display-6 fw-bold mb-3">Lo que DonaConecta defiende</h2>
         <p class="text-white-50 mb-0">
-          Estas reglas son parte del diseño del producto, no texto decorativo. Cada fase debe
-          respetarlas al implementar nuevas funciones.
+          Estas reglas son parte del producto, no texto decorativo. Cada nueva función debe
+          respetarlas.
         </p>
       </div>
       <div class="col-12 col-lg-7">
@@ -114,41 +120,53 @@
   </div>
 </section>
 
-<section class="container py-5 py-lg-6">
-  <div class="row g-4 align-items-center">
-    <div class="col-12 col-lg-7">
-      <span class="dc-eyebrow mb-3">Estado real</span>
-      <h2 class="display-6 fw-bold mb-3">Qué existe hoy y qué viene después</h2>
-      <p class="text-secondary mb-3">
-        En esta fase están disponibles la portada, la guía para donar, esta página y las
-        preguntas frecuentes. La navegación pública usa rutas independientes.
-      </p>
-      <p class="text-secondary mb-0">
-        El catálogo de necesidades, el registro de cuentas, los compromisos, los mapas, el chat,
-        el GPS y los paneles requieren backend, autenticación y SQL Server; se implementarán en
-        fases posteriores debidamente autorizadas.
-      </p>
-    </div>
-    <div class="col-12 col-lg-5">
-      <div class="alert alert-warning border-0 rounded-4 p-4 mb-0">
-        <h3 class="h5 fw-bold mb-2">Transparencia</h3>
-        <p class="mb-0">
-          No mostramos formularios que no envían datos ni botones que simulan acciones. Cuando
-          una función aún no existe, se indica claramente.
+<section class="dc-section-space bg-white">
+  <div class="container">
+    <div class="row g-4 g-lg-5 align-items-center">
+      <div class="col-12 col-lg-7">
+        <span class="dc-eyebrow mb-3">Cómo usar DonaConecta</span>
+        <h2 class="display-6 fw-bold mb-3">Explora hoy, participa cuando quieras</h2>
+        <p class="text-secondary mb-3">
+          Puedes recorrer la portada, consultar la guía para donar, conocer el proyecto y resolver
+          tus dudas sin crear una cuenta.
         </p>
+        <p class="text-secondary mb-0">
+          Las necesidades, los compromisos, las conversaciones y el seguimiento de entregas
+          llegarán con la plataforma de servicios. Cada acción estará disponible cuando pueda
+          realizarse de verdad.
+        </p>
+      </div>
+      <div class="col-12 col-lg-5">
+        <div class="dc-limits-panel rounded-5 p-4 p-lg-5 h-100">
+          <h3 class="h4 fw-bold mb-3">Transparencia</h3>
+          <p class="mb-0">
+            Cada acción que ves lleva a un destino real. Las funciones que aún no están
+            disponibles no se simulan.
+          </p>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<section class="container-fluid py-5 py-lg-6">
+<section id="creditos-visuales" class="dc-credits-section">
+  <div class="container">
+    <p class="small text-secondary text-center mb-0">
+      Créditos visuales: las imágenes de DonaConecta son ilustraciones generadas con IA y no
+      documentan donaciones, instituciones ni actividades reales.
+    </p>
+  </div>
+</section>
+
+<section class="dc-section-space">
   <div class="container">
     <div class="dc-cta-panel rounded-5 p-4 p-md-5">
       <div class="row align-items-center g-4">
         <div class="col-12 col-lg-8">
+          <span class="dc-eyebrow mb-3">Siguiente paso</span>
           <h2 class="display-6 fw-bold mb-2">¿Listo para conocer el proceso?</h2>
           <p class="lead mb-0">
-            La guía para donar reúne categorías, recomendaciones y el seguimiento previsto.
+            La guía reúne categorías y recomendaciones para preparar tu donación.
           </p>
         </div>
         <div class="col-12 col-lg-4">

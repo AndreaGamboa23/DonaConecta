@@ -86,56 +86,64 @@ reimplementan componentes ni utilidades de Bootstrap.
 | `Navbar` | `shared/components/navbar` | Navegación sticky por rutas, menú móvil con `signal`, enlace activo con `RouterLinkActive` y CTA. |
 | `Footer` | `shared/components/footer` | Pie responsive con marca, exploración, categorías y contexto académico. |
 | `PublicLayout` | `layouts/public-layout` | Skip link, navbar, `<main>` y footer. |
-| `Landing` | `features/landing` | Orquesta las seis secciones públicas. |
-| Secciones | `features/landing/sections/*` | Hero, franja de confianza, categorías, proceso, propósito y participación. |
+| `Landing` | `features/landing` | Orquesta las siete secciones públicas. |
+| `QuickAccess` | `features/landing/sections/quick-access` | Panel de accesos reales a categorías, guía, proyecto y ayuda; pensado como entrada a una futura app de servicios. |
+| Secciones | `features/landing/sections/*` | Hero, accesos rápidos, franja de confianza, categorías, proceso, propósito y participación. |
 
 ## 7. Composición de la portada
 
-- **Hero (`#inicio`):** titular editorial, copy de impacto, dos CTA funcionales y composición
-  SVG original con leyenda explícita. Preparada para recibir una fotografía autorizada.
-- **Franja de confianza:** cuatro valores con iconos en fondo azul profundo; separadores
-  Bootstrap `border-lg-start`.
-- **Categorías (`#donar`):** mosaico `7/5` y `4/4/4` en pantallas grandes, con paneles de
-  icono en las dos tarjetas principales. Aclara que son ejemplos informativos, no solicitudes
-  reales.
-- **Cómo funciona (`#como-funciona`):** línea de tiempo narrativa de cuatro pasos con
-  `dc-timeline` y numeración propia.
-- **Nosotros (`#nosotros`):** sección emocional sobre propósito social, lista de compromisos y
-  composición institucional sin testimonios ni organizaciones inventadas.
-- **Participación (`#participa`):** panel ámbar con CTA a secciones existentes y forma orgánica
-  de fondo.
+- **Hero (`#inicio`):** composición fotográfica a ancho completo con
+  `nosotros-comunidad-opt.webp`, capa degradada azul profundo, título blanco/crema legible sobre la
+  imagen, CTAs a rutas reales y recordatorio de que DonaConecta gestiona solo bienes materiales.
+- **Accesos rápidos:** panel blanco con borde ámbar sobre la transición del hero; cuatro destinos
+  reales (categorías, guía, proyecto y ayuda) en grid Bootstrap, con iconografía propia y targets
+  táctiles amplios. No incluye buscador ni selector de ubicación simulados.
+- **Franja de valores:** rail ámbar conectado con el hero, cuatro valores en grid Bootstrap y
+  tipografía de secuencia; ya no usa separadores genéricos.
+- **Categorías (`#donar`):** introducción editorial con `como-donar-opt.webp` como recurso de
+  contexto y mosaico `7/5` + `4/4/4` con bloques de color, índice numérico y jerarquía propia. Cada
+  tarjeta es un enlace real a `#bienes` de la guía. No recorta la ilustración en cinco falsas
+  fotografías.
+- **Cómo funciona (`#como-funciona`):** cuatro etapas en tarjetas conectadas, numeración grande,
+  iconos y línea de tiempo implícita, sin texto de fases ni explicaciones de construcción.
+- **Nosotros (`#nosotros`):** bloque institucional sobre azul profundo con manifiesto tipográfico
+  y compromisos; sin testimonios ni organizaciones inventadas.
+- **Participación (`#participa`):** cierre fotográfico a ancho completo con
+  `juntos-transformamos-opt.webp`, mensaje “El cambio comienza cuando decidimos ayudar juntos.”
+  y CTA funcional a `/como-donar`.
 - **Footer:** enlaces internos, categorías y contexto Huancayo/Universidad Continental; sin
   contactos, alianzas ni certificaciones inventadas.
 
 En la Fase 04 los enlaces apuntaban a secciones existentes; desde la Fase 04.2 los CTA principales
 llevan a rutas reales (`/como-donar`) y los secundarios usan fragmentos de la portada.
 
-## 8. Fotografía: política y estado actual
+## 8. Recursos visuales: política y estado actual
 
-No se incorporaron fotografías externas. Se consultaron fuentes con licencia verificable, pero
-las herramientas disponibles no permiten **inspeccionar visualmente** los archivos; integrar una
-foto sin revisarla podría presentar un contexto inadecuado o explotar vulnerabilidad. Por eso
-la interfaz usa composiciones SVG originales y deja ranuras explícitas.
+En Fase 04/04.2 no se incorporaron fotografías externas: las herramientas disponibles no
+permitían inspeccionarlas visualmente y se dejaron ranuras explícitas. En Fase 04.3 el usuario
+proporcionó cuatro imágenes generadas con IA para el proyecto, por lo que se integran como
+**ilustraciones**, nunca como evidencia de actividades reales.
 
-Regla permanente: solo incorporar fotografías con licencia verificable o proporcionadas por el
+Regla permanente: solo incorporar imágenes con licencia verificable o proporcionadas por el
 usuario, guardarlas en `frontend/public/assets/images/` y documentar autor, fuente y licencia en
-este archivo. Toda foto es ilustrativa y lleva aclaración visible; **nunca** se presenta como
-evidencia de actividades reales de DonaConecta.
+este archivo. La aclaración de procedencia se concentra en `/nosotros#creditos-visuales` y se
+enlaza desde el pie de página; **nunca** se presenta una ilustración como evidencia de donaciones,
+personas identificables, organizaciones verificadas ni estadísticas.
 
-Imágenes solicitadas (detalle e integración en `frontend/public/assets/images/README.md`):
+| Archivo usado | Procedencia | Sección |
+|---|---|---|
+| `hero-comunidad-opt.webp` / `-movil.webp` | IA, proporcionada por el usuario | Hero de `/como-donar` |
+| `como-donar-opt.webp` / `-movil.webp` | IA, proporcionada por el usuario | Introducción de categorías de la portada |
+| `nosotros-comunidad-opt.webp` / `-movil.webp` | IA, proporcionada por el usuario | Hero principal de la portada |
+| `juntos-transformamos-opt.webp` / `-movil.webp` | IA, proporcionada por el usuario | Participación final de la portada |
 
-| Archivo | Tema | Orientación | Mínimo | Sección |
-|---|---|---|---|---|
-| `hero-comunidad.webp` | Comunidad organizando cajas de alimentos o frazadas | 4:3 | 1600 × 1200 | Hero |
-| `categoria-alimentos.webp` | Alimentos no perecibles | 16:9 | 1200 × 675 | Categorías |
-| `categoria-abrigo.webp` | Ropa de abrigo y frazadas | 16:9 | 1200 × 675 | Categorías |
-| `categoria-higiene.webp` | Higiene y limpieza | 16:9 | 1200 × 675 | Categorías |
-| `categoria-animales.webp` | Alimento y cuidados para animales | 16:9 | 1200 × 675 | Categorías |
-| `categoria-escolares.webp` | Útiles escolares | 16:9 | 1200 × 675 | Categorías |
-| `proposito-huancayo.webp` | Contexto andino de Huancayo, sin explotar vulnerabilidad | 4:3 | 1600 × 1200 | Nosotros |
+Los originales `*.webp` se conservan con su chunk C2PA. Los derivados `*-opt.webp` y
+`*-movil.webp` se generaron con el codificador WebP nativo de Edge, sin nuevas dependencias, y
+contienen codificación VP8 con pérdida, perfil ICCP y sin C2PA. Detalle completo de dimensiones,
+pesos, diferencia media por canal y uso de `srcset` en `frontend/public/assets/images/README.md`.
 
-Las rutas se asignan en `photoSrc` de `HeroSection`/`PurposeSection` y en el campo `image` de
-cada categoría. Mientras estén vacías no se solicitan archivos rotos.
+La valoración estética final de estas composiciones requiere revisión humana: el modelo declara
+que no puede inspeccionar visualmente las imágenes ni las capturas generadas.
 
 ## 9. Accesibilidad y responsive
 
@@ -145,6 +153,9 @@ cada categoría. Mientras estén vacías no se solicitan archivos rotos.
 - Enlace `visually-hidden-focusable` para saltar al contenido.
 - Contraste verificado en navegador: secundario sobre blanco 4.69:1, ámbar sobre azul
   profundo 5.98:1, blanco al 50% sobre azul profundo 4.59:1, blanco puro 13.57:1.
+- Contraste muestreado bajo el título del hero: 12.03:1 medio, 9.06:1 P90 y 3.87:1 en el peor
+  0.1% a 1440 px; 9.70:1 / 6.20:1 / 4.57:1 a 390 px. El título es negrita de 66.24 px y
+  37.05 px, por lo que cumple AA para texto grande (≥3:1); el destacado es crema `#F4E6CD`.
 - `:focus-visible` con contorno ámbar de 3 px y `prefers-reduced-motion` respetado.
 - Sin desbordamiento horizontal en 360, 390, 576, 768, 1024, 1440 y 1920 px.
 
@@ -154,7 +165,8 @@ cada categoría. Mientras estén vacías no se solicitan archivos rotos.
 - Fase 04.2: `npm run build` completado con bundle inicial **491.94 kB (91.84 kB comprimido)**,
   cinco chunks diferidos (landing, como-donar, nosotros, preguntas-frecuentes y not-found) y sin
   advertencia de presupuesto. Persisten solo las advertencias de deprecación de Sass `@import`.
-- `npm test -- --watch=false`: 3 archivos y 5 pruebas aprobadas.
+- Fase 04.4: `npm run build` completado con bundle inicial **494.03 kB (92.51 kB comprimido)** y
+  seis chunks diferidos; `npm test -- --watch=false`: 3 archivos y 5 pruebas aprobadas.
 - Verificación Fase 04 con Edge headless + CDP: 5 secciones presentes, 0 enlaces internos rotos,
   0 imágenes rotas, 0 controles sin nombre accesible, 0 errores de consola, menú móvil
   `false → true → false`, ancla `#donar` activa, scroll real y color primario Bootstrap
@@ -164,11 +176,17 @@ cada categoría. Mientras estén vacías no se solicitan archivos rotos.
   un solo `h1`, enlace activo correcto, 0 px de desbordamiento, 0 errores de consola, 0 enlaces
   a rutas planificadas y menú móvil `false → true → false` sin desbordamiento. El fragmento
   `#donar` desplaza a `scrollY=899`, `#bienes` a `scrollY=1038` y el retroceso vuelve a `0`.
+- Verificación Fase 04.4 con Edge headless + CDP: cinco rutas con título y metadescripción propios,
+  un solo `h1` por ruta, 35 combinaciones (7 anchos × 5 rutas) sin desbordamiento horizontal ni
+  imágenes rotas, 0 errores de consola y 0 fallos de red, menú móvil `false → true → false`,
+  enlaces de menú de 44–52 px, FAQ de `<details>` abierta y fragmentos `#donar`, `#como-funciona`,
+  `#bienes` y `#creditos-visuales` con desplazamiento real. No hay buscadores, selects, enlaces
+  vacíos ni rutas planificadas en el DOM.
 - Capturas generadas fuera del repositorio en
-  `C:\Users\ANDREA\AppData\Local\Temp\opencode\capturas\` (Fase 04) y
-  `C:\Users\ANDREA\AppData\Local\Temp\opencode\capturas-fase-04.2\` (Fase 04.2). Informes JSON:
-  `verificacion-navegador.json`, `verificacion-fase-04.2.json` y
-  `verificacion-scroll-fase-04.2.json` en la misma carpeta temporal.
+  `C:\Users\ANDREA\AppData\Local\Temp\opencode\capturas\` (Fase 04),
+  `capturas-fase-04.2\` y `capturas-fase-04.3\` (fases anteriores) y
+  `capturas-fase-04.4\` (Fase 04.4). Informe JSON: `verificacion-fase-04.4.json` en la misma
+  carpeta temporal.
 - **Limitación declarada:** el modelo no puede visualizar imágenes ni capturas. Se ejecutaron
   comprobaciones objetivas de DOM y layout, pero la valoración estética final requiere que el
   usuario revise las capturas o proporcione fotografías autorizadas.
@@ -184,16 +202,56 @@ fase; las páginas públicas son informativas y sus acciones navegan a rutas o f
 Las nuevas páginas reutilizan los mismos tokens y componentes, sin hojas de estilo extensas:
 
 - **`/como-donar`:** hero editorial con tarjeta de identidad, bloque de límites claros,
-  mosaico de cinco categorías, lista de recomendaciones, sección oscura con los nueve pasos
-  previstos (diferenciando “Orientación disponible” de “Planificado”) y lista de estados de
-  seguimiento. Cierra con un panel CTA compartido.
+  mosaico de cinco categorías, lista de recomendaciones, sección oscura con los nueve pasos del
+  recorrido y lista de estados de entrega. Cierra con un panel CTA compartido.
 - **`/nosotros`:** propósito académico, tres principios con iconos propios, compromisos sobre
-  fondo azul profundo y un bloque de transparencia que distingue lo implementado de lo futuro.
+  fondo azul profundo, transparencia y créditos visuales centralizados.
 - **`/preguntas-frecuentes`:** dos columnas con elementos `<details>` nativos en lugar de un
-  componente propio, tabla responsive de estado de módulos y CTA final. Se evita JavaScript
-  adicional y se mantiene navegación por teclado.
+  componente propio y CTA final. Se evita JavaScript adicional y se mantiene navegación por teclado.
 - **404:** composición partida con fondo azul profundo y tres salidas reales.
 
 La navegación usa `RouterLink` y `RouterLinkActive`; el estado activo comunica la ruta con
 `aria-current="page"`. La coherencia visual se conserva con `dc-eyebrow`, `dc-tile-icon`,
 `dc-step-number`, `dc-cta-panel` y las utilidades Bootstrap, sin reimplementar componentes.
+
+## 13. Rediseño fotográfico editorial (Fase 04.3)
+
+La portada se reconstruye como una secuencia narrativa: hero inmersivo → rail de valores →
+introducción de categorías con documento fotográfico → mosaico editorial → proceso conectado →
+propósito institucional → cierre fotográfico. Las cuatro ilustraciones se usan una sola vez como
+recurso de composición, sin recortes que sugieran categorías reales. Desde la Fase 04.4 la
+aclaración de procedencia no se repite sobre cada imagen.
+
+- El hero conserva literalmente “Juntos podemos hacer que la solidaridad llegue más lejos.” y
+  “Porque cuando una comunidad se une, cada pequeño aporte puede transformar una vida.” Sus CTAs
+  llevan a `/como-donar` y `/nosotros`.
+- La franja posterior incluye solidaridad comunitaria, donaciones materiales, coordinación
+  organizada y transparencia, sin cifras ni logros inventados.
+- `/como-donar` mantiene las cinco categorías, recomendaciones, nueve pasos y estados de entrega,
+  con numeración, iconos y conectores.
+- `/nosotros` mantiene el carácter académico y los compromisos; en Fase 04.4 sustituye la entrada
+  fotográfica por un bloque abstracto con la paleta institucional.
+- FAQ y 404 conservan `<details>` y salidas reales; comparten el mismo vocabulario visual.
+- Navbar y footer refuerzan la identidad con una línea de gradiente institucional y un borde ámbar,
+  sin modificar rutas, `aria-current` ni el menú móvil.
+
+El SCSS propio se limita a degradados sobre imagen, transiciones orgánicas, conectores, números
+editoriales, marcos de crédito y estados de foco. Grid, tipografía, espaciado, botones, tarjetas,
+tablas, badges y responsive continúan resueltos con Bootstrap 5.
+
+## 14. Portada como acceso a servicios (Fase 04.4)
+
+La secuencia de portada pasa a: hero legible → panel de accesos → valores → categorías enlazadas →
+proceso → propósito → participación. El hero usa `nosotros-comunidad-opt.webp` y reduce su altura
+para que el título quede sobre la zona degradada; las clases de componente fijan el título en
+blanco y el destacado en crema sin `!important`. `hero-comunidad-opt.webp` se reasigna al hero de
+`/como-donar`, donde ilustra bienes materiales.
+
+El panel `QuickAccess` muestra cuatro acciones reales en grid Bootstrap: explorar categorías
+(`/#donar`), guía (`/como-donar`), proyecto (`/nosotros`) y ayuda (`/preguntas-frecuentes`). Cada
+categoría del mosaico abre `/como-donar#bienes`. No hay buscadores, selectores de ubicación ni
+botones decorativos. El navbar prioriza “Ver categorías” como CTA y el footer enlaza los créditos
+visuales centralizados en `/nosotros#creditos-visuales`.
+
+La futura navegación de aplicación y la barra inferior autenticada quedan descritas en `AGENTS.md`;
+no se implementan pestañas inactivas ni funciones privadas sin autenticación y backend reales.

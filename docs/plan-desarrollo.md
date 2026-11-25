@@ -10,6 +10,8 @@ explícita; no se adelanta una fase sin esa autorización.
 | 03 | Organización de arquitectura en `frontend/`, `backend/`, `database/` y `docs/`. | Ejecutada |
 | 04 | Diseño visual profesional, Bootstrap e identidad original. | Ejecutada |
 | 04.2 | Ampliación funcional documental, navegación pública independiente y plan de seguridad. | Ejecutada |
+| 04.3 | Rediseño fotográfico con ilustraciones generadas, optimización WebP y verificación responsive. | Ejecutada |
+| 04.4 | Contraste legible del hero, imagen principal confirmada y portada como acceso a servicios. | Ejecutada |
 | 05 | Modelo entidad-relación y normalización 3FN. | Pendiente |
 | 06 | Implementación de Microsoft SQL Server. | Pendiente |
 | 07 | Backend FastAPI, conexión y arquitectura de servicios. | Pendiente |

@@ -1,3 +1,63 @@
 :host {
   display: block;
 }
+
+.dc-values-section {
+  padding-block: 2.5rem 3.5rem;
+}
+
+.dc-value-rail {
+  position: relative;
+  width: min(100%, 46rem);
+  height: 3px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, rgba(213, 164, 81, 0), rgba(213, 164, 81, 0.9), rgba(213, 164, 81, 0));
+}
+
+.dc-value-rail-node {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0.85rem;
+  height: 0.85rem;
+  border-radius: 50%;
+  background: #d5a451;
+  box-shadow: 0 0 0 0.4rem rgba(213, 164, 81, 0.16);
+  transform: translate(-50%, -50%);
+}
+
+.dc-values-intro {
+  max-width: 36rem;
+  margin-inline: auto;
+  font-family: var(--dc-font-heading);
+  font-size: clamp(1.15rem, 2.2vw, 1.6rem);
+  letter-spacing: -0.02em;
+  color: #12304a;
+}
+
+.dc-values-index {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #d5a451;
+}
+
+.dc-values-grid {
+  position: relative;
+}
+
+@media (min-width: 992px) {
+  .dc-values-section {
+    padding-block: 1.5rem 4.5rem;
+  }
+
+  .dc-values-grid::before {
+    content: '';
+    position: absolute;
+    left: 8%;
+    right: 8%;
+    top: -2.25rem;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(54, 121, 168, 0.35), transparent);
+  }
+}

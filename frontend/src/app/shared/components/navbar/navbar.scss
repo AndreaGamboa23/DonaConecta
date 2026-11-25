@@ -1,29 +1,41 @@
-.navbar {
-  --bs-navbar-padding-y: 0.65rem;
+.dc-navbar {
+  --bs-navbar-padding-y: 0.75rem;
+  position: relative;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(18, 48, 74, 0.08);
 }
 
-.nav-link {
-  color: inherit;
-}
-
-.nav-link::after {
+.dc-navbar::before {
   content: '';
   position: absolute;
-  left: 0.75rem;
-  right: 0.75rem;
-  bottom: 0.15rem;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--dc-amber);
-  transform: scaleX(0);
-  transition: transform 0.2s ease;
+  inset-inline: 0;
+  top: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #12304a 0%, #3679a8 58%, #d5a451 100%);
 }
 
-.nav-link:hover::after,
-.nav-link.active::after {
-  transform: scaleX(1);
+.dc-navbar .navbar-toggler {
+  min-width: 2.75rem;
+  min-height: 2.75rem;
 }
 
-.nav-link.active {
-  color: var(--dc-navy);
+.dc-navbar .nav-link {
+  color: inherit;
+  font-size: 0.94rem;
+  padding-block: 0.85rem;
+}
+
+.dc-navbar .btn-sm {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+}
+
+.dc-navbar .nav-link.active {
+  color: var(--dc-blue);
+}
+
+.dc-navbar-note {
+  color: rgba(18, 48, 74, 0.62);
 }

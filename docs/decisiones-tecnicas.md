@@ -48,6 +48,48 @@ Registro de decisiones nuevas tomadas a partir de la Fase 04, según `AGENTS.md`
 | Documentos nuevos de requisitos, navegación, seguridad y plan | Centraliza decisiones que antes estaban solo en `AGENTS.md` y facilita la sustentación sin inventar funcionalidad. |
 | Pruebas actualizadas | `Navbar` y `Landing` recibieron `provideRouter([])` porque ahora usan `RouterLink`; la prueba del indicador de ancla se sustituyó por una comprobación de rutas reales. |
 
+## Fase 04.3 — composiciones fotográficas y optimización sin dependencias
+
+| Decisión | Justificación |
+|---|---|
+| Integrar las cuatro ilustraciones proporcionadas por el usuario | El usuario autorizó su uso para el proyecto. Se documenta que son generadas con IA y se muestra una aclaración visible; no se presentan como evidencia real. |
+| Conservar los originales VP8L y crear `*-opt.webp` / `*-movil.webp` | Los originales pesan 1.6–1.9 MB y conservan C2PA. Los derivados VP8 reducen el peso a 150–225 KB (60–92 KB en móvil) con diferencia media ~2/255. Conservar los originales permite recuperar procedencia. |
+| Usar el codificador WebP de Edge vía CDP en lugar de instalar ImageMagick, cwebp, ffmpeg o Pillow | Ninguna herramienta estaba disponible y la fase exige evitar dependencias innecesarias. El codificador nativo del navegador resolvió la optimización sin tocar `package.json`. |
+| Eliminar C2PA solo en los derivados optimizados y conservar ICCP | Reduce peso y mantiene perfil de color. La procedencia queda documentada y disponible en los originales. |
+| `<picture>` con `<source media="(max-width: 575.98px)">`, `srcset`, `sizes`, `width` y `height` | El navegador elige la versión móvil adecuada y se reserva el espacio antes de cargar, evitando desplazamiento de layout. |
+| `loading="eager"` y `fetchpriority="high"` solo en el hero principal; `loading="lazy"` en el resto | Prioriza el primer viewport sin retrasar la interacción y evita descargas innecesarias en secciones posteriores. |
+| No recortar `como-donar.webp` en cinco imágenes de categoría | Sería una representación falsa. Las categorías usan color, iconos y tipografía propios; la ilustración solo introduce la sección. |
+| Reutilizar `dc-cta-panel`, `dc-eyebrow`, `dc-tile-icon` y `dc-step-number` con nuevos modificadores | Mantiene un sistema visual compartido entre portada, guía, nosotros, FAQ y 404 sin duplicar componentes ni reimplementar Bootstrap. |
+| Clase `.dc-section-space` para el ritmo vertical | Bootstrap 5 no ofrece utilidades `py-6`/`py-7`; se centraliza un único valor responsive en lugar de estilos inline o clases repetidas. |
+| Mantener `RouterLink`, fragmentos y `<details>` nativos | El rediseño es estrictamente visual; no se agrega estado falso ni JavaScript para acordeones. |
+
+## Fase 04.4 — Legibilidad y portada como acceso a servicios
+
+| Decisión | Justificación |
+|---|---|
+| Declarar `color: var(--dc-white)` en `.dc-hero-title`, `.dc-community-title`, `.dc-page-title` y encabezados de secciones oscuras | Bootstrap aplica `$headings-color: $dc-navy` a los `h1`/`h2`; `text-white` en el contenedor no alcanza al encabezado. La clase de componente corrige el color sin `!important`. |
+| Reducir la altura del hero y usar `nosotros-comunidad` como imagen principal | El usuario confirmó que esa ilustración tiene personas colaborando y espacio a la izquierda; el encabezado ocupa menos viewport y queda sobre la zona degradada. |
+| Reasignar `hero-comunidad` al hero de `/como-donar` | El usuario confirmó que muestra cajas, manos y bienes materiales, coherente con la guía de donación. |
+| Crear `QuickAccess` con cuatro destinos reales | Da experiencia de aplicación de servicios sin buscadores, selectores de ubicación ni pestañas simuladas. Cada acceso usa rutas o fragmentos existentes. |
+| Convertir las tarjetas de categorías en enlaces a `/como-donar#bienes` | La portada deja de ser solo information: cada categoría abre la guía real donde se explica qué donar. |
+| Centralizar el crédito visual en `/nosotros#creditos-visuales` | Evita ocho repeticiones de texto técnico sobre las imágenes y mantiene la procedencia documentada en un solo lugar accesible desde el pie. |
+| Eliminar la tabla de fases y el lenguaje de implementación de FAQ/Nosotros | La interfaz debe hablar al visitante, no al equipo de desarrollo; las fases siguen documentadas en `AGENTS.md` y `docs/`. |
+| Documentar la futura navegación pública y la barra inferior autenticada sin implementarla | Evita enlaces falsos y deja una integración clara para la PWA y las rutas privadas con backend. |
+
+## Requisitos permanentes de arquitectura, API REST y base de datos (registro)
+
+| Decisión | Justificación |
+|---|---|
+| Registrar la norma en `AGENTS.md` sección 18 y en `docs/arquitectura.md` | Son reglas compartidas para todas las fases posteriores; centralizarlas evita contradicciones entre frontend, backend y base de datos. |
+| Backend de referencia `backend/src/backend/` con `apis/`, `repositories/`, `schemas/`, `services/`, `database/`, `security/`, `core/`, `websockets/`, `__init__.py` y `main.py` | Organización vista en clases y explicable en sustentación. `main.py` solo configura y registra enrutamiento. |
+| Evaluar `uv` en la Fase 07, sin instalarlo ahora | Se respeta el procedimiento de clases y se evita duplicar gestores. `.venv/`, `__pycache__/` y `.env` no se versionan; `.env.example` queda sin secretos. |
+| Contrato REST con `GET`/`POST`/`PUT`/`PATCH`/`DELETE` y códigos `200`–`500` | Diferencia crear, reemplazar y modificar parcialmente; `GET` nunca modifica datos. Errores homogéneos sin trazas ni mensajes de SQL Server. |
+| Convención `/api/v1/...` propuesta y sujeta a validación en Fase 05/07 | No se fija unilateralmente: debe acordarse con el modelo de datos y el contrato de integración del equipo. |
+| OpenAPI, Swagger UI y ReDoc en desarrollo | Aprovecha la documentación generada por FastAPI; en producción se evalúa restringir el acceso. |
+| Baja lógica o cambio de estado antes que borrado físico | Protege la trazabilidad de donaciones, entregas y recepciones cuando existen relaciones. |
+| WebSockets solo como complemento de REST | REST persiste la operación; el canal en tiempo real valida identidad y autorización y no sustituye la confirmación de recepción ni expone coordenadas públicas. |
+| No crear backend, dependencias, tablas ni scripts SQL en este registro | El alcance autorizado es documental; la Fase 04.4 no se interrumpe y la Fase 05 requiere autorización explícita. |
+
 ## Advertencias de npm
 
 `npm install` bloqueó scripts de instalación de `@parcel/watcher`, `esbuild`, `lmdb` y

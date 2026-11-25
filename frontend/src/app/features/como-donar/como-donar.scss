@@ -1,3 +1,120 @@
 :host {
   display: block;
 }
+
+.dc-page-hero {
+  min-height: 38rem;
+  background: #0d2437;
+  isolation: isolate;
+}
+
+.dc-page-hero-overlay {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(13, 36, 55, 0.97) 0%,
+      rgba(13, 36, 55, 0.9) 42%,
+      rgba(13, 36, 55, 0.45) 78%,
+      rgba(13, 36, 55, 0.22) 100%
+    ),
+    linear-gradient(0deg, rgba(13, 36, 55, 0.58) 0%, rgba(13, 36, 55, 0) 40%);
+}
+
+.dc-breadcrumb-light .breadcrumb-item a {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.dc-breadcrumb-light .breadcrumb-item.active {
+  color: #f4e6cd;
+}
+
+.dc-breadcrumb-light .breadcrumb-item + .breadcrumb-item::before {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.dc-page-title {
+  max-width: 54rem;
+  color: var(--dc-white);
+  font-size: clamp(2.35rem, 4.6vw, 4.4rem);
+  line-height: 1.06;
+  letter-spacing: -0.045em;
+  text-shadow: 0 0.15rem 1.2rem rgba(13, 36, 55, 0.35);
+}
+
+.dc-page-copy {
+  max-width: 43rem;
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.dc-limits-panel {
+  background: #e4f0e9;
+  border-top: 3px solid #80b69a;
+}
+
+.dc-recommendation,
+.dc-state-list li {
+  border: 1px solid rgba(18, 48, 74, 0.08);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.dc-process-section {
+  background: #0d2437;
+}
+
+.dc-process-title {
+  color: var(--dc-white);
+}
+
+.dc-process-orbit {
+  position: absolute;
+  left: -11rem;
+  bottom: -13rem;
+  width: 32rem;
+  height: 32rem;
+  border: 1px solid rgba(213, 164, 81, 0.18);
+  border-radius: 48% 52% 61% 39% / 45% 40% 60% 55%;
+  pointer-events: none;
+}
+
+.dc-step-big-number {
+  font-family: var(--dc-font-heading);
+  font-size: 2.35rem;
+  font-weight: 800;
+  line-height: 0.9;
+  letter-spacing: -0.06em;
+  color: rgba(54, 121, 168, 0.26);
+}
+
+@media (min-width: 768px) and (max-width: 1199.98px) {
+  .dc-step-grid > div:nth-child(2n) .dc-step-card::after {
+    display: none;
+  }
+}
+
+@media (min-width: 1200px) {
+  .dc-step-grid > div:nth-child(3n) .dc-step-card::after {
+    display: none;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .dc-step-card::after {
+    display: none;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .dc-page-hero {
+    min-height: 42rem;
+  }
+
+  .dc-page-hero-overlay {
+    background: linear-gradient(0deg, rgba(13, 36, 55, 0.97) 0%, rgba(13, 36, 55, 0.72) 100%);
+  }
+
+  .dc-page-title {
+    font-size: clamp(2.2rem, 9vw, 3rem);
+  }
+}

@@ -4,6 +4,10 @@
   overflow: hidden;
 }
 
+.dc-footer {
+  border-top: 4px solid #d5a451;
+}
+
 :host::before {
   content: '';
   position: absolute;

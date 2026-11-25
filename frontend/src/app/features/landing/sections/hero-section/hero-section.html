@@ -1,132 +1,58 @@
-<section id="inicio" class="position-relative overflow-hidden">
-  <div class="container position-relative py-5 py-lg-6">
-    <div class="row align-items-center gy-5">
-      <div class="col-12 col-xl-6">
-        <span class="dc-eyebrow mb-3">Una comunidad · Huancayo, Junín</span>
-        <h1 class="display-3 fw-bold mb-4">
+<section id="inicio" class="dc-hero position-relative text-white overflow-hidden">
+  <picture class="dc-photo-bg">
+    <source
+      media="(max-width: 575.98px)"
+      srcset="/assets/images/nosotros-comunidad-movil.webp"
+      type="image/webp"
+    />
+    <img
+      src="/assets/images/nosotros-comunidad-opt.webp"
+      srcset="/assets/images/nosotros-comunidad-movil.webp 960w, /assets/images/nosotros-comunidad-opt.webp 1672w"
+      sizes="100vw"
+      width="1672"
+      height="941"
+      alt="Personas colaborando en una comunidad andina"
+      fetchpriority="high"
+      loading="eager"
+    />
+  </picture>
+
+  <div class="dc-photo-overlay dc-hero-overlay" aria-hidden="true"></div>
+  <span class="dc-hero-orbit d-none d-lg-block" aria-hidden="true"></span>
+  <span class="dc-hero-dot d-none d-md-block" aria-hidden="true"></span>
+
+  <div class="container position-relative dc-hero-inner">
+    <div class="row">
+      <div class="col-12 col-xl-9 dc-hero-content">
+        <p class="dc-hero-kicker mb-4">Una comunidad · Huancayo, Junín</p>
+        <h1 class="dc-hero-title fw-bold mb-4">
           Juntos podemos hacer que la
-          <span class="text-primary position-relative">solidaridad</span>
+          <span class="dc-hero-highlight">solidaridad</span>
           llegue más lejos.
         </h1>
-        <p class="lead text-secondary mb-4">
+        <p class="dc-hero-copy mb-0">
           Porque cuando una comunidad se une, cada pequeño aporte puede transformar una vida.
         </p>
+      </div>
+    </div>
+
+    <div class="row align-items-end gy-4 mt-4 mt-lg-5">
+      <div class="col-12 col-lg-8">
         <div class="d-flex flex-column flex-sm-row flex-wrap gap-3">
-          <a routerLink="/como-donar" class="btn btn-primary btn-lg">Descubre cómo ayudar</a>
-          <a [routerLink]="['/']" fragment="donar" class="btn btn-outline-dark btn-lg">
-            Conoce qué puedes donar
+          <a routerLink="/como-donar" class="btn btn-warning btn-lg px-4">
+            Descubre cómo donar
+          </a>
+          <a routerLink="/nosotros" class="btn btn-outline-light btn-lg px-4">
+            Conoce nuestra comunidad
           </a>
         </div>
-        <div class="d-flex flex-wrap align-items-center gap-3 mt-4">
-          <span class="badge rounded-pill text-bg-light border">Solo bienes materiales</span>
-          <span class="small text-secondary mb-0">Sin pagos ni transferencias bancarias</span>
-        </div>
-      </div>
-
-      <div class="col-12 col-xl-6">
-        <figure class="dc-hero-art position-relative mb-0">
-          @if (photoSrc) {
-            <div class="dc-photo-slot ratio ratio-4x3 shadow-lg">
-              <img
-                [src]="photoSrc"
-                alt="Personas de la comunidad organizando bienes materiales para donación"
-              />
-            </div>
-          } @else {
-            <svg
-              class="img-fluid w-100"
-              viewBox="0 0 620 560"
-              role="img"
-              aria-labelledby="heroArteTitulo"
-            >
-              <title id="heroArteTitulo">
-                Composición original: personas de la comunidad rodean una caja de donaciones y
-                forman un corazón con sus manos
-              </title>
-              <defs>
-                <pattern id="dcPuntos" width="20" height="20" patternUnits="userSpaceOnUse">
-                  <circle cx="3" cy="3" r="1.6" fill="#3679A8" opacity="0.16" />
-                </pattern>
-              </defs>
-
-              <path
-                fill="#DCEBF5"
-                d="M96 138c66-84 208-101 322-52 96 41 139 143 117 236-21 93-105 154-218 163C194 495 78 450 26 356-18 276 30 222 96 138Z"
-              />
-              <path
-                fill="url(#dcPuntos)"
-                d="M120 150c60-68 186-82 288-40 85 35 122 124 103 205-19 82-92 135-191 143-108 8-204-31-251-113-38-68 4-127 51-195Z"
-              />
-              <circle cx="512" cy="104" r="34" fill="#D5A451" opacity="0.35" />
-              <circle cx="76" cy="430" r="26" fill="#80B69A" opacity="0.45" />
-
-              <!-- Comunidad: cinco figuras que se acercan con un mismo propósito. -->
-              <g fill="#3679A8">
-                <circle cx="118" cy="228" r="27" />
-                <path d="M76 322c0-23 19-42 42-42s42 19 42 42v84H76Z" />
-              </g>
-              <g fill="#80B69A">
-                <circle cx="206" cy="188" r="29" />
-                <path d="M162 287c0-25 20-45 44-45s44 20 44 45v119h-88Z" />
-              </g>
-              <g fill="#12304A">
-                <circle cx="310" cy="170" r="31" />
-                <path d="M263 276c0-26 21-47 47-47s47 21 47 47v130h-94Z" />
-              </g>
-              <g fill="#D5A451">
-                <circle cx="414" cy="190" r="29" />
-                <path d="M370 290c0-25 20-45 44-45s44 20 44 45v116h-88Z" />
-              </g>
-              <g fill="#3679A8" opacity="0.85">
-                <circle cx="500" cy="232" r="27" />
-                <path d="M458 326c0-23 19-42 42-42s42 19 42 42v80h-84Z" />
-              </g>
-
-              <!-- Caja de bienes materiales compartida. -->
-              <rect x="222" y="318" width="176" height="132" rx="22" fill="#12304A" />
-              <path d="M222 356h176" stroke="#FFFFFF" stroke-opacity="0.22" stroke-width="3" />
-              <path
-                d="M310 393c-16-13-27-22-27-34 0-8 6-14 14-14 5 0 10 3 13 7 3-4 8-7 13-7 8 0 14 6 14 14 0 12-11 21-27 34Z"
-                fill="#D5A451"
-              />
-
-              <!-- Manos que sostienen la caja: unión y cuidado. -->
-              <path
-                d="M112 434c34-30 75-44 116-42 16 1 25 10 24 22-1 13-12 19-27 18-31-2-60 12-83 40-8 10-23 2-30-10-6-11-4-20 0-28Z"
-                fill="#F7F5EF"
-                stroke="#12304A"
-                stroke-width="3"
-              />
-              <path
-                d="M508 434c-34-30-75-44-116-42-16 1-25 10-24 22 1 13 12 19 27 18 31-2 60 12 83 40 8 10 23 2 30-10 6-11 4-20 0-28Z"
-                fill="#F7F5EF"
-                stroke="#12304A"
-                stroke-width="3"
-              />
-
-              <!-- Etiquetas de identidad integradas en la composición. -->
-              <g>
-                <rect x="34" y="112" width="132" height="38" rx="19" fill="#FFFFFF" />
-                <circle cx="56" cy="131" r="6" fill="#80B69A" />
-                <text x="70" y="136" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#12304A">
-                  Solidaridad
-                </text>
-              </g>
-              <g>
-                <rect x="450" y="468" width="136" height="38" rx="19" fill="#FFFFFF" />
-                <circle cx="472" cy="487" r="6" fill="#D5A451" />
-                <text x="486" y="492" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#12304A">
-                  Esperanza
-                </text>
-              </g>
-            </svg>
-          }
-          <figcaption class="small text-secondary mt-3 px-1 dc-photo-note">
-            Composición gráfica original de DonaConecta. No representa actividades reales ni
-            organizaciones verificadas.
-          </figcaption>
-        </figure>
+        <p class="dc-hero-note mt-4 mb-0">
+          <span class="dc-hero-note-mark" aria-hidden="true"></span>
+          Solo bienes materiales · Sin pagos ni transferencias
+        </p>
       </div>
     </div>
   </div>
+
+  <div class="dc-wave-bottom" aria-hidden="true"></div>
 </section>
