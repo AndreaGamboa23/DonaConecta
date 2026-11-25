@@ -40,47 +40,42 @@ import { Institucion, InstitucionesService } from './instituciones.service';
 
             <form (ngSubmit)="registrarInstitucion()">
               <div class="row g-3 mb-3">
-                <div class="col-md-6">
-                  <label class="form-label fw-medium">Nombre de la institución</label>
-                  <input type="text" class="form-control" name="nombre" [(ngModel)]="nombre" required />
+                <div class="col-md-4">
+                  <label class="form-label fw-medium">Nombre comercial</label>
+                  <input type="text" class="form-control" name="nombre_comercial" [(ngModel)]="nombre_comercial" required />
+                </div>
+                <div class="col-md-5">
+                  <label class="form-label fw-medium">Razón social</label>
+                  <input type="text" class="form-control" name="razon_social" [(ngModel)]="razon_social" required />
                 </div>
                 <div class="col-md-3">
-                  <label class="form-label fw-medium">Tipo</label>
-                  <select class="form-select" name="tipo_institucion" [(ngModel)]="tipo_institucion">
-                    <option value="Comedor Popular">Comedor Popular</option>
-                    <option value="Albergue">Albergue</option>
-                    <option value="Olla Común">Olla Común</option>
-                    <option value="Refugio Animal">Refugio Animal</option>
-                    <option value="Parroquia / ONG">Parroquia / ONG</option>
-                  </select>
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label fw-medium">RUC (11 dígitos, opcional)</label>
-                  <input type="text" class="form-control" name="ruc" [(ngModel)]="ruc" maxlength="11" />
+                  <label class="form-label fw-medium">RUC (11 dígitos)</label>
+                  <input type="text" class="form-control" name="ruc" [(ngModel)]="ruc" minlength="11" maxlength="11" required />
                 </div>
               </div>
 
               <div class="row g-3 mb-3">
-                <div class="col-md-6">
-                  <label class="form-label fw-medium">Dirección</label>
-                  <input type="text" class="form-control" name="direccion" [(ngModel)]="direccion" required />
+                <div class="col-md-4">
+                  <label class="form-label fw-medium">Tipo de institución</label>
+                  <select class="form-select" name="tipo_institucion" [(ngModel)]="tipo_institucion">
+                    <option value="COMEDOR">Comedor</option>
+                    <option value="ALBERGUE">Albergue</option>
+                    <option value="REFUGIO_ANIMALES">Refugio de animales</option>
+                    <option value="ORGANIZACION_SOCIAL">Organización social</option>
+                  </select>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-3">
                   <label class="form-label fw-medium">Distrito</label>
                   <input type="text" class="form-control" name="distrito" [(ngModel)]="distrito" required />
                 </div>
-                <div class="col-md-2">
-                  <label class="form-label fw-medium">Provincia</label>
-                  <input type="text" class="form-control" name="provincia" [(ngModel)]="provincia" required />
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label fw-medium">Departamento</label>
-                  <input type="text" class="form-control" name="departamento" [(ngModel)]="departamento" required />
+                <div class="col-md-5">
+                  <label class="form-label fw-medium">Dirección</label>
+                  <input type="text" class="form-control" name="direccion" [(ngModel)]="direccion" required />
                 </div>
               </div>
 
               <div class="mb-3">
-                <label class="form-label fw-medium">Descripción de necesidades</label>
+                <label class="form-label fw-medium">Descripción</label>
                 <textarea class="form-control" rows="2" name="descripcion" [(ngModel)]="descripcion"></textarea>
               </div>
 
@@ -109,9 +104,9 @@ import { Institucion, InstitucionesService } from './instituciones.service';
                     <span class="badge bg-primary-subtle text-primary">{{ inst.tipo_institucion }}</span>
                     <span class="badge bg-success-subtle text-success">Verificada</span>
                   </div>
-                  <h2 class="h5 fw-bold mb-1">{{ inst.nombre }}</h2>
+                  <h2 class="h5 fw-bold mb-1">{{ inst.nombre_comercial }}</h2>
                   <p class="text-muted small mb-2">
-                    {{ inst.direccion }} — {{ inst.distrito }}, {{ inst.provincia }}
+                    {{ inst.direccion }} — {{ inst.distrito }} (RUC: {{ inst.ruc }})
                   </p>
                   @if (inst.descripcion) {
                     <p class="small mb-0">{{ inst.descripcion }}</p>
@@ -140,13 +135,12 @@ export class Instituciones implements OnInit {
     this.auth.usuarioActual()?.roles.includes('REPRESENTANTE') ?? false,
   );
 
-  nombre = '';
-  tipo_institucion = 'Comedor Popular';
   ruc = '';
-  direccion = '';
+  razon_social = '';
+  nombre_comercial = '';
+  tipo_institucion: 'COMEDOR' | 'ALBERGUE' | 'REFUGIO_ANIMALES' | 'ORGANIZACION_SOCIAL' = 'COMEDOR';
   distrito = 'Huancayo';
-  provincia = 'Huancayo';
-  departamento = 'Junín';
+  direccion = '';
   descripcion = '';
 
   ngOnInit() {
@@ -170,21 +164,21 @@ export class Instituciones implements OnInit {
     this.guardando.set(true);
     this.servicio
       .registrar({
-        nombre: this.nombre,
-        ruc: this.ruc || undefined,
+        ruc: this.ruc,
+        razon_social: this.razon_social,
+        nombre_comercial: this.nombre_comercial,
         tipo_institucion: this.tipo_institucion,
-        direccion: this.direccion,
         distrito: this.distrito,
-        provincia: this.provincia,
-        departamento: this.departamento,
+        direccion: this.direccion,
         descripcion: this.descripcion || undefined,
       })
       .subscribe({
         next: (res) => {
           this.guardando.set(false);
           this.exitoForm.set(res.mensaje);
-          this.nombre = '';
           this.ruc = '';
+          this.razon_social = '';
+          this.nombre_comercial = '';
           this.direccion = '';
           this.descripcion = '';
         },

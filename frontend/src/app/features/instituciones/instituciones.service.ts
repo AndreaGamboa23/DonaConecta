@@ -3,25 +3,24 @@ import { inject, Injectable } from '@angular/core';
 
 export interface Institucion {
   id_institucion: number;
-  nombre: string;
-  ruc?: string | null;
+  ruc: string;
+  razon_social: string;
+  nombre_comercial: string;
   tipo_institucion: string;
-  direccion: string;
-  distrito: string;
-  provincia: string;
-  departamento: string;
   descripcion?: string | null;
+  distrito: string;
+  direccion: string;
   estado_verificacion: string;
+  id_punto_acopio?: number | null;
 }
 
 export interface CrearInstitucionPayload {
-  nombre: string;
-  ruc?: string;
-  tipo_institucion: string;
-  direccion: string;
+  ruc: string;
+  razon_social: string;
+  nombre_comercial: string;
+  tipo_institucion: 'COMEDOR' | 'ALBERGUE' | 'REFUGIO_ANIMALES' | 'ORGANIZACION_SOCIAL';
   distrito: string;
-  provincia: string;
-  departamento: string;
+  direccion: string;
   descripcion?: string;
 }
 

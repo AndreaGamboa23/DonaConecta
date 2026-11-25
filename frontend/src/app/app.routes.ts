@@ -16,6 +16,12 @@ export const routes: Routes = [
         },
       },
       {
+        path: 'necesidades',
+        loadComponent: () =>
+          import('./features/necesidades/necesidades').then((modulo) => modulo.Necesidades),
+        title: 'Necesidades | DonaConecta',
+      },
+      {
         path: 'instituciones',
         loadComponent: () =>
           import('./features/instituciones/instituciones').then((modulo) => modulo.Instituciones),

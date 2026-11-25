@@ -16,6 +16,7 @@ export class Navbar {
 
   readonly links = [
     { label: 'Inicio', route: '/', exact: true },
+    { label: 'Necesidades', route: '/necesidades', exact: false },
     { label: 'Instituciones', route: '/instituciones', exact: false },
     { label: 'Cómo donar', route: '/como-donar', exact: false },
     { label: 'Nosotros', route: '/nosotros', exact: false },
