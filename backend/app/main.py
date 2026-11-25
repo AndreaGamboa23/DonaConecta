@@ -1,7 +1,7 @@
 ﻿from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.routers import catalogos
+from app.routers import auth, catalogos
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -18,3 +18,4 @@ app.add_middleware(
 )
 
 app.include_router(catalogos.router)
+app.include_router(auth.router)

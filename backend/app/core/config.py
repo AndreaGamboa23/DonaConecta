@@ -14,5 +14,8 @@ class Settings:
     CORS_ORIGINS: list[str] = [
         o.strip() for o in os.getenv("CORS_ORIGINS", "http://localhost:4200").split(",") if o.strip()
     ]
+    JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY", "clave_temporal_cambiar")
+    JWT_ALGORITHM: str = os.getenv("JWT_ALGORITHM", "HS256")
+    JWT_EXPIRE_MINUTES: int = int(os.getenv("JWT_EXPIRE_MINUTES", "120"))
 
 settings = Settings()
