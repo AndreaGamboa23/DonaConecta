@@ -1,6 +1,6 @@
 # Arquitectura de DonaConecta
 
-Este documento describe la organización general del proyecto tras la Fase 03.
+Este documento describe la organización general del proyecto tras la Fase 04.2.
 
 ## 1. Arquitectura cliente-servidor
 
@@ -95,3 +95,29 @@ El frontend Angular fue reorganizado y se verificó su compilación y sus prueba
 backend y la base de datos **no están implementados**; solo se prepararon sus carpetas
 y documentación. Los resultados concretos de build y pruebas se registran en el informe
 de entrega de la fase.
+
+## 10. Navegación SPA (Fase 04.2)
+
+La Fase 04 transformó la portada y la Fase 04.2 la convirtió en una SPA multipágina:
+
+```
+app.ts (RouterOutlet)
+└── PublicLayout
+    ├── Navbar (RouterLink + RouterLinkActive)
+    ├── <main id="contenido-principal"> → RouterOutlet
+    │   ├── /                     → Landing (lazy)
+    │   ├── /como-donar           → ComoDonar (lazy)
+    │   ├── /nosotros             → Nosotros (lazy)
+    │   ├── /preguntas-frecuentes → PreguntasFrecuentes (lazy)
+    │   └── /**                   → NotFoundPage (lazy)
+    └── Footer (RouterLink)
+```
+
+- `app.config.ts` registra `provideRouter(routes)`, `withInMemoryScrolling` y una
+  `TitleStrategy` propia que actualiza título y metadescripción por ruta.
+- `core/seo/dona-title-strategy.ts` centraliza el SEO sin dependencias adicionales.
+- Todas las páginas usan `loadComponent`, de modo que el bundle inicial se mantiene por debajo
+  del presupuesto de 500 kB y cada sección se descarga bajo demanda.
+- Las rutas privadas futuras añadirán guards de Angular como ayuda de navegación; la
+  autorización definitiva permanecerá en el backend.
+- El mapa completo de rutas implementadas y planificadas está en `docs/mapa-navegacion.md`.

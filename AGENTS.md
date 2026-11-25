@@ -188,8 +188,8 @@ Perfiles del sistema: **visitante**, **donante**, **representante de organizaci�
 
 ## 9. Seguridad
 
-- Contraseñas almacenadas mediante hash seguro (`bcrypt` o alternativa justificada);
-  nunca en texto plano.
+- Contraseñas almacenadas mediante **Argon2id** con una librería mantenida; nunca en texto
+  plano, con cifrado reversible ni mediante MD5, SHA-1 o SHA-256 simple.
 - Autorización **obligatoria en backend** para cada operación sensible. El frontend
   oculta rutas por rol, pero el backend siempre verifica.
 - Validación de formularios en frontend y backend (Pydantic).
@@ -291,3 +291,129 @@ DRIVER={ODBC Driver 18 for SQL Server};SERVER=.\SQLEXPRESS;DATABASE=DonaConectaD
 ```
 
 Ninguna credencial debe escribirse en el repositorio.
+
+---
+
+## 14. Calidad visual obligatoria (requisitos permanentes desde la Fase 04)
+
+La calidad estética es un requisito de la fase, no un extra. Compilar, usar Bootstrap y ser
+responsive **no** basta para declarar terminada una interfaz.
+
+- La experiencia debe sentirse como un producto digital profesional, original, cálido y
+  memorable; no como una plantilla, un ejercicio básico ni un dashboard genérico.
+- Evitar el minimalismo excesivo: páginas con mucho espacio vacío, un título, dos botones y
+  una ilustración simple. Buscar riqueza visual equilibrada con jerarquía clara, fondos
+  alternados, composiciones asimétricas, fotografía o gráficos propios y microinteracciones
+  sutiles.
+- Concepto de marca: **Una comunidad, muchas manos, un mismo propósito**, complementado con
+  **Conexiones que transforman**. El logotipo, la iconografía y las composiciones deben
+  reforzar esa idea; prohibido reutilizar el par de círculos unidos por una línea.
+- Cada sección debe tener composición propia, pero compartir tokens, paleta, tipografía,
+  radios, sombras y componentes reutilizables. El sistema visual sirve para landing,
+  catálogos, formularios, tablas y dashboards futuros.
+- Bootstrap 5 continúa siendo la herramienta principal (~85%). El SCSS/CSS propio se reserva
+  a formas orgánicas, conectores narrativos, foco visible, movimiento reducido y detalles de
+  identidad; no se reimplementan componentes ni utilidades de Bootstrap.
+- Las fotografías deben tener licencia verificable o ser proporcionadas por el usuario,
+  guardarse localmente en `frontend/public/assets/images/` y documentarse (autor, fuente y
+  licencia). Si no hay imágenes autorizadas, se declara la limitación, se listan las imágenes
+  requeridas y se deja una integración clara. Nunca presentar fotografías ilustrativas como
+  evidencia real de actividades de DonaConecta ni explotar la vulnerabilidad de las personas.
+- Todo enlace o botón visible debe realizar una acción existente. No se simulan donaciones,
+  estadísticas, testimonios, organizaciones verificadas ni autenticación.
+- Antes de cerrar una fase visual se revisan composición, contraste, accesibilidad, menú
+  móvil, ausencia de desbordamiento horizontal y resultados reales de build y pruebas. Si no
+  hay herramientas de inspección visual, declarar la limitación y pedir capturas al usuario;
+  no inventar inspecciones visuales.
+- No integrar fotografías externas si no pueden inspeccionarse visualmente. Ante esa
+  limitación, dejar ranuras explícitas, listar archivos requeridos (nombre, tema,
+  orientación, resolución y sección) y documentar autor, fuente y licencia al incorporarlos.
+
+---
+
+## 15. Navegación SPA multipágina (requisito permanente desde la Fase 04.2)
+
+DonaConecta no es una landing de anclas: es una SPA con páginas independientes.
+
+- Usar Angular Router para cada módulo principal, con `RouterLink`, `RouterLinkActive`,
+  layouts reutilizables, lazy loading cuando corresponda, guards en rutas privadas y página
+  404 personalizada.
+- El inicio es público y orienta sin exigir registro; nunca se abre con login ni con modales
+  obligatorios.
+- Cada ruta activa debe tener título propio y descripción metadatos coherentes. Gestionar el
+  desplazamiento con `withInMemoryScrolling`, incluyendo fragmentos y botón de retroceso.
+- Activar rutas progresivamente: solo se enlazan en la interfaz las páginas realmente
+  implementadas. Las rutas planificadas se documentan, pero no se muestran como enlaces
+  funcionales ni se simulan con pantallas falsas.
+- Las secciones internas del inicio pueden resumir módulos, pero no sustituyen sus páginas
+  independientes.
+- Perfiles: visitante (no autenticado), donante, representante institucional y
+  administrador. El registro público nunca crea administradores.
+
+---
+
+## 16. Seguridad y privacidad desde el diseño (requisito permanente)
+
+La seguridad se implementa progresivamente en todas las fases, no solo al final.
+
+- Aplicar confidencialidad, integridad, disponibilidad, autenticación, autorización,
+  trazabilidad, privacidad desde el diseño, mínimo privilegio y defensa en profundidad.
+- Tomar como referencia OWASP para web y APIs. Evaluar la normativa peruana de protección de
+  datos sin afirmar cumplimiento legal ni certificaciones sin evaluación formal.
+- Contraseñas con Argon2id; recuperación mediante tokens temporales y límite de intentos.
+- Evaluar cifrado autenticado (por ejemplo AES-256-GCM) solo para datos recuperables que lo
+  justifiquen. No implementar criptografía propia, no guardar claves en el repositorio ni
+  enviarlas al navegador; documentar datos cifrados, rotación y versión de claves.
+- HTTPS/WSS/TLS en producción; `TrustServerCertificate=yes` solo en desarrollo local.
+  No anunciar cifrado de extremo a extremo en el chat cuando solo exista TLS y cifrado en
+  reposo.
+- Autorización en backend para cada operación, verificando rol **y** propiedad del recurso.
+  Los guards de Angular son ayuda de navegación, no control de acceso definitivo.
+- Consultas parametrizadas con pyodbc, validación Pydantic, CORS restringido, cabeceras de
+  seguridad, rate limiting en operaciones sensibles y errores sin trazas internas.
+- Validar archivos por contenido real, extensión, MIME, tamaño y nombre seguro; documentos
+  privados fuera de rutas públicas y descarga autorizada.
+- Secretos en variables de entorno; `.env` ignorado; `.env.example` sin valores sensibles.
+- Auditar operaciones críticas sin registrar contraseñas, tokens, mensajes completos ni
+  coordenadas innecesarias. Prever respaldos protegidos y pruebas de restauración.
+- GPS: consentimiento explícito, inicio manual, indicador visible, botón de detención,
+  caducidad, mínimo privilegio y alternativa manual por estados. No rastreo permanente,
+  no coordenadas públicas, no ubicación como prueba de recepción.
+- Chat: persistencia en SQL Server, autorización de participantes incluso en WebSocket,
+  reconexión, lecturas, reportes y controles antiabuso; jamás localStorage como base de datos.
+- Notificaciones: no exponer información sensible en pantallas bloqueadas. Evidencias:
+  eliminar EXIF innecesario y proteger imágenes de menores o personas vulnerables.
+
+---
+
+## 17. Planificación definitiva por fases
+
+| Fase | Alcance | Estado |
+|---|---|---|
+| 01 | Diagnóstico técnico. | Ejecutada |
+| 02 | Creación de `AGENTS.md`. | Ejecutada |
+| 03 | Organización de arquitectura en `frontend/`, `backend/`, `database/` y `docs/`. | Ejecutada |
+| 04 | Diseño visual profesional, Bootstrap e identidad original. | Ejecutada |
+| 04.2 | Ampliación funcional documental, navegación pública independiente y plan de seguridad. | Ejecutada |
+| 05 | Modelo entidad-relación y normalización 3FN. | Pendiente |
+| 06 | Implementación de Microsoft SQL Server. | Pendiente |
+| 07 | Backend FastAPI, conexión y arquitectura de servicios. | Pendiente |
+| 08 | Landing definitiva y navegación pública integrada. | Pendiente |
+| 09 | Autenticación segura, registro, sesiones y roles. | Pendiente |
+| 10 | Registro, verificación y directorio de instituciones. | Pendiente |
+| 11 | Catálogo y gestión de necesidades. | Pendiente |
+| 12 | Compromisos, donaciones y entregas. | Pendiente |
+| 13 | Mapas, ubicaciones y puntos de acopio. | Pendiente |
+| 14 | Seguimiento GPS autorizado. | Pendiente |
+| 15 | Chat y mensajería en tiempo real. | Pendiente |
+| 16 | Notificaciones, evidencias y trazabilidad. | Pendiente |
+| 17 | Dashboards y estadísticas reales. | Pendiente |
+| 18 | Aplicación instalable PWA. | Pendiente |
+| 19 | Pruebas integrales, seguridad y optimización. | Pendiente |
+| 20 | Documentación, despliegue y sustentación final. | Pendiente |
+
+**Alcance autorizado de la Fase 04.2:** actualizar `AGENTS.md` y documentos; revisar rutas;
+implementar `/como-donar`, `/nosotros`, `/preguntas-frecuentes` y 404; conectar las páginas
+existentes con Angular Router; mantener la calidad visual; verificar build, pruebas y
+navegación. No implementar GPS real, mensajería, autenticación, cifrado de datos de negocio,
+API ni base de datos. No comenzar Fase 05 sin autorización explícita.

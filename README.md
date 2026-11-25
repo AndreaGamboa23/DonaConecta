@@ -32,7 +32,7 @@ DonaConecta/
 ├── frontend/      → proyecto Angular existente
 ├── backend/       → API REST (preparada, sin implementar aún)
 ├── database/      → scripts T-SQL versionados (sin crear aún)
-└── docs/          → documentación técnica, incluye arquitectura.md
+└── docs/          → arquitectura, diseño, requisitos, navegación, seguridad y plan por fases
 ```
 
 No existen repositorios Git anidados. La raíz es el único repositorio.
@@ -58,9 +58,14 @@ npm --prefix frontend run build
 
 ## Estado real del desarrollo
 
-- **Frontend:** proyecto Angular 22 conservado íntegramente y reorganizado en `frontend/`.
-  Compilación y pruebas verificadas en la Fase 03. La interfaz sigue siendo el placeholder
-  inicial de Angular; la landing page y los módulos de negocio **no están implementados**.
+- **Frontend:** proyecto Angular 22 conservado íntegramente en `frontend/`. Bootstrap 5 y
+  las fuentes Manrope/Inter están instaladas y personalizadas globalmente. La Fase 04 incluye
+  una portada editorial con hero, franja de confianza, catálogo en mosaico, línea de tiempo,
+  sección de propósito social y CTA comunitario. La Fase 04.2 añade una SPA con rutas reales:
+  `/`, `/como-donar`, `/nosotros`, `/preguntas-frecuentes` y una 404 propia, con títulos,
+  metadescripción, scroll por fragmentos y carga diferida. No se integraron fotografías: hay
+  una lista exacta de imágenes autorizadas pendientes y sus puntos de conexión. Los módulos de
+  negocio, formularios, dashboards y conexión con APIs **no están implementados**.
 - **Backend:** carpeta preparada con documentación. **No hay endpoints, dependencias
   instaladas ni entorno virtual.**
 - **Base de datos:** carpeta preparada. **No se ha creado `DonaConectaDB`, no hay tablas
@@ -68,8 +73,17 @@ npm --prefix frontend run build
 
 ## Documentación
 
-- `AGENTS.md`: reglas obligatorias de trabajo, tecnologías, diseño, seguridad y metodología.
-- `docs/arquitectura.md`: arquitectura cliente-servidor y decisiones de la Fase 03.
+- `AGENTS.md`: reglas obligatorias de trabajo, tecnologías, diseño, seguridad, metodología y
+  calidad visual permanente.
+- `docs/arquitectura.md`: arquitectura cliente-servidor y navegación SPA.
+- `docs/sistema-diseno.md`: tokens, composición, accesibilidad, fotografía pendiente y
+  evidencia de verificación de las fases 04 y 04.2.
+- `docs/decisiones-tecnicas.md`: decisiones nuevas y advertencias de dependencias.
+- `docs/requisitos-funcionales.md` y `docs/requisitos-no-funcionales.md`: qué hace el sistema
+  y con qué criterios de calidad.
+- `docs/mapa-navegacion.md`: rutas implementadas, fragmentos y rutas planificadas no enlazadas.
+- `docs/seguridad-privacidad.md`: estrategia progresiva de seguridad y privacidad.
+- `docs/plan-desarrollo.md`: fases 01 a 20 con alcance y estado real.
 - `backend/README.md`, `database/README.md`: alcance previsto y estado real.
 
 El desarrollo continúa por fases autorizadas. Consultar `AGENTS.md` antes de cualquier

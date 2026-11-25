@@ -1,0 +1,133 @@
+<section class="bg-light position-relative overflow-hidden py-5 py-lg-6">
+  <div class="container position-relative">
+    <nav aria-label="Ruta de navegación">
+      <ol class="breadcrumb small mb-4">
+        <li class="breadcrumb-item"><a routerLink="/">Inicio</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Preguntas frecuentes</li>
+      </ol>
+    </nav>
+
+    <div class="row align-items-center gy-4">
+      <div class="col-12 col-lg-8">
+        <span class="dc-eyebrow mb-3">Orientación al visitante</span>
+        <h1 class="display-4 fw-bold mb-3">Preguntas frecuentes</h1>
+        <p class="lead text-secondary mb-0">
+          Respuestas claras sobre qué puede donar, qué existe hoy y qué funciones llegarán en
+          fases posteriores.
+        </p>
+      </div>
+      <div class="col-12 col-lg-4">
+        <div class="alert alert-success border-0 rounded-4 p-4 mb-0">
+          <p class="fw-bold mb-1">Sin registro obligatorio</p>
+          <p class="small mb-0">Puedes informarte libremente antes de decidir participar.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="container py-5 py-lg-6">
+  <div class="row g-4 g-lg-5">
+    <div class="col-12 col-lg-7">
+      <span class="dc-eyebrow mb-3">Donaciones</span>
+      <h2 class="display-6 fw-bold mb-4">Sobre los bienes materiales</h2>
+      <div class="accordion" id="preguntasDonacion">
+        @for (pregunta of donationQuestions; track pregunta.question) {
+          <details class="card border-0 shadow-sm rounded-4 mb-3 overflow-hidden">
+            <summary class="p-3 p-md-4 fw-semibold">{{ pregunta.question }}</summary>
+            <div class="px-3 px-md-4 pb-3 pb-md-4 pt-0">
+              <p class="text-secondary mb-0">{{ pregunta.answer }}</p>
+              @if (pregunta.action) {
+                <a class="btn btn-sm btn-outline-primary mt-3" [routerLink]="pregunta.action.route">
+                  {{ pregunta.action.label }}
+                </a>
+              }
+            </div>
+          </details>
+        }
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-5">
+      <span class="dc-eyebrow mb-3">Participación</span>
+      <h2 class="display-6 fw-bold mb-4">Privacidad y funciones futuras</h2>
+      <div class="accordion" id="preguntasPrivacidad">
+        @for (pregunta of privacyQuestions; track pregunta.question) {
+          <details class="card border-0 shadow-sm rounded-4 mb-3 overflow-hidden">
+            <summary class="p-3 p-md-4 fw-semibold">{{ pregunta.question }}</summary>
+            <div class="px-3 px-md-4 pb-3 pb-md-4 pt-0">
+              <p class="text-secondary mb-0">{{ pregunta.answer }}</p>
+            </div>
+          </details>
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="bg-primary-subtle py-5 py-lg-6">
+  <div class="container">
+    <div class="row g-4 align-items-center mb-4">
+      <div class="col-12 col-lg-8">
+        <span class="dc-eyebrow mb-3">Estado del sistema</span>
+        <h2 class="display-6 fw-bold mb-0">Qué está disponible y qué está planificado</h2>
+      </div>
+      <div class="col-12 col-lg-4">
+        <p class="text-secondary mb-0">
+          Solo se enlazan las páginas implementadas. Los módulos futuros se muestran como
+          planificación, no como funciones activas.
+        </p>
+      </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+      <div class="table-responsive">
+        <table class="table align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th scope="col">Módulo</th>
+              <th scope="col">Estado</th>
+              <th scope="col">Fase</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (modulo of moduleStates; track modulo.module) {
+              <tr>
+                <td class="fw-semibold">{{ modulo.module }}</td>
+                <td>
+                  <span
+                    class="badge rounded-pill"
+                    [class.text-bg-success]="modulo.state === 'Disponible'"
+                    [class.text-bg-secondary]="modulo.state === 'Planificado'"
+                  >
+                    {{ modulo.state }}
+                  </span>
+                </td>
+                <td>{{ modulo.phase }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="container-fluid py-5 py-lg-6">
+  <div class="container">
+    <div class="dc-cta-panel rounded-5 p-4 p-md-5">
+      <div class="row align-items-center g-4">
+        <div class="col-12 col-lg-8">
+          <h2 class="display-6 fw-bold mb-2">¿Quieres saber cómo donar?</h2>
+          <p class="lead mb-0">
+            La guía explica categorías, estado de los productos y el proceso previsto.
+          </p>
+        </div>
+        <div class="col-12 col-lg-4 d-flex flex-column gap-3">
+          <a routerLink="/como-donar" class="btn btn-primary btn-lg">Ir a la guía</a>
+          <a routerLink="/" class="btn btn-outline-dark btn-lg">Volver al inicio</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

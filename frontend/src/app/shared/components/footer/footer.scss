@@ -1,0 +1,17 @@
+:host {
+  display: block;
+  position: relative;
+  overflow: hidden;
+}
+
+:host::before {
+  content: '';
+  position: absolute;
+  top: -6rem;
+  right: -4rem;
+  width: 18rem;
+  height: 18rem;
+  border-radius: 50%;
+  background: rgba(128, 182, 154, 0.12);
+  pointer-events: none;
+}

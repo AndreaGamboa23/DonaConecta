@@ -1,0 +1,81 @@
+<section id="donar" class="bg-light py-5 py-lg-6">
+  <div class="container">
+    <div class="row align-items-end g-4 mb-5">
+      <div class="col-12 col-lg-8">
+        <span class="dc-eyebrow mb-3">Bienes materiales</span>
+        <h2 class="display-5 fw-bold mb-0">Qué puedes donar</h2>
+      </div>
+      <div class="col-12 col-lg-4">
+        <p class="lead text-secondary mb-0">
+          Cinco tipos de bienes que realmente ayudan a las organizaciones de Huancayo.
+        </p>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      @for (category of categories; track category.name; let i = $index) {
+        <div
+          class="col-12 col-md-6"
+          [class.col-lg-7]="i === 0"
+          [class.col-lg-5]="i === 1"
+          [class.col-lg-4]="i > 1"
+        >
+          <article class="card h-100 overflow-hidden shadow-sm">
+            @if (category.image) {
+              <div class="ratio ratio-16x9 overflow-hidden">
+                <img
+                  class="w-100 h-100 object-fit-cover"
+                  [src]="category.image"
+                  [alt]="'Bienes de la categoría ' + category.name"
+                />
+              </div>
+            } @else if (i < 2) {
+              <div class="ratio ratio-16x9 overflow-hidden">
+                <div
+                  class="d-flex align-items-center justify-content-center h-100 w-100"
+                  [class.bg-primary-subtle]="category.tone === 'blue'"
+                  [class.bg-success-subtle]="category.tone === 'green'"
+                  [class.bg-warning-subtle]="category.tone === 'amber'"
+                >
+                  <span
+                    class="d-inline-flex p-4 rounded-circle"
+                    [class.text-primary]="category.tone === 'blue'"
+                    [class.text-success]="category.tone === 'green'"
+                    [class.text-warning]="category.tone === 'amber'"
+                  >
+                    <app-icon [name]="category.icon" />
+                  </span>
+                </div>
+              </div>
+            }
+
+            <div class="card-body p-4">
+              <div class="d-flex align-items-center gap-3 mb-3">
+                <span
+                  class="dc-tile-icon"
+                  [class.bg-primary-subtle]="category.tone === 'blue'"
+                  [class.bg-success-subtle]="category.tone === 'green'"
+                  [class.bg-warning-subtle]="category.tone === 'amber'"
+                  [class.text-primary]="category.tone === 'blue'"
+                  [class.text-success]="category.tone === 'green'"
+                  [class.text-warning]="category.tone === 'amber'"
+                >
+                  <app-icon [name]="category.icon" />
+                </span>
+                <h3 class="h5 fw-bold mb-0">{{ category.name }}</h3>
+              </div>
+              <p class="text-secondary mb-2">{{ category.description }}</p>
+              <p class="small text-secondary mb-0">
+                <span class="fw-semibold text-body">Ejemplos:</span> {{ category.examples }}
+              </p>
+            </div>
+          </article>
+        </div>
+      }
+    </div>
+
+    <p class="small text-secondary text-center mt-4 mb-0">
+      Información descriptiva. No representa necesidades activas ni cantidades solicitadas.
+    </p>
+  </div>
+</section>

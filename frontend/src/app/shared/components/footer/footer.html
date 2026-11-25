@@ -1,0 +1,49 @@
+<footer class="bg-dark text-white pt-5 pb-4">
+  <div class="container">
+    <div class="row g-4 gy-lg-5">
+      <div class="col-12 col-lg-5">
+        <app-brand [inverted]="true" />
+        <p class="mt-3 pe-lg-4 dc-footer-note">
+          Una comunidad, muchas manos, un mismo propósito. Conectamos la solidaridad de
+          Huancayo con organizaciones que necesitan bienes materiales.
+        </p>
+        <div class="d-flex flex-wrap gap-2 mt-3">
+          <span class="badge rounded-pill text-bg-primary">Bienes materiales</span>
+          <span class="badge rounded-pill text-bg-success">Sin pagos</span>
+        </div>
+      </div>
+
+      <div class="col-6 col-lg-3">
+        <h2 class="h6 text-white fw-bold mb-3">Explorar</h2>
+        <ul class="list-unstyled mb-0 d-grid gap-2">
+          @for (link of links; track link.route) {
+            <li>
+              <a class="dc-link-light small" [routerLink]="link.route">{{ link.label }}</a>
+            </li>
+          }
+        </ul>
+      </div>
+
+      <div class="col-6 col-lg-4">
+        <h2 class="h6 text-white fw-bold mb-3">Puedes donar</h2>
+        <ul class="list-unstyled mb-0 d-grid gap-2">
+          @for (category of categories; track category) {
+            <li class="dc-footer-note small">{{ category }}</li>
+          }
+        </ul>
+      </div>
+    </div>
+
+    <hr class="border-secondary my-4" />
+
+    <div class="row g-3 align-items-center">
+      <div class="col-12 col-md-8 dc-footer-note small">
+        Huancayo, Junín, Perú · Proyecto académico de Ingeniería de Sistemas e Informática,
+        Universidad Continental.
+      </div>
+      <div class="col-12 col-md-4 text-md-end dc-footer-note small">
+        No realizamos pagos ni transferencias.
+      </div>
+    </div>
+  </div>
+</footer>

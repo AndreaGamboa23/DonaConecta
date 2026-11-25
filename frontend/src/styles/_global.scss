@@ -1,0 +1,58 @@
+// Reglas base de DonaConecta: movimiento, anclas y foco accesible.
+
+:root {
+  --dc-navy: #{$dc-navy};
+  --dc-navy-deep: #{$dc-blue-deep};
+  --dc-blue: #{$dc-blue};
+  --dc-blue-soft: #{$dc-blue-soft};
+  --dc-cream: #{$dc-cream};
+  --dc-white: #{$dc-white};
+  --dc-green: #{$dc-green};
+  --dc-amber: #{$dc-amber};
+  --dc-radius-xl: #{$border-radius-xl};
+  --dc-font-heading: #{$dc-font-heading};
+  --dc-font-body: #{$dc-font-body};
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--dc-font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--dc-font-heading);
+  letter-spacing: -0.02em;
+}
+
+// El navbar sticky no debe tapar el destino de las anclas internas.
+section[id] {
+  scroll-margin-top: 5.5rem;
+}
+
+:focus-visible {
+  outline: 3px solid var(--dc-amber);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

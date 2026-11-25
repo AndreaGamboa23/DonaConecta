@@ -1,0 +1,44 @@
+<nav
+  class="navbar navbar-expand-lg bg-white border-bottom border-light-subtle shadow-sm sticky-top"
+  aria-label="Navegación principal"
+>
+  <div class="container py-1">
+    <app-brand />
+
+    <button
+      class="navbar-toggler border-0"
+      type="button"
+      (click)="toggleMenu()"
+      [attr.aria-expanded]="menuOpen()"
+      aria-controls="menuPublico"
+      aria-label="Abrir o cerrar menú de navegación"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="menuPublico" [class.show]="menuOpen()">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center gap-lg-3">
+        @for (link of links; track link.route) {
+          <li class="nav-item">
+            <a
+              #rla="routerLinkActive"
+              class="nav-link px-lg-2"
+              [routerLink]="link.route"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: link.exact }"
+              [attr.aria-current]="rla.isActive ? 'page' : null"
+              (click)="closeMenu()"
+            >
+              {{ link.label }}
+            </a>
+          </li>
+        }
+        <li class="nav-item mt-3 mt-lg-0 ms-lg-2">
+          <a routerLink="/como-donar" class="btn btn-primary btn-sm px-3" (click)="closeMenu()">
+            Cómo ayudar
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>

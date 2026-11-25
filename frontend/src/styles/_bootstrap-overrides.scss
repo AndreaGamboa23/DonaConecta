@@ -1,0 +1,46 @@
+// Ajustes globales posteriores al import de Bootstrap.
+// Solo se corrige lo que las variables Sass no permiten resolver.
+
+.btn {
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: $box-shadow-sm;
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.nav-link {
+  position: relative;
+  font-weight: 600;
+}
+
+.card {
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: $box-shadow;
+}
+
+.progress-bar {
+  background-color: $dc-blue;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: $dc-blue;
+  box-shadow: 0 0 0 0.25rem rgba(54, 121, 168, 0.18);
+}
