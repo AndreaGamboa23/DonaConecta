@@ -51,3 +51,14 @@ def obtener_usuario_actual(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token de autenticacion invalido",
         )
+
+def requerir_roles(*roles_permitidos: str):
+    def verificador(usuario: dict = Depends(obtener_usuario_actual)) -> dict:
+        roles_usuario = set(usuario.get("roles", []))
+        if not roles_usuario.intersection(roles_permitidos):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="No tienes permisos suficientes para realizar esta accion",
+            )
+        return usuario
+    return verificador
