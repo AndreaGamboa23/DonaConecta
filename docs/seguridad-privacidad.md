@@ -12,11 +12,16 @@ evaluarse formalmente antes de cualquier declaración.
 - El frontend oculta rutas por rol, pero el backend **siempre** verifica permisos.
 - No se implementa criptografía propia.
 
-## 2. Estado actual de esta fase
+## 2. Estado actual
 
 Las páginas públicas **no solicitan ni almacenan datos personales**. No hay formularios,
-cookies de sesión, `localStorage` como base de datos, API ni conexión a SQL Server. La
-información de privacidad mostrada al usuario es orientativa y describe el diseño previsto.
+cookies de sesión, `localStorage` como base de datos, API ni conexión a SQL Server. En la
+Fase 05.1 se documentó el modelo de datos y su estrategia de seguridad; **no se implementó**
+ningún mecanismo. La información de privacidad mostrada al usuario sigue siendo orientativa.
+
+La matriz de protección aprobada en la Fase 05.1 está en la sección 11. Los detalles de
+estructura están en `docs/modelo-logico.md`, `docs/modelo-fisico.md` y
+`docs/diccionario-datos.md`.
 
 ## 3. Autenticación y autorización (Fase 09)
 
@@ -88,3 +93,44 @@ información de privacidad mostrada al usuario es orientativa y describe el dise
 Antes de producción deben ejecutarse pruebas de seguridad y una evaluación formal de la
 normativa aplicable. Esta fase solo deja la estrategia documentada y la interfaz libre de
 datos personales; no declara conformidad legal.
+
+## 11. Matriz de protección aprobada en Fase 05.1
+
+| Dato | Sensibilidad | Almacenamiento | Recuperación | Protección | Autorizados | Conservación | Justificación |
+|---|---|---|---|---|---|---|---|
+| Contraseña | Crítica | `usuarios.password_hash` | No se recupera; se verifica | **Hash Argon2id** con parámetros incrustados y `hash_version` | Solo `security/` | Mientras la cuenta exista | Nunca debe poder revertirse. Prohibidos MD5/SHA-1/SHA-256 simple. |
+| Correo | Alta | `usuarios.email` | Sí | Normalización, `UNIQUE`, DTO restringido | Propietario y admin | Mientras la cuenta exista | Identifica la cuenta y sirve para verificación. |
+| Teléfono | Alta | `usuarios.telefono_cifrado` | Sí | **AES-256-GCM** evaluado; nonce de 12 bytes y `clave_version` | Propietario; contactos autorizados | Hasta baja de cuenta o solicitud de supresión | Dato personal recuperable y sensible. |
+| Tokens de verificación/recuperación/renovación | Crítica | `tokens_seguridad.token_hash` | No: solo se guarda SHA-256 | Hash del token aleatorio, expiración, uso único, revocación y rotación (`sucede_a_token_id`) | Solo `security/` | Hasta expiración o revocación | Evita que una filtración de BD permita suplantar sesiones. |
+| Documento de verificación institucional | Alta | `institucion_documentos.numero_documento_cifrado` + archivo privado | Sí | AES-256-GCM + almacenamiento protegido | Revisor administrativo autorizado | Según política de verificación | Se necesita validar la solicitud, no publicarlo. |
+| Coordenadas GPS privadas | Alta | `gps_ultima_ubicacion.coordenadas_cifradas` | Sí, mientras la sesión esté activa | AES-256-GCM; lat/long canónicas `DECIMAL(9,6)` validadas antes de cifrar | Donante que comparte y representantes autorizados de la entrega | Hasta detener, cancelar, vencer o retirar consentimiento | Minimización: ni recorrido ni exposición pública. |
+| Coordenadas de puntos de acopio | Pública | `instituciones.latitud/longitud`, `puntos_acopio.latitud/longitud` | Sí | Sin cifrar; son datos publicables | Cualquier visitante | Mientras el punto esté activo | No son ubicación de personas. |
+| Contenido del chat | Alta | `mensajes.contenido` | Sí | Control de acceso en BD + **TLS en tránsito**; cifrado en reposo evaluado según infraestructura | Solo participantes activos | Hasta cierre o política de retención | **No se anuncia cifrado de extremo a extremo.** No hay clave en el navegador. |
+| Adjuntos y evidencias | Alta | Metadatos en `archivos`; binario fuera de `frontend/public/` | Sí | Validación de MIME real, extensión, tamaño y nombre; EXIF saneado; descarga autorizada | Propietario, participantes de la entrega y admin | `EVIDENCIA_RETENCION_DIAS` configurable | Evita exponer documentos e imágenes de personas vulnerables. |
+| Notificaciones | Media | `notificaciones` | Sí | Cuerpo <= 500, sin mensajes completos ni coordenadas | Destinatario | Hasta archivado o retención | Evita filtrar contenido en pantallas bloqueadas. |
+| Auditoría | Media | `auditoria_eventos` | Sí | Inmutable; sin secretos, tokens ni coordenadas | Admin | Según política de conservación | Trazabilidad sin exponer datos sensibles. |
+| Respaldos | Alta | Fuera del repositorio | Sí | Cifrado del archivo de respaldo y acceso restringido; prueba de restauración | Administrador de BD | Según política local | Disponibilidad sin crear una copia insegura. |
+
+### 11.1 Distinciones obligatorias
+
+- **Hashing:** contraseñas (Argon2id) y tokens (SHA-256). No es reversible y no se usa para
+  cifrar datos que deban recuperarse.
+- **Cifrado en tránsito:** HTTPS/TLS y WSS en producción. `TrustServerCertificate=yes` solo en
+  desarrollo local.
+- **Cifrado en reposo:** AES-256-GCM a nivel aplicación para los datos marcados arriba. Las
+  claves viven en variables de entorno o gestor seguro, nunca en código ni en el repositorio.
+- **No implementado:** cifrado de extremo a extremo del chat, criptografía propia y funciones
+  nativas de SQL Server no verificadas en la edición instalada.
+
+### 11.2 Sesiones
+
+Access token de corta duración firmado; refresh token opaco cuyo hash se guarda en
+`tokens_seguridad`. La renovación rota el token y revoca el anterior. `logout` revoca la
+sesión. Rate limiting en login, recuperación, registro, envío de mensajes e inicio de GPS.
+
+### 11.3 Verificación en Fase 06/07
+
+Antes de elegir TDE, Always Encrypted u otra función nativa se debe comprobar qué ofrece
+realmente SQL Server 2025 Express en la instancia `.\SQLEXPRESS`. Mientras tanto, la única
+estrategia afirmable es la de aplicación descrita arriba. Toda afirmación de funcionamiento
+queda sujeta a pruebas reales.

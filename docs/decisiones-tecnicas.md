@@ -96,3 +96,49 @@ Registro de decisiones nuevas tomadas a partir de la Fase 04, según `AGENTS.md`
 `msgpackr-extract` por la política `allowScripts` de npm. **No se desactivaron las
 protecciones.** La compilación y las pruebas se ejecutaron correctamente con los paquetes
 precompilados disponibles.
+
+## Fase 05.1 — Modelo de base de datos revisado y documentado
+
+| Decisión | Justificación |
+|---|---|
+| Inventario corregido a **42 tablas** | La propuesta anterior declaró 41 pero enumeraba 40. Se añaden `parametros_sistema` y `recepcion_evidencias`, con finalidad documentada. |
+| Registro diferenciado con una sola estrategia de endpoint | `POST /api/v1/autenticacion/registro` con `tipo=DONANTE|REPRESENTANTE`. No hay `POST /usuarios` público ni operaciones duplicadas. |
+| Representante no obligado a registrarse como donante | Crea `usuarios` + rol `REPRESENTANTE` pendiente + solicitud de institución; no crea `donantes`. |
+| Activación institucional triple | Rol `ACTIVO` + vínculo `ACTIVO` + institución `VERIFICADA`, centralizados en `vw_representante_autorizado`. |
+| `usuario_roles.estado` en vez de solo `BIT activo` | Permite representantes pendientes que pueden iniciar sesión y completar su solicitud sin permisos de negocio. |
+| Fórmula de disponibilidad corregida | `requerida − (reserva vigente restante + recibido)`. Evita contar `COMPLETADO` dos veces y evita que lo recibido vuelva a estar disponible. |
+| Reserva desde `PENDIENTE` con expiración configurable | `parametros_sistema.COMPROMISO_EXPIRACION_MINUTOS`. La vista excluye vencidos aunque la limpieza se retrase. |
+| FK compuestos anti asociaciones cruzadas | Compromiso→líneas de necesidad, entrega→líneas de compromiso y recepción→líneas entregadas. No se basa solo en validación de aplicación. |
+| Marca de lectura protegida por FK compuesto | `conversacion_participantes(conversacion_id, ultimo_mensaje_leido_id)` → `mensajes(conversacion_id, mensaje_id)`. Única desnormalización permitida. |
+| Idempotencia por remitente y contexto | `UNIQUE (remitente_usuario_id, client_message_id)` y validación de conversación; si cambia el contexto se responde `409`. |
+| Participantes de chat explícitos | No se incorpora automáticamente a representantes. Al suspender/retirar el vínculo se bloquea su participación y el WebSocket. |
+| GPS con una sola posición cifrada | Lat/long canónicas `DECIMAL(9,6)` validadas en backend y guardadas como payload AES-256-GCM; sin recorrido histórico. Puntos de acopio permanecen públicos. |
+| Notificaciones con FKs tipadas opcionales | Máximo una FK; cero para alertas de seguridad, recuperación o cambio de cuenta. Corrige la restricción de “exactamente una” de la propuesta inicial. |
+| Cifrado evaluado por dato, no indiscriminado | Matriz en `docs/seguridad-privacidad.md` §11. Argon2id para contraseñas, SHA-256 para tokens, AES-256-GCM para datos recuperables justificados. Sin E2E. |
+| Dos procedimientos dueños de su transacción | `usp_RegistrarCompromiso` y `usp_ConfirmarRecepcion` usan `SET XACT_ABORT ON` y conexión dedicada `autocommit=True`. No se anida transacción de PyODBC. |
+| `DELETE` limitado a borradores | Borrado físico solo de necesidad `BORRADOR` sin compromisos ni historial, en transacción de PyODBC. Nunca para donaciones, recepciones ni auditoría. |
+| `DECIMAL(9,6)` frente a `geography` | Suficiente para el alcance actual; más simple de serializar y explicar. `geography` no se usa sin consultas espaciales reales. |
+| Backend sin cambios en esta fase | Se documenta `backend/src/backend/` y se registra la contradicción de `backend/README.md` para corregirla coordinadamente en Fase 07. |
+
+### Decisiones pendientes o condicionadas
+
+1. **Cifrado nativo de SQL Server Express:** verificar en Fase 06 si TDE/Always Encrypted están
+   disponibles antes de seleccionarlos. La estrategia de aplicación es la afirmable hoy.
+2. **`sp_getapplock`:** solo si las pruebas de concurrencia reales muestran interbloqueos con
+   `UPDLOCK/HOLDLOCK`.
+3. **Cifrado de coordenadas GPS:** diseño previsto con AES-256-GCM; si se decide diferir, la
+   alternativa es `DECIMAL(9,6)` con control de acceso estricto. Requiere aprobación antes de
+   implementar.
+4. **Correcciones documentales coordinadas:** `backend/README.md` (estructura anterior),
+   `README.md` (afirmación desactualizada sobre fotografías) y RF-12 en requisitos funcionales.
+   No se modificaron en esta fase por no pertenecer al alcance del modelo.
+
+### Contradicciones detectadas y resueltas en el modelo
+
+- Contaje de tablas 41 vs. 40 → corregido a 42 con inventario explícito.
+- Disponibilidad con doble descuento → fórmula corregida.
+- Notificación “exactamente un recurso” → permitido cero recurso para avisos de cuenta.
+- Representante obligado a ser donante → eliminado.
+- Registro duplicado entre `/usuarios` y `/autenticacion/registro` → unificado.
+- Archivos con `institucion_id` genérico → sustituido por tablas de asociación explícitas.
+- Marca de lectura sin validación de conversación → FK compuesto añadido.

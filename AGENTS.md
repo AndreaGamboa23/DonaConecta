@@ -435,8 +435,9 @@ La seguridad se implementa progresivamente en todas las fases, no solo al final.
 | 04.2 | Ampliación funcional documental, navegación pública independiente y plan de seguridad. | Ejecutada |
 | 04.3 | Rediseño visual fotográfico con ilustraciones generadas con IA, optimización de imágenes y verificación responsive. | Ejecutada |
 | 04.4 | Contraste legible del hero, imagen principal confirmada, limpieza de mensajes técnicos y portada como acceso a servicios. | Ejecutada |
-| 05 | Modelo entidad-relación y normalización 3FN. | Pendiente |
-| 06 | Implementación de Microsoft SQL Server. | Pendiente |
+| 05 | Modelo entidad-relación y normalización 3FN. | Ejecutada (propuesta revisada en 05.1) |
+| 05.1 | Revisión, corrección y documentación técnica del modelo. | Ejecutada |
+| 06 | Implementación de Microsoft SQL Server. | Pendiente, requiere autorización |
 | 07 | Backend FastAPI, conexión y arquitectura de servicios. | Pendiente |
 | 08 | Landing definitiva y navegación pública integrada. | Pendiente |
 | 09 | Autenticación segura, registro, sesiones y roles. | Pendiente |
@@ -491,6 +492,23 @@ sobre la imagen: 12.03:1 medio, 9.06:1 en el percentil 90 y 3.87:1 en el peor 0.
 9.70:1 / 6.20:1 / 4.57:1 a 390 px. El texto es negrita de 66.24 px y 37.05 px respectivamente,
 por lo que supera el umbral AA de 3:1 para texto grande. La valoración estética final sigue
 pendiente de revisión humana; el modelo no puede inspeccionar capturas ni imágenes.
+
+**Alcance autorizado de la Fase 05.1:** revisar, corregir y documentar el modelo entidad-relación
+aprobado, sin implementación. Se crearon `docs/modelo-conceptual.md`,
+`docs/modelo-entidad-relacion.md`, `docs/modelo-logico.md`, `docs/modelo-fisico.md`,
+`docs/diccionario-datos.md`, `docs/normalizacion.md`, `docs/reglas-negocio.md` y
+`docs/contrato-api.md`; se actualizaron seguridad/privacidad, decisiones técnicas, plan de
+desarrollo y este archivo. No se creó `DonaConectaDB`, no se ejecutó DDL ni DML, no se instalaron
+dependencias, no se modificó el frontend, no se inventaron datos y no se realizaron commits.
+No comenzar Fase 06 sin autorización explícita.
+
+**Resultado de la Fase 05.1:** modelo definitivo de **42 tablas** en ocho módulos; ocho diagramas
+Mermaid; registro diferenciado con endpoint único `POST /api/v1/autenticacion/registro`;
+activación institucional por rol, vínculo y estado; disponibilidad calculada como
+`requerida − (reserva vigente restante + recibido)` sin doble conteo; FK compuestos contra
+asociaciones cruzadas; GPS con una sola posición privada cifrada; notificaciones con recurso
+opcional; dos procedimientos dueños de su transacción; borrado físico limitado a borradores.
+La validación fue documental: las pruebas reales de SQL Server y concurrencia siguen pendientes.
 
 ---
 
@@ -557,6 +575,8 @@ Esta sección complementa las secciones 3, 6 a 9 y 16. Toda fase posterior debe 
   No modificar ramas ni archivos de otro integrante sin coordinación.
 - Acordar antes de implementar: modelo de datos, nombres de campos, rutas, métodos HTTP,
   esquemas JSON, estados, reglas de negocio, contratos de integración y seguridad.
-- **Alcance actual:** solo registrar estos requisitos en documentación compartida. No crear
-  backend, dependencias, tablas definitivas ni scripts SQL sin autorización de fase. No
-  reorganizar el frontend existente ni interrumpir o reemplazar Fase 04.4.
+- **Alcance actual:** la Fase 05.1 dejó documentado y corregido el modelo único compartido en
+  `docs/modelo-*.md`, `docs/diccionario-datos.md`, `docs/normalizacion.md`,
+  `docs/reglas-negocio.md` y `docs/contrato-api.md`. No crear backend, dependencias, tablas
+  definitivas ni scripts SQL sin autorización de fase. No reorganizar el frontend existente ni
+  interrumpir o reemplazar Fase 04.4. El único modelo válido para el equipo es el de Fase 05.1.
