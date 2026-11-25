@@ -28,6 +28,11 @@ export const routes: Routes = [
         title: 'Instituciones | DonaConecta',
       },
       {
+        path: 'gestion',
+        loadComponent: () => import('./features/gestion/gestion').then((modulo) => modulo.Gestion),
+        title: 'Gestión | DonaConecta',
+      },
+      {
         path: 'como-donar',
         loadComponent: () =>
           import('./features/como-donar/como-donar').then((modulo) => modulo.ComoDonar),
