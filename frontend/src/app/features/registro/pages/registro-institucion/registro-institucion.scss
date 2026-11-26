@@ -1,0 +1,103 @@
+:host {
+  display: block;
+}
+
+.dc-auth-shell {
+  border: 1px solid rgba(18, 48, 74, 0.08);
+}
+
+.dc-auth-photo {
+  min-height: 30rem;
+  background: var(--dc-navy-deep, #0d2437);
+}
+
+.dc-auth-photo > img {
+  position: absolute;
+  inset: 0;
+}
+
+.dc-auth-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgba(9, 28, 44, 0.98) 0%, rgba(9, 28, 44, 0.88) 52%, rgba(9, 28, 44, 0.48) 100%);
+}
+
+.dc-inst-stepper {
+  margin-inline: 0;
+  padding-inline: 0;
+}
+
+.dc-inst-step {
+  border: 1px solid rgba(18, 48, 74, 0.1);
+  color: rgba(18, 48, 74, 0.58);
+  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+.dc-inst-step.active {
+  border-color: var(--dc-blue, #3679a8);
+  background: var(--dc-blue-soft, #dcebf5);
+  color: var(--dc-navy, #12304a);
+}
+
+.dc-inst-step.done {
+  border-color: rgba(128, 182, 154, 0.5);
+  color: var(--dc-navy, #12304a);
+}
+
+.dc-inst-step-icon {
+  width: 1.7rem;
+  height: 1.7rem;
+  background: #ffffff;
+  color: var(--dc-blue, #3679a8);
+  font-size: 0.75rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.dc-inst-step-icon app-icon {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+.dc-inst-progress {
+  height: 0.5rem;
+}
+
+.dc-inst-form .form-control,
+.dc-inst-form .form-select,
+.dc-inst-form .input-group-text,
+.dc-inst-form textarea {
+  min-height: 3.25rem;
+}
+
+.dc-inst-form .form-label {
+  margin-bottom: 0.45rem;
+}
+
+.dc-form-group {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.dc-password-meter {
+  height: 0.45rem;
+}
+
+@media (min-width: 992px) {
+  .dc-auth-photo {
+    min-height: 50rem;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .dc-auth-photo {
+    min-height: 22rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dc-inst-step {
+    transition: none;
+  }
+}

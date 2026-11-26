@@ -1,0 +1,141 @@
+﻿<app-page-hero
+  eyebrow="Mi espacio"
+  titulo="Mi perfil"
+  [descripcion]="sesion.autenticado() ? 'Bienvenido a tu cuenta de DonaConecta. Aquí puedes revisar tus datos y tu rol activo.' : 'Inicia sesión para revisar tus datos, tu rol y tus preferencias.'"
+  icono="user"
+  tono="green"
+/>
+
+<section class="dc-section-space">
+  <div class="container">
+    <app-pending-notice
+      [estado]="estado"
+      titulo="Tu perfil todavía no está disponible"
+      class="d-block mb-4"
+    />
+
+    @if (sesion.usuario(); as u) {
+      <div class="row g-4 g-lg-5 align-items-stretch">
+        <div class="col-12 col-lg-7">
+          <div class="card border-0 bg-white shadow-sm rounded-4 h-100 p-3 p-md-4">
+            <span class="dc-eyebrow mb-3">Cuenta verificada</span>
+            <h2 class="h4 fw-bold mb-4">{{ u.nombres }} {{ u.apellidos }}</h2>
+
+            <div class="list-group list-group-flush">
+              <div class="list-group-item d-flex gap-3 align-items-start px-0 py-3">
+                <span class="dc-value-mark flex-shrink-0">
+                  <app-icon name="user" />
+                </span>
+                <div>
+                  <h3 class="h6 fw-bold mb-1">Correo electrónico</h3>
+                  <p class="small text-secondary mb-0">{{ u.correo }}</p>
+                </div>
+              </div>
+
+              <div class="list-group-item d-flex gap-3 align-items-start px-0 py-3">
+                <span class="dc-value-mark flex-shrink-0">
+                  <app-icon name="shield" />
+                </span>
+                <div>
+                  <h3 class="h6 fw-bold mb-1">Rol asignado</h3>
+                  <p class="small text-secondary mb-0">
+                    {{ u.roles.join(', ') || 'Donante' }}
+                  </p>
+                </div>
+              </div>
+
+              <div class="list-group-item d-flex gap-3 align-items-start px-0 py-3">
+                <span class="dc-value-mark flex-shrink-0">
+                  <app-icon name="lock" />
+                </span>
+                <div>
+                  <h3 class="h6 fw-bold mb-1">ID de usuario</h3>
+                  <p class="small text-secondary mb-0">#{{ u.id_usuario }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-lg-5">
+          <div class="card border-0 bg-white shadow-sm rounded-4 h-100 p-3 p-md-4 d-flex flex-column justify-content-between">
+            <div>
+              <span class="dc-eyebrow mb-2">Sesión activa</span>
+              <h2 class="h5 fw-bold mb-2">Conectado a DonaConecta</h2>
+              <p class="small text-secondary mb-4">
+                Tu sesión está sincronizada con la base de datos. Puedes explorar necesidades o gestionar tus donaciones.
+              </p>
+            </div>
+            <div class="d-grid gap-2">
+              <a routerLink="/necesidades" class="btn btn-primary">Explorar necesidades</a>
+              <button type="button" class="btn btn-outline-danger" (click)="cerrarSesion()">
+                Cerrar sesión
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    } @else {
+      <div class="row g-4 g-lg-5 align-items-stretch">
+        <div class="col-12 col-lg-7">
+          <div class="card border-0 bg-white shadow-sm rounded-4 h-100 p-3 p-md-4">
+            <span class="dc-eyebrow mb-3">Tu espacio personal</span>
+            <h2 class="h4 fw-bold mb-4">Lo que podrás gestionar</h2>
+
+            <div class="list-group list-group-flush">
+              <div class="list-group-item d-flex gap-3 align-items-start px-0 py-3">
+                <span class="dc-value-mark flex-shrink-0">
+                  <app-icon name="user" />
+                </span>
+                <div>
+                  <h3 class="h6 fw-bold mb-1">Datos de contacto</h3>
+                  <p class="small text-secondary mb-0">
+                    Nombres, correo y distrito que registres tú mismo.
+                  </p>
+                </div>
+              </div>
+
+              <div class="list-group-item d-flex gap-3 align-items-start px-0 py-3">
+                <span class="dc-value-mark flex-shrink-0">
+                  <app-icon name="shield" />
+                </span>
+                <div>
+                  <h3 class="h6 fw-bold mb-1">Rol y permisos</h3>
+                  <p class="small text-secondary mb-0">
+                    Donante o representante institucional, según tu registro.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-lg-5">
+          <app-empty-state
+            icono="user"
+            titulo="Aún no hay una sesión activa"
+            mensaje="Inicia sesión o crea una cuenta para ver tu información."
+            accionPrincipal="Iniciar sesión"
+            rutaPrincipal="/iniciar-sesion"
+            accionSecundaria="Crear cuenta"
+            rutaSecundaria="/registro"
+          />
+        </div>
+      </div>
+    }
+
+    <div class="card border-0 bg-light rounded-4 p-3 p-md-4 mt-4">
+      <div class="row g-3 align-items-center">
+        <div class="col-12 col-md-5">
+          <h2 class="h6 fw-bold mb-1">Accesos rápidos</h2>
+          <p class="small text-secondary mb-0">Continúa navegando por la plataforma.</p>
+        </div>
+        <div class="col-12 col-md-7 d-flex flex-wrap gap-2">
+          <a routerLink="/necesidades" class="btn btn-outline-primary btn-sm">Explorar necesidades</a>
+          <a routerLink="/mensajes" class="btn btn-outline-primary btn-sm">Ver mensajes</a>
+          <a routerLink="/mis-donaciones" class="btn btn-outline-primary btn-sm">Mis donaciones</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

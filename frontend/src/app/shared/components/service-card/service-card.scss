@@ -1,0 +1,53 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.dc-service-card {
+  background: #dcebf5;
+  border: 1px solid rgba(18, 48, 74, 0.06);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.dc-service-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0.9rem 2.4rem rgba(18, 48, 74, 0.11);
+}
+
+.dc-service-card--cream {
+  background: #f7f5ef;
+}
+
+.dc-service-card--green {
+  background: #e4f0e9;
+}
+
+.dc-service-card--amber {
+  background: #f4e6cd;
+}
+
+.dc-service-card--navy {
+  background: #12304a;
+  color: #fff;
+}
+
+.dc-service-card--navy p {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.dc-service-card--navy .dc-service-icon {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+.dc-service-icon {
+  width: 2.8rem;
+  height: 2.8rem;
+  background: rgba(255, 255, 255, 0.78);
+  color: #3679a8;
+}
+
+.dc-service-icon app-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+}

@@ -1,0 +1,154 @@
+<app-page-hero
+  eyebrow="Solidaridad en acción"
+  titulo="Historias que conectan"
+  descripcion="Preparar un bien, entregarlo con orden y recibirlo con claridad también es una forma de cuidar a quienes participan."
+  icono="heart"
+  tono="amber"
+/>
+
+<section class="dc-section-space bg-white">
+  <div class="container">
+    <nav aria-label="Ruta de navegación" class="mb-4">
+      <ol class="breadcrumb small mb-0">
+        <li class="breadcrumb-item"><a routerLink="/">Inicio</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Historias que conectan</li>
+      </ol>
+    </nav>
+
+    <div class="row g-4 g-lg-5 align-items-center">
+      <div class="col-12 col-lg-6 order-lg-2">
+        <figure class="dc-historias-frame mb-0">
+          <img
+            src="/assets/images/experiencias-solidarias.webp"
+            width="542"
+            height="461"
+            class="img-fluid w-100 rounded-4 shadow-sm dc-historias-image"
+            alt="Ilustración de personas organizando bienes materiales para compartir."
+            loading="eager"
+            fetchpriority="high"
+          />
+        </figure>
+      </div>
+
+      <div class="col-12 col-lg-6 order-lg-1">
+        <span class="dc-eyebrow mb-3">El valor de preparar bien los bienes</span>
+        <h2 class="display-6 fw-bold mb-3">Cuidar el detalle es cuidar a quien recibe</h2>
+        <p class="text-secondary mb-3">
+          Una donación no empieza cuando cambia de manos, sino antes: cuando alguien decide qué
+          entregar, revisa su estado y lo separa con intención. Ese tiempo previo evita que quienes
+          trabajan en un comedor, un albergue o un refugio destinen sus horas a reparar lo que
+          llegó en desorden.
+        </p>
+        <p class="text-secondary mb-0">
+          Los alimentos no perecibles, la ropa de abrigo, los artículos de higiene, los útiles
+          escolares y los productos para animales tienen necesidades distintas. Prepararlos según
+          su categoría permite que cada bien encuentre un uso real y respetuoso.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="dc-section-space bg-light">
+  <div class="container">
+    <div class="row g-4 mb-4 mb-lg-5">
+      <div class="col-12 col-lg-7">
+        <span class="dc-eyebrow mb-3">Una entrega ordenada</span>
+        <h2 class="display-6 fw-bold mb-0">El orden ayuda a que la ayuda se use mejor</h2>
+      </div>
+      <div class="col-12 col-lg-5">
+        <p class="lead text-secondary mb-0">
+          Cuando los bienes llegan identificados y en el estado esperado, quienes reciben pueden
+          dedicarse a distribuirlos en lugar de revisarlos desde cero.
+        </p>
+      </div>
+    </div>
+
+    <div class="row g-3 g-lg-4">
+      @for (paso of pasos; track paso.titulo) {
+        <div class="col-12 col-md-6 col-xl-4">
+          <article class="card h-100 border-0 shadow-sm rounded-4 p-4">
+            <span class="dc-historias-icon rounded-circle mb-3">
+              <app-icon [name]="paso.icono" aria-hidden="true" />
+            </span>
+            <h3 class="h5 fw-bold mb-2">{{ paso.titulo }}</h3>
+            <p class="text-secondary mb-0">{{ paso.texto }}</p>
+          </article>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<section class="dc-section-space bg-white">
+  <div class="container">
+    <div class="row g-4 g-lg-5 align-items-center">
+      <div class="col-12 col-lg-6">
+        <figure class="dc-historias-frame dc-historias-frame--reverse mb-0">
+          <img
+            src="/assets/images/comunidad-solidaria.webp"
+            width="549"
+            height="461"
+            class="img-fluid w-100 rounded-4 shadow-sm dc-historias-image"
+            alt="Ilustración de personas colaborando en un espacio comunitario."
+            loading="lazy"
+          />
+        </figure>
+      </div>
+
+      <div class="col-12 col-lg-6">
+        <span class="dc-eyebrow mb-3">Colaboración responsable</span>
+        <h2 class="display-6 fw-bold mb-3">El impacto empieza con acuerdos claros</h2>
+        <p class="text-secondary mb-3">
+          El potencial de una donación crece cuando la necesidad está descrita, la entrega se
+          acuerda y la recepción se confirma. Así, el esfuerzo de quien dona y el trabajo de quien
+          recibe avanzan en la misma dirección.
+        </p>
+        <p class="text-secondary mb-0">
+          Participar con responsabilidad también significa respetar los horarios, cuidar la
+          información de las personas y aceptar que cada bien tiene un destino definido por una
+          necesidad concreta.
+        </p>
+
+        <div class="dc-historias-note rounded-4 p-3 p-md-4 mt-4">
+          <div class="d-flex gap-3 align-items-start">
+            <span class="text-success flex-shrink-0 mt-1">
+              <app-icon name="check-circle" aria-hidden="true" />
+            </span>
+            <p class="mb-0">
+              Las experiencias publicadas llegarán cuando exista una recepción confirmada y una
+              revisión de la información. Mientras tanto, esta página comparte cómo preparar una
+              entrega y cómo participar con cuidado.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="dc-section-space">
+  <div class="container">
+    <div class="dc-historias-cta rounded-5 p-4 p-md-5">
+      <div class="row align-items-center g-4">
+        <div class="col-12 col-lg-7">
+          <span class="dc-eyebrow mb-3">Cómo participar</span>
+          <h2 class="display-6 fw-bold mb-3 text-white">Empieza por conocer lo que se necesita</h2>
+          <p class="lead text-white mb-3">
+            Explora las necesidades publicadas y consulta la guía para preparar bienes materiales.
+            Cuando el registro de compromisos y las confirmaciones de recepción estén disponibles,
+            cada entrega podrá verse con su seguimiento.
+          </p>
+          <p class="small text-white-50 mb-0">
+            DonaConecta gestiona bienes materiales; no procesa donaciones monetarias.
+          </p>
+        </div>
+
+        <div class="col-12 col-lg-5 d-grid gap-3">
+          <a routerLink="/necesidades" class="btn btn-light btn-lg">Explorar necesidades</a>
+          <a routerLink="/como-donar" class="btn btn-outline-light btn-lg">Ver cómo donar</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

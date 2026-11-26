@@ -1,0 +1,52 @@
+:host {
+  display: block;
+}
+
+.dc-quick-access {
+  position: relative;
+  z-index: 2;
+  padding-block: 1.25rem 0.5rem;
+  background: var(--dc-cream);
+}
+
+.dc-quick-panel {
+  background: var(--dc-white);
+  border-top: 3px solid var(--dc-amber);
+}
+
+.dc-quick-icon,
+.dc-quick-link-icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.9rem;
+  color: var(--dc-blue);
+  background: var(--dc-blue-soft);
+}
+
+.dc-quick-link {
+  color: var(--dc-navy);
+  background: var(--dc-cream);
+  border: 1px solid rgba(18, 48, 74, 0.06);
+  transition: background-color 0.18s ease, transform 0.18s ease;
+}
+
+.dc-quick-link:hover {
+  background: var(--dc-blue-soft);
+  transform: translateY(-2px);
+}
+
+.dc-quick-link-icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  background: var(--dc-white);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dc-quick-link {
+    transition: none;
+  }
+
+  .dc-quick-link:hover {
+    transform: none;
+  }
+}

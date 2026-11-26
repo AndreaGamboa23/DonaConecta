@@ -1,0 +1,31 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.dc-chat-body {
+  min-height: 18rem;
+  background: var(--dc-cream, #f7f5ef);
+}
+
+.dc-chat-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  background: #dcebf5;
+  color: #3679a8;
+}
+
+.dc-chat-avatar app-icon,
+.dc-chat-empty app-icon,
+.card-footer app-icon {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+.dc-chat-empty {
+  width: 2.75rem;
+  height: 2.75rem;
+  background: #ffffff;
+  color: #3679a8;
+}

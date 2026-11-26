@@ -1,0 +1,138 @@
+@if (producto(); as producto) {
+  <section class="dc-detalle-portada bg-light">
+    <div class="container dc-section-space">
+      <nav aria-label="Ruta de navegación">
+        <ol class="breadcrumb small mb-4">
+          <li class="breadcrumb-item"><a routerLink="/">Inicio</a></li>
+          <li class="breadcrumb-item"><a routerLink="/explorar">Explorar</a></li>
+          <li class="breadcrumb-item">
+            <a [routerLink]="['/explorar', categoria()?.slug || producto.categoriaSlug]">
+              {{ categoria()?.nombre || 'Categoría' }}
+            </a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">{{ producto.nombre }}</li>
+        </ol>
+      </nav>
+      <div class="row g-4 g-lg-5 align-items-center">
+        <div class="col-12 col-lg-7">
+          <span class="dc-eyebrow mb-3 d-inline-block">Guía de donación</span>
+          <h1 class="display-6 fw-bold mb-3">{{ producto.nombre }}</h1>
+          <p class="lead text-secondary mb-3">{{ producto.descripcion }}</p>
+          <p class="mb-4 dc-utilidad">{{ producto.utilidad }}</p>
+          <div class="d-flex flex-wrap gap-2">
+            <a [routerLink]="['/explorar', producto.categoriaSlug]" class="btn btn-primary">
+              Ver categoría
+            </a>
+            <a routerLink="/necesidades" class="btn btn-outline-primary">Ver solicitudes</a>
+            <a routerLink="/como-donar" fragment="bienes" class="btn btn-outline-secondary">
+              Cómo donar
+            </a>
+          </div>
+        </div>
+        <div class="col-12 col-lg-5">
+          <div class="card border-0 shadow-sm rounded-5 overflow-hidden">
+            <div class="dc-detalle-ilustracion d-flex align-items-center justify-content-center p-5">
+              <span class="dc-detalle-icono d-inline-flex align-items-center justify-content-center rounded-circle">
+                <app-icon [name]="categoria()?.icono || 'box'" aria-hidden="true" />
+              </span>
+            </div>
+            <div class="card-body bg-white p-3 p-md-4">
+              <p class="small text-secondary mb-0">
+                Esta guía es informativa. No muestra precios, ventas, stock ni una solicitud activa.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="dc-section-space">
+    <div class="container">
+      <div class="row g-4 g-lg-5">
+        <div class="col-12 col-lg-7">
+          <div class="card border-0 shadow-sm rounded-4 p-3 p-md-4 mb-4">
+            <h2 class="h4 fw-bold mb-3">Condiciones recomendadas</h2>
+            <ul class="list-unstyled d-grid gap-3 mb-0">
+              @for (condicion of producto.condiciones; track condicion) {
+                <li class="d-flex gap-2 align-items-start">
+                  <span class="dc-check-icon flex-shrink-0">
+                    <app-icon name="check" aria-hidden="true" />
+                  </span>
+                  <span>{{ condicion }}</span>
+                </li>
+              }
+            </ul>
+          </div>
+
+          <div class="card border-0 bg-white shadow-sm rounded-4 p-3 p-md-4 mb-4">
+            <h2 class="h4 fw-bold mb-3">Cómo prepararlo</h2>
+            <ol class="list-group list-group-numbered list-group-flush">
+              @for (paso of producto.preparacion; track paso) {
+                <li class="list-group-item px-0 py-3">{{ paso }}</li>
+              }
+            </ol>
+          </div>
+
+          @if (relacionados().length) {
+            <div class="mt-5">
+              <h2 class="h4 fw-bold mb-3">Productos relacionados</h2>
+              <div class="row row-cols-1 row-cols-sm-2 g-3">
+                @for (relacionado of relacionados(); track relacionado.slug) {
+                  <div class="col">
+                    <app-producto-card
+                      [producto]="relacionado"
+                      [categoria]="categoria() || null"
+                    />
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="col-12 col-lg-5">
+          <div class="card border-0 bg-light rounded-4 p-3 p-md-4 mb-4">
+            <h2 class="h5 fw-bold mb-3">¿Quiénes podrían recibirlo?</h2>
+            <p class="small text-secondary mb-3">
+              Posibles tipos de organización según el bien; no son instituciones registradas.
+            </p>
+            <div class="d-flex flex-wrap gap-2">
+              @for (institucion of producto.instituciones; track institucion) {
+                <span class="badge rounded-pill text-bg-white border dc-badge-tipo">
+                  {{ institucion }}
+                </span>
+              }
+            </div>
+            <a routerLink="/instituciones" class="btn btn-outline-primary btn-sm mt-3">
+              Ver tipos de institución
+            </a>
+          </div>
+
+          <div class="card border-0 bg-primary text-white rounded-4 p-3 p-md-4">
+            <h2 class="h5 fw-bold mb-2">Solicitudes compatibles</h2>
+            <p class="small mb-3 dc-texto-claro">
+              Cuando una institución publique una solicitud compatible, podrás consultarla en la
+              sección de necesidades. Esta guía no confirma que exista una solicitud activa.
+            </p>
+            <a routerLink="/necesidades" class="btn btn-light btn-sm">Ir a necesidades</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+} @else {
+  <section class="dc-section-space">
+    <div class="container">
+      <app-empty-state
+        icono="box"
+        titulo="No encontramos este bien"
+        mensaje="Puedes explorar las cinco guías de bienes materiales disponibles."
+        accionPrincipal="Explorar bienes"
+        rutaPrincipal="/explorar"
+        accionSecundaria="Volver al inicio"
+        rutaSecundaria="/"
+      />
+    </div>
+  </section>
+}

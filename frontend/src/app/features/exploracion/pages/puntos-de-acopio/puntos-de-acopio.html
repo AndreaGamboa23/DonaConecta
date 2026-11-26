@@ -1,0 +1,50 @@
+<app-page-hero
+  eyebrow="Entregas coordinadas"
+  titulo="Puntos de acopio"
+  descripcion="Explora la ciudad de referencia y coordina la entrega de bienes materiales con la institución responsable."
+  icono="map"
+  tono="amber"
+/>
+
+<section class="dc-section-space">
+  <div class="container">
+    <app-pending-notice
+      [estado]="estado"
+      titulo="El directorio de puntos todavía no está conectado"
+      class="d-block mb-4"
+    />
+
+    <app-mapa-huancayo />
+
+    <div class="row g-4 mt-4">
+      <div class="col-12 col-lg-7">
+        <div class="dc-punto-panel rounded-4 p-3 p-md-4 h-100">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <span class="dc-punto-icon d-inline-flex align-items-center justify-content-center rounded-3">
+              <app-icon name="pin" />
+            </span>
+            <div>
+              <span class="d-block small text-uppercase fw-semibold text-secondary">Panel preparado</span>
+              <h2 class="h5 fw-bold mb-0">Puntos autorizados</h2>
+            </div>
+          </div>
+          <p class="text-secondary mb-3">
+            Cuando el servicio esté conectado, aquí se mostrarán el nombre, el distrito, los
+            horarios y las instrucciones de entrega de cada punto publicado.
+          </p>
+          <div class="alert alert-light border small mb-0" role="status">
+            <strong>Sin datos cargados todavía.</strong> El mapa muestra solo la referencia de
+            Huancayo; no incluye puntos de acopio inventados.
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-lg-5">
+        <div class="d-grid gap-2 h-100 align-content-center">
+          <a routerLink="/como-donar" class="btn btn-primary">Cómo donar</a>
+          <a routerLink="/registro/institucion" class="btn btn-outline-primary">Registrar institución</a>
+          <a routerLink="/instituciones" class="btn btn-outline-secondary">Ver instituciones</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

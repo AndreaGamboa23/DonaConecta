@@ -1,3 +1,12 @@
 :host {
   display: block;
 }
+
+.dc-category-intro::after {
+  content: '';
+  position: absolute;
+  inset: 0.75rem -0.75rem -0.75rem 0.75rem;
+  border: 1px solid rgba(54, 121, 168, 0.24);
+  border-radius: var(--dc-radius-xl);
+  pointer-events: none;
+}

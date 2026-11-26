@@ -23,6 +23,16 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+.dc-app-main {
+  padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 992px) {
+  .dc-app-main {
+    padding-bottom: 0;
+  }
+}
+
 h1,
 h2,
 h3,

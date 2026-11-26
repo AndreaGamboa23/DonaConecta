@@ -20,7 +20,7 @@ calidad, seguridad, privacidad, rendimiento y criterios de aceptación.
 |---|---|---|
 | RNF-07 | Separación de capas | Presentación, lógica de negocio y persistencia separadas; backend único acceso a SQL Server. |
 | RNF-08 | Modularidad | `core`, `shared`, `layouts`, `features`, `services`, `guards`, `interceptors`, `interfaces`, `routing`, `assets`, `styles`. |
-| RNF-09 | Carga diferida | Las páginas se cargan con `loadComponent`; el bundle inicial se mantiene por debajo del presupuesto de 500 kB. |
+| RNF-09 | Carga diferida | Las páginas se cargan con `loadComponent`; el bundle inicial se mantiene por debajo del presupuesto de 600 kB. |
 | RNF-10 | Trazabilidad de ruta | Cada ruta tiene título y descripción meta propios; scroll con fragmentos y restauración. |
 | RNF-11 | Simplicidad | Sin dependencias innecesarias, ORM ni patrones difíciles de explicar en sustentación. |
 

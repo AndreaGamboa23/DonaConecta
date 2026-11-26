@@ -1,0 +1,41 @@
+<section class="dc-quick-access" aria-label="Accesos a los servicios">
+  <div class="container">
+    <div class="dc-quick-panel rounded-4 shadow-sm p-3 p-md-4 mb-4">
+      <div class="row g-3 align-items-center">
+        <div class="col-12 col-md-4">
+          <div class="d-flex align-items-center gap-3">
+            <span class="dc-quick-icon d-flex align-items-center justify-content-center flex-shrink-0">
+              <app-icon name="pin" />
+            </span>
+            <div>
+              <span class="d-block small text-secondary">Tu comunidad</span>
+              <strong class="d-block">Huancayo, Junín</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-8">
+          <p class="small text-secondary mb-0">
+            Elige un servicio para empezar. Puedes explorar la comunidad y leer la guía sin crear
+            una cuenta.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-3 row-cols-1 row-cols-sm-2 row-cols-lg-4">
+      @for (action of actions; track action.route) {
+        <div class="col">
+          <app-service-card
+            [icono]="action.icon"
+            [titulo]="action.label"
+            [descripcion]="action.descripcion"
+            [ruta]="action.route"
+            [etiqueta]="action.etiqueta"
+            [tono]="action.tono"
+          />
+        </div>
+      }
+    </div>
+  </div>
+</section>

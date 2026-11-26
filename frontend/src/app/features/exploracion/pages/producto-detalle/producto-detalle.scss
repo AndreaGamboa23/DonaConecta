@@ -1,0 +1,47 @@
+:host {
+  display: block;
+}
+
+.dc-detalle-portada {
+  border-bottom: 1px solid rgba(18, 48, 74, 0.08);
+}
+
+.dc-detalle-ilustracion {
+  min-height: 15rem;
+  background:
+    radial-gradient(circle at 25% 20%, rgba(213, 164, 81, 0.22), transparent 32%),
+    linear-gradient(135deg, #dcebf5, #f7f5ef);
+}
+
+.dc-detalle-icono {
+  width: 7rem;
+  height: 7rem;
+  padding: 1.7rem;
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--dc-blue, #3679a8);
+  box-shadow: 0 1rem 2.5rem rgba(18, 48, 74, 0.12);
+}
+
+.dc-utilidad {
+  color: var(--dc-navy, #12304a);
+  font-weight: 600;
+}
+
+.dc-check-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0.25rem;
+  border-radius: 50%;
+  background: rgba(128, 182, 154, 0.2);
+  color: #2f7d5b;
+}
+
+.dc-badge-tipo {
+  background: #fff;
+  color: var(--dc-navy, #12304a);
+  font-weight: 600;
+}
+
+.dc-texto-claro {
+  color: rgba(255, 255, 255, 0.88);
+}
