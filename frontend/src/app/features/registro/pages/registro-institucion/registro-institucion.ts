@@ -10,17 +10,17 @@ import {
   resolverFuerzaPassword,
   telefonoPeruano,
 } from '../../../../core/utils/formularios';
+import { Brand } from '../../../../shared/components/brand/brand';
 import { Icon } from '../../../../shared/components/icon/icon';
-import { PageHero } from '../../../../shared/components/page-hero/page-hero';
 import { PendingNotice } from '../../../../shared/components/pending-notice/pending-notice';
 import { RegistroApiService } from '../../services/registro-api.service';
 
-type Paso = 1 | 2 | 3;
+type Paso = 1 | 2 | 3 | 4;
 
 @Component({
   selector: 'app-registro-institucion',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, Icon, PageHero, PendingNotice],
+  imports: [ReactiveFormsModule, RouterLink, Brand, Icon, PendingNotice],
   templateUrl: './registro-institucion.html',
   styleUrl: './registro-institucion.scss',
 })
@@ -35,6 +35,13 @@ export class RegistroInstitucion {
   readonly verContrasena = signal(false);
   readonly fuerza = signal(0);
   readonly respuesta = signal('');
+
+  readonly etapas = [
+    { numero: 1, titulo: 'Acceso', icono: 'lock' },
+    { numero: 2, titulo: 'Representante', icono: 'user' },
+    { numero: 3, titulo: 'Institución', icono: 'building' },
+    { numero: 4, titulo: 'Ubicación y revisión', icono: 'shield' },
+  ] as const;
 
   readonly form = new FormGroup(
     {
@@ -86,7 +93,8 @@ export class RegistroInstitucion {
   private readonly camposPorPaso: Readonly<Record<Paso, readonly string[]>> = {
     1: ['email', 'password', 'confirmacion'],
     2: ['nombres', 'apellidos', 'telefono', 'cargoRepresentante'],
-    3: ['nombreInstitucion', 'tipoId', 'distritoId'],
+    3: ['nombreInstitucion', 'tipoId'],
+    4: ['distritoId', 'direccion', 'descripcion'],
   };
 
   constructor() {
@@ -101,7 +109,7 @@ export class RegistroInstitucion {
 
   siguiente(): void {
     if (!this.validarPaso(this.paso())) return;
-    if (this.paso() < 3) this.paso.update((valor) => (valor + 1) as Paso);
+    if (this.paso() < 4) this.paso.update((valor) => (valor + 1) as Paso);
   }
 
   anterior(): void {
@@ -109,7 +117,7 @@ export class RegistroInstitucion {
   }
 
   enviar(): void {
-    if (!this.validarPaso(3)) return;
+    if (!this.validarPaso(4)) return;
 
     const valor = this.form.getRawValue();
     const payload: RegistroRepresentantePayload = {
@@ -133,7 +141,7 @@ export class RegistroInstitucion {
     this.api.registrarRepresentante(payload).subscribe({
       error: () =>
         this.respuesta.set(
-          'La solicitud no se envió: el servicio de registro todavía no está disponible. Tu institución quedaría pendiente de verificación cuando el servicio se active.',
+          'Tu solicitud no se ha enviado: el servicio oficial aún no está conectado. No se ha guardado ningún dato.',
         ),
     });
   }

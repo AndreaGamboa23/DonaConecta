@@ -1,31 +1,49 @@
-<app-page-hero
-  eyebrow="Acceso a tu cuenta"
-  titulo="Bienvenido de nuevo"
-  descripcion="Ingresa para ver tus donaciones, mensajes y perfil. Si todavía no tienes cuenta, puedes crearla en unos pasos."
-  icono="lock"
-  tono="blue"
-/>
-
-<section class="dc-section-space">
+<section class="dc-auth-layout dc-section-space">
   <div class="container">
-    <div class="row g-4 g-lg-5">
-      <div class="col-12 col-lg-7">
+    <div class="row g-0 dc-auth-shell shadow-sm rounded-5 overflow-hidden">
+      <div class="col-lg-5 dc-auth-photo position-relative text-white">
+        <img
+          class="w-100 h-100 object-fit-cover"
+          src="/assets/images/iniciar-sesion.webp"
+          width="621"
+          height="836"
+          alt="Ilustración de una persona accediendo a su cuenta"
+          loading="eager"
+          fetchpriority="high"
+        />
+        <span class="dc-auth-overlay" aria-hidden="true"></span>
+        <div class="dc-auth-photo-content position-absolute bottom-0 start-0 end-0 p-4 p-lg-5">
+          <span class="dc-eyebrow dc-eyebrow-light d-block mb-3">Tu espacio en DonaConecta</span>
+          <h2 class="h3 fw-bold mb-3">Una comunidad, muchas manos, un mismo propósito.</h2>
+          <p class="mb-0 text-white">
+            Un espacio pensado para explorar, coordinar y seguir donaciones de bienes materiales.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-lg-7 bg-white p-3 p-md-4 p-lg-5">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+          <app-brand />
+          <a routerLink="/" class="btn btn-link px-0 small">
+            <app-icon name="arrow-left" /> Volver al inicio
+          </a>
+        </div>
+
+        <span class="dc-eyebrow d-block mb-3">Acceso a tu cuenta</span>
+        <h1 class="display-6 fw-bold mb-3">Bienvenido de nuevo</h1>
+        <p class="text-secondary mb-4">
+          Cuando el acceso esté disponible, aquí verás tus donaciones, mensajes y perfil. Si todavía
+          no tienes cuenta, podrás crearla en unos pasos.
+        </p>
+
+        <app-pending-notice [estado]="estadoLogin" titulo="El acceso aún no está conectado" />
+
         <form
-          class="card shadow-sm rounded-4 p-3 p-md-4 p-lg-5"
+          class="dc-login-form mt-4"
           novalidate
           [formGroup]="form"
           (ngSubmit)="entrar()"
         >
-          <div class="d-flex align-items-center gap-3 mb-4">
-            <span class="dc-login-icon d-flex align-items-center justify-content-center rounded-3">
-              <app-icon name="log-in" />
-            </span>
-            <div>
-              <h2 class="h5 fw-bold mb-1">Inicia sesión</h2>
-              <p class="small text-secondary mb-0">Ingresa con el correo que usaste al registrarte.</p>
-            </div>
-          </div>
-
           <div class="mb-3">
             <label for="login-email" class="form-label small fw-semibold">Correo electrónico</label>
             <div class="input-group has-validation">
@@ -77,16 +95,17 @@
           }
 
           <div class="d-flex flex-column flex-sm-row flex-wrap gap-2 mt-4">
-            <button class="btn btn-primary px-4" type="submit">Iniciar sesión</button>
-            <a routerLink="/necesidades" class="btn btn-outline-secondary px-4">Continuar explorando</a>
+            <button class="btn btn-primary btn-lg px-4" type="submit">Iniciar sesión</button>
+            <a routerLink="/necesidades" class="btn btn-outline-secondary btn-lg px-4">Continuar explorando</a>
           </div>
         </form>
 
-        <div class="card rounded-4 border-0 bg-light p-3 p-md-4 mt-4">
+        <div class="dc-recuperacion rounded-4 mt-4 p-3 p-md-4">
           <details>
             <summary class="small fw-semibold">¿Olvidaste tu contraseña?</summary>
             <p class="small text-secondary mt-2 mb-3">
-              Cuando el servicio esté listo, enviamos un enlace temporal a tu correo. Ahora mismo no se envía ningún mensaje.
+              Solicita un enlace temporal cuando el servicio esté disponible. Ahora mismo no se
+              envía ningún correo.
             </p>
             <form
               class="row g-2 align-items-start"
@@ -99,34 +118,22 @@
                 <input
                   id="recuperacion-email"
                   type="email"
-                  class="form-control form-control-sm"
+                  class="form-control"
                   placeholder="nombre@ejemplo.com"
                   [class.is-invalid]="recuperacionForm.controls.email.invalid && recuperacionForm.controls.email.touched"
                   formControlName="email"
                 />
               </div>
               <div class="col-12 col-sm-4">
-                <button class="btn btn-outline-secondary btn-sm w-100" type="submit">Solicitar enlace</button>
+                <button class="btn btn-outline-secondary w-100" type="submit">Solicitar enlace</button>
               </div>
             </form>
-            <p class="small text-secondary mt-2 mb-0">
-              Recuperación: {{ estadoRecuperacion.mensaje }}
-            </p>
           </details>
         </div>
-      </div>
 
-      <div class="col-12 col-lg-5">
-        <app-pending-notice [estado]="estadoLogin" titulo="El acceso aún no está conectado" />
-
-        <div class="card rounded-4 border-0 bg-light p-3 p-md-4 mt-4">
-          <h2 class="h6 fw-bold mb-3">Mientras tanto, puedes</h2>
-          <div class="d-grid gap-2">
-            <a routerLink="/necesidades" class="btn btn-outline-primary">Explorar necesidades</a>
-            <a routerLink="/como-donar" class="btn btn-outline-primary">Leer la guía de donación</a>
-            <a routerLink="/registro/donante" class="btn btn-outline-primary">Crear perfil de donante</a>
-            <a routerLink="/registro/institucion" class="btn btn-outline-primary">Registrar institución</a>
-          </div>
+        <div class="d-flex flex-wrap align-items-center gap-3 mt-4">
+          <a routerLink="/registro/donante" class="btn btn-link px-0 small">Crear perfil de donante</a>
+          <a routerLink="/registro/institucion" class="btn btn-link px-0 small">Registrar institución</a>
         </div>
       </div>
     </div>

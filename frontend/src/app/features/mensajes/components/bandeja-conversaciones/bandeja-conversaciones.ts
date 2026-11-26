@@ -1,16 +1,17 @@
-import { Component, inject } from '@angular/core';
-import { BackendEstadoService } from '../../../../core/services/backend-estado.service';
+import { Component, computed, output, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Icon } from '../../../../shared/components/icon/icon';
-import { PendingNotice } from '../../../../shared/components/pending-notice/pending-notice';
 
 /** Bandeja sin registros inventados: espera a la API autorizada de conversaciones. */
 @Component({
   selector: 'app-bandeja-conversaciones',
   standalone: true,
-  imports: [Icon, PendingNotice],
+  imports: [FormsModule, Icon],
   templateUrl: './bandeja-conversaciones.html',
   styleUrl: './bandeja-conversaciones.scss',
 })
 export class BandejaConversaciones {
-  readonly estado = inject(BackendEstadoService).estado('conversaciones');
+  readonly abrir = output<number>();
+  readonly termino = signal('');
+  readonly sinResultados = computed(() => this.termino().trim().length > 0);
 }

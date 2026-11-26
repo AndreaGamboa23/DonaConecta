@@ -13,7 +13,7 @@
 }
 
 .dc-page-hero--navy .dc-eyebrow {
-  color: #d5a451;
+  color: #f0d49b;
 }
 
 .dc-page-hero--green {
@@ -24,24 +24,28 @@
   background: linear-gradient(135deg, #f4e6cd 0%, #f7f5ef 100%);
 }
 
+.dc-page-hero-title {
+  color: #12304a;
+  font-size: clamp(1.9rem, 3.6vw, 2.9rem);
+  line-height: 1.15;
+  max-width: 46rem;
+}
+
+.dc-page-hero--navy .dc-page-hero-title {
+  color: #fff;
+}
+
+.dc-page-hero-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
 .dc-page-hero-copy {
-  color: rgba(18, 48, 74, 0.76);
+  color: rgba(18, 48, 74, 0.82);
+  font-size: 1.05rem;
+  max-width: 48rem;
 }
 
 .dc-page-hero--navy .dc-page-hero-copy {
-  color: rgba(255, 255, 255, 0.88);
-}
-
-.dc-page-hero-mark {
-  width: 9rem;
-  height: 9rem;
-  border-radius: 42% 58% 54% 46% / 52% 44% 56% 48%;
-  background: rgba(255, 255, 255, 0.68);
-  color: #3679a8;
-  box-shadow: 0 1.5rem 3rem rgba(18, 48, 74, 0.12);
-}
-
-.dc-page-hero--navy .dc-page-hero-mark {
-  background: rgba(255, 255, 255, 0.14);
   color: #fff;
 }

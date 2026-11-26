@@ -117,7 +117,7 @@ app.ts (RouterOutlet)
   `TitleStrategy` propia que actualiza título y metadescripción por ruta.
 - `core/seo/dona-title-strategy.ts` centraliza el SEO sin dependencias adicionales.
 - Todas las páginas usan `loadComponent`, de modo que el bundle inicial se mantiene por debajo
-  del presupuesto de 500 kB y cada sección se descarga bajo demanda.
+  del presupuesto de 600 kB ajustado en Fase 07.A y cada sección se descarga bajo demanda.
 - Las rutas privadas futuras añadirán guards de Angular como ayuda de navegación; la
   autorización definitiva permanecerá en el backend.
 - El mapa completo de rutas implementadas y planificadas está en `docs/mapa-navegacion.md`.

@@ -4,34 +4,28 @@
 }
 
 .dc-chat-body {
-  min-height: 20rem;
-  background:
-    radial-gradient(circle at 20% 20%, #dcebf5 0, transparent 38%),
-    radial-gradient(circle at 85% 80%, #f4e6cd 0, transparent 34%),
-    #f7f5ef;
+  min-height: 18rem;
+  background: var(--dc-cream, #f7f5ef);
 }
 
 .dc-chat-avatar {
-  width: 2.75rem;
-  height: 2.75rem;
+  width: 2.5rem;
+  height: 2.5rem;
   flex-shrink: 0;
   background: #dcebf5;
   color: #3679a8;
 }
 
-.dc-chat-avatar app-icon {
-  width: 1.35rem;
-  height: 1.35rem;
+.dc-chat-avatar app-icon,
+.dc-chat-empty app-icon,
+.card-footer app-icon {
+  width: 1.2rem;
+  height: 1.2rem;
 }
 
 .dc-chat-empty {
-  width: 3.5rem;
-  height: 3.5rem;
-  background: rgba(255, 255, 255, 0.8);
+  width: 2.75rem;
+  height: 2.75rem;
+  background: #ffffff;
   color: #3679a8;
-}
-
-.dc-chat-empty app-icon {
-  width: 1.75rem;
-  height: 1.75rem;
 }

@@ -22,9 +22,9 @@ interface AccionServicio {
 export class QuickAccess {
   protected readonly actions: readonly AccionServicio[] = [
     {
-      label: 'Explorar necesidades',
-      descripcion: 'Conoce las solicitudes reales de bienes materiales.',
-      route: '/necesidades',
+      label: 'Explorar bienes',
+      descripcion: 'Busca qué puedes donar y consulta las solicitudes publicadas.',
+      route: '/explorar',
       icon: 'compass',
       etiqueta: 'Catálogo',
       tono: 'blue',

@@ -93,7 +93,7 @@
     <div class="row g-4 align-items-end mb-5 mb-lg-6">
       <div class="col-12 col-lg-8">
         <span class="dc-eyebrow mb-3">Bienes aceptados</span>
-        <h2 class="display-6 fw-bold mb-0">Cinco categorías para empezar</h2>
+        <h2 class="display-6 fw-bold mb-0">Cinco categorías protagonistas</h2>
       </div>
       <div class="col-12 col-lg-4">
         <p class="text-secondary mb-0">
@@ -102,22 +102,7 @@
       </div>
     </div>
 
-    <div class="row g-3 g-lg-4">
-      @for (category of categories; track category.title; let i = $index) {
-        <div class="col-12 col-md-6 col-xl-4">
-          <article class="dc-category-card card h-100 p-4" [class.dc-tone-blue]="i % 3 === 0" [class.dc-tone-green]="i % 3 === 1" [class.dc-tone-amber]="i % 3 === 2">
-            <div class="d-flex justify-content-between align-items-start gap-3 mb-4">
-              <span class="dc-category-index" aria-hidden="true">0{{ i + 1 }}</span>
-              <span class="dc-tile-icon bg-white bg-opacity-75 text-primary shadow-sm">
-                <app-icon [name]="category.icon" />
-              </span>
-            </div>
-            <h3 class="h5 fw-bold mb-2">{{ category.title }}</h3>
-            <p class="small text-secondary mb-0">{{ category.text }}</p>
-          </article>
-        </div>
-      }
-    </div>
+    <app-categorias-destacadas />
   </div>
 </section>
 

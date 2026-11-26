@@ -438,7 +438,7 @@ La seguridad se implementa progresivamente en todas las fases, no solo al final.
 | 05 | Modelo entidad-relación y normalización 3FN. | Ejecutada (propuesta revisada en 05.1) |
 | 05.1 | Revisión, corrección y documentación técnica del modelo. | Ejecutada |
 | 06 | Implementación de Microsoft SQL Server. | Ejecutada |
-| 07 | Backend FastAPI, conexión y arquitectura de servicios. | Pendiente (Fase 07.A frontend ejecutada) |
+| 07 | Backend FastAPI, conexión y arquitectura de servicios. | Pendiente (Fases 07.A, 07.B, 07.B.1 y 07.B.2 frontend ejecutadas) |
 | 08 | Landing definitiva y navegación pública integrada. | Pendiente |
 | 09 | Autenticación segura, registro, sesiones y roles. | Pendiente |
 | 10 | Registro, verificación y directorio de instituciones. | Pendiente |
@@ -554,6 +554,94 @@ solo `h1` por ruta y menú móvil `false → true → false`. Sin avisos `NG0913
 `eager` la imagen LCP visible de `/registro/donante`. No se crearon datos, sesiones ni
 estadísticas simuladas. La valoración estética final sigue pendiente de revisión humana. La Fase 07
 de backend continúa pendiente y no se inicia sin autorización explícita.
+
+**Alcance autorizado de la Fase 07.B:** rediseñar visualmente la SPA existente en `frontend/` con
+las ocho imágenes nuevas proporcionadas por el usuario; reorganizar navbar y barra inferior móvil;
+convertir las categorías en accesos protagonistas reutilizables en Inicio, Explorar y Cómo donar;
+mejorar registro, acceso, mensajes, perfil, donaciones, puntos de acopio y seguimiento sin datos,
+sesiones, mensajes ni GPS simulados; reducir los avisos técnicos a una nota breve por pantalla;
+actualizar `AGENTS.md`, `docs/sistema-diseno.md`, `docs/mapa-navegacion.md`,
+`docs/decisiones-tecnicas.md`, `docs/plan-desarrollo.md` y el README de imágenes; verificar build,
+pruebas, imágenes, enlaces, formularios, navegación, consola y responsive. No modificar `backend/`
+ni `database/`; no instalar dependencias; no activar FastAPI, autenticación, chat ni GPS; no
+aumentar presupuestos para ocultar advertencias; no ejecutar commits ni push.
+
+**Resultado de la Fase 07.B:** las ocho imágenes nuevas se sirven desde `/assets/images/...` y se
+verificaron como WebP reales con HTTP `200` y `Content-Type: image/webp`; las 20 imágenes del
+directorio decodificaron correctamente sin HTML ni recursos rotos. El sistema compartido de
+categorías sustituye las tarjetas numeradas por fotografía, nombre, descripción y enlace real a
+`/como-donar#bienes`. El navbar separa navegación pública, acceso personal y registro; la barra
+móvil conserva cinco destinos reales con icono, etiqueta e indicador de selección. Se eliminaron
+los fondos rayados, los controles deshabilitados sin función, los avisos repetidos y el contrato
+muerto `operacion` de `ServicePage`. Perfil, mis donaciones y seguimiento muestran composiciones
+propias con estados vacíos honestos. Build: 547.00 kB iniciales y 105.43 kB transferidos, dentro
+del presupuesto de 600 kB; pruebas: 9 archivos y 14/14 pruebas. Verificación CDP: 47 combinaciones
+de 16 rutas y siete anchos (360–1920 px), 0 desbordamientos, 0 títulos o metadescripciones
+ausentes, 0 imágenes rotas o sin dimensiones, 0 anclas rotas, 0 errores de consola, 0 avisos
+`NG0913`, 0 lenguaje técnico y formularios con `FormGroupDirective` en los casos verificados.
+`git diff --check` no reportó errores de whitespace; solo avisos de normalización LF/CRLF. Las
+capturas quedaron fuera del repositorio. La valoración estética final sigue pendiente de revisión
+humana; la Fase 07 de backend continúa pendiente y no se inicia sin autorización explícita.
+
+**Alcance autorizado de la Fase 07.B.1:** corregir en `frontend/` la navegación, la jerarquía visual
+y la experiencia de servicios; implementar la parte visual/cartográfica autorizada del mapa en
+`/puntos-de-acopio`; preparar catálogo, directorio, chat y seguimiento para la integración futura;
+auditar el flujo real de registro y entregar el informe de contratos para backend. Instalar solo
+las dependencias cartográficas necesarias (`leaflet`, `@types/leaflet`); conservar `BackendEstadoService`
+en `false`; no modificar `backend/` ni `database/`; no activar autenticación, GPS real, chat ni
+envíos HTTP; no crear datos simulados ni ejecutar commits o push. La Fase 07 de backend sigue
+pendiente y separada.
+
+**Resultado de la Fase 07.B.1:** el navbar quedó en una sola fila de escritorio con Inicio,
+Explorar, Instituciones, Mensajes, `Más`, Iniciar sesión y Regístrate; el desplegable incluye
+Puntos de acopio, Mis donaciones, Cómo donar, Nosotros y FAQ, con chevron propio, `aria-expanded`,
+Escape y cierre por clic fuera. La barra inferior móvil conserva cinco destinos y el menú muestra
+acceso a sesión y registro. `PageHero` eliminó el círculo decorativo de 9 rem, usa color explícito
+para el título sobre azul y redujo el espacio vertical; se reforzó el contraste fotográfico y se
+elevaron las áreas táctiles. `/necesidades` e `/instituciones` incorporan buscadores, filtros y
+estados de resultado honestos; `InstitucionCard` está preparada para DTO reales sin datos de
+ejemplo. `/mensajes` separa bandeja y conversación con vista móvil independiente y sin chats
+simulados. `/puntos-de-acopio` usa Leaflet 1.9.4 con teselas de OpenStreetMap, centro verificado
+de Huancayo (Wikidata Q468782), zoom, desplazamiento, retorno, geolocalización voluntaria y
+estados de permisos; no hay marcadores de negocio, rutas ni ETAs. `/seguimiento/:id` documenta
+las limitaciones de geolocalización en PWA y segundo plano. Se corrigieron los avisos de registro
+sin activar el envío y se creó `docs/informe-backend-fase-07b1.md` con el contrato para backend.
+Build: **562,41 kB** iniciales y **108,35 kB** transferidos, dentro del presupuesto de 600 kB;
+pruebas: **9 archivos y 15/15** aprobadas. Persisten únicamente las advertencias de deprecación
+de `@import` de Sass. La verificación con CDP y el `git diff --check` final se registran en
+`docs/plan-desarrollo.md`. La valoración estética final sigue pendiente de revisión humana; la
+Fase 07 de backend no se inicia sin autorización explícita.
+
+**Alcance autorizado de la Fase 07.B.2:** convertir `frontend/` en una aplicación de servicios
+comunitarios con catálogo informativo de 41 bienes, buscador local tolerante a tildes, mayúsculas,
+sinónimos, singular/plural y aproximación moderada, detalle por producto, guías por categoría,
+directorio por tipos de institución y la página editorial «Historias que conectan». Corregir el
+borde inferior del hero, usar las seis imágenes nuevas como ilustraciones declaradas, reforzar el
+navbar y la barra móvil, robustecer el mapa Leaflet sin puntos inventados y documentar como
+propuestas los comentarios, valoraciones, favoritos y el entorno `DonaConectaDB_Pruebas`. No
+modificar `backend/` ni `database/`; no instalar dependencias; no activar HTTP, WebSocket,
+autenticación, GPS real ni chat; no crear datos de negocio simulados; no ejecutar commits ni push.
+
+**Resultado de la Fase 07.B.2:** rutas nuevas `/explorar`, `/explorar/:categoria` y
+`/explorar/:categoria/:producto` con título y metadescripción propios, además de `/historias`.
+El buscador de portada lleva «cobijas» a `/explorar?q=cobijas` y muestra Frazadas; el de Explorar
+devuelve resultados para «mochilas» y ofrece seis sugerencias. Las categorías son accesos reales
+con foto uniforme, sin etiquetas redundantes, y el detalle muestra condiciones, preparación y
+relacionados. Instituciones presenta cuatro tipos ilustrativos sin nombres ni verificaciones
+inventados; Historias usa las dos ilustraciones nuevas sin testimonios ni puntuaciones. El hero
+reserva 5,5 rem para la ola crema y conserva `object-fit: cover` en los cinco anchos medidos.
+Leaflet conserva la atribución de OpenStreetMap, cargó 18/18 mosaicos, dejó `.leaflet-pane` en
+`absolute` y no muestra marcadores de negocio. La causa del fallo anterior era una compilación de
+desarrollo sin `leaflet.css`; el build de producción sí lo incluía. Build: **564,27 kB** iniciales
+y **108,82 kB** transferidos, dentro del presupuesto de 600 kB; pruebas: **12 archivos y 28/28**
+aprobadas. Verificación CDP: **105 combinaciones** de 27 rutas y siete anchos (360–1920 px) con
+0 títulos o metadescripciones ausentes, 0 `h1` duplicados, 0 desbordes, 0 imágenes o anclas rotas,
+0 lenguaje técnico, 0 errores de consola y 0 enlaces internos inválidos; menú móvil
+`false → true → false`, `Más` con «Historias que conectan» y formulario de donante con 10
+controles. Las capturas quedan en `C:\Users\ANDREA\AppData\Local\Temp\opencode\dc-07b2-capturas`,
+fuera del repositorio. Persisten solo las advertencias de deprecación de `@import` de Sass. La
+valoración estética final sigue pendiente de revisión humana; la Fase 07 de backend continúa
+pendiente y no se inicia sin autorización explícita.
 
 ---
 

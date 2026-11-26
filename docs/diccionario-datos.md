@@ -2,7 +2,8 @@
 
 Versión validada en la Fase 05.1. Es la referencia de nombres y significado. Los tipos físicos
 están en `docs/modelo-fisico.md` §3; aquí se documenta semántica, opcionalidad, claves y
-dominios. `?` = opcional. **No hay tablas creadas.**
+dominios. `?` = opcional. El modelo físico se desplegó en la Fase 06 en `DonaConectaDB`
+(42 tablas); esta sección sigue siendo la referencia semántica y no altera los contratos.
 
 ## 1. Convenciones
 

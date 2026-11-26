@@ -2,15 +2,15 @@ import { Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { BackendEstadoService } from '../../../../core/services/backend-estado.service';
+import { Brand } from '../../../../shared/components/brand/brand';
 import { Icon } from '../../../../shared/components/icon/icon';
-import { PageHero } from '../../../../shared/components/page-hero/page-hero';
 import { PendingNotice } from '../../../../shared/components/pending-notice/pending-notice';
 import { AutenticacionApiService } from '../../services/autenticacion-api.service';
 
 @Component({
   selector: 'app-iniciar-sesion',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, Icon, PageHero, PendingNotice],
+  imports: [ReactiveFormsModule, RouterLink, Brand, Icon, PendingNotice],
   templateUrl: './iniciar-sesion.html',
   styleUrl: './iniciar-sesion.scss',
 })
@@ -19,7 +19,6 @@ export class IniciarSesion {
   private readonly estadoServicio = inject(BackendEstadoService);
 
   readonly estadoLogin = this.estadoServicio.estado('login');
-  readonly estadoRecuperacion = this.estadoServicio.estado('recuperacion');
   readonly verContrasena = signal(false);
   readonly respuesta = signal('');
 

@@ -49,6 +49,6 @@ describe('RegistroDonante', () => {
 
     componente.enviar();
 
-    expect(componente.respuesta()).toContain('no está habilitado');
+    expect(componente.respuesta()).toContain('no se han enviado');
   });
 });

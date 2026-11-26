@@ -1,3 +1,16 @@
 :host {
   display: block;
 }
+
+.input-group-text app-icon {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.dc-explorar-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0.6rem;
+  background: var(--dc-blue-soft, #dcebf5);
+  color: var(--dc-blue, #3679a8);
+}

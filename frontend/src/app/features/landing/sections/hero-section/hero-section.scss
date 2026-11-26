@@ -3,7 +3,7 @@
 }
 
 .dc-hero {
-  min-height: 34rem;
+  min-height: 26rem;
   background: #0d2437;
   isolation: isolate;
 }
@@ -20,13 +20,15 @@
     linear-gradient(0deg, rgba(13, 36, 55, 0.72) 0%, rgba(13, 36, 55, 0) 42%);
 }
 
+// La ola inferior ocupa 5.5rem; se reserva ese espacio más un margen para que
+// ningún texto quede cortado por la transición de color.
 .dc-hero-inner {
-  padding-block: 3.25rem 4.5rem;
+  padding-block: 2.5rem 7.75rem;
 }
 
 @media (min-width: 992px) {
   .dc-hero-inner {
-    padding-block: 4.25rem 5rem;
+    padding-block: 3rem 8.25rem;
   }
 }
 
@@ -149,7 +151,7 @@
 
 @media (max-width: 575.98px) {
   .dc-hero {
-    min-height: 38rem;
+    min-height: 31rem;
   }
 
   .dc-hero-overlay {

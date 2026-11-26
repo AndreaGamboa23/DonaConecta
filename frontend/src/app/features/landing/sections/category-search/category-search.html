@@ -5,67 +5,55 @@
         <span class="dc-eyebrow mb-3">Primer paso</span>
         <h2 class="display-6 fw-bold mb-3">¿Qué quieres donar?</h2>
         <p class="lead text-secondary mb-4">
-          Busca entre las cinco categorías informativas. Esta búsqueda no consulta solicitudes
-          reales: te ayuda a preparar tu donación antes de explorar el catálogo.
+          Busca por categoría, por bien concreto o por un nombre parecido. Te mostraremos la guía
+          para preparar tu donación.
         </p>
 
-        <label for="buscador-categorias" class="form-label small fw-semibold">
-          Busca por categoría o ejemplo
-        </label>
-        <div class="input-group input-group-lg">
-          <span class="input-group-text"><app-icon name="search" /></span>
-          <input
-            id="buscador-categorias"
-            type="search"
-            class="form-control"
-            placeholder="Ej. frazadas, jabón, cuadernos"
-            autocomplete="off"
-            [value]="termino()"
-            (input)="cambiarTermino($event)"
-          />
-          @if (termino()) {
-            <button class="btn btn-outline-secondary" type="button" (click)="limpiar()">Limpiar</button>
-          }
+        <app-buscador-catalogo
+          [id]="'buscadorPortada'"
+          etiqueta="Busca por categoría o ejemplo"
+          placeholder="Ej. cuadernos, jabón, cobijas, croquetas"
+          [valor]="termino()"
+          (valorChange)="termino.set($event)"
+          (buscar)="usarTermino($event)"
+        />
+
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-4">
+          <p class="small text-secondary mb-0">
+            <strong>{{ respuesta().resultados.length }}</strong>
+            {{ respuesta().resultados.length === 1 ? 'coincidencia' : 'coincidencias' }}
+          </p>
+          <button type="button" class="btn btn-outline-primary btn-sm" (click)="irAEplorar()">
+            Explorar todo
+          </button>
         </div>
-
-        <p class="small text-secondary mt-3 mb-0">
-          <strong>{{ resultados().length }}</strong>
-          {{ resultados().length === 1 ? 'categoría encontrada' : 'categorías encontradas' }}
-        </p>
       </div>
 
       <div class="col-12 col-lg-7">
         <div class="list-group rounded-4 shadow-sm overflow-hidden">
-          @for (categoria of resultados(); track categoria.codigo) {
-            <a
-              class="list-group-item list-group-item-action d-flex gap-3 align-items-start py-3"
-              routerLink="/como-donar"
-              fragment="bienes"
-            >
+          @for (resultado of resultados(); track resultado.ruta) {
+            <a class="list-group-item list-group-item-action d-flex gap-3 align-items-start py-3" [routerLink]="resultado.ruta">
               <span class="dc-search-icon d-flex align-items-center justify-content-center rounded-3 flex-shrink-0">
-                <app-icon [name]="categoria.icono" />
+                <app-icon [name]="resultado.icono" />
               </span>
               <span class="flex-grow-1">
-                <strong class="d-block small">{{ categoria.nombre }}</strong>
-                <span class="small text-secondary d-block">{{ categoria.descripcion }}</span>
-                <span class="small text-secondary d-block mt-1">Ejemplos: {{ categoria.ejemplos }}</span>
+                <strong class="d-block small">{{ resultado.nombre }}</strong>
+                <span class="small text-secondary d-block">{{ resultado.descripcion }}</span>
+                @if (resultado.tipo === 'producto') {
+                  <span class="small text-primary d-block mt-1 fw-semibold">Ver detalle del bien</span>
+                }
               </span>
               <app-icon name="arrow-right" class="dc-search-arrow" />
             </a>
           } @empty {
-            <div class="list-group-item py-5 text-center text-secondary small">
-              No encontramos esa categoría. Prueba con «alimentos», «ropa», «higiene»,
-              «animales» o «escolares».
+            <div class="list-group-item py-5 text-center">
+              <p class="fw-semibold mb-2">No encontramos ese bien en la guía.</p>
+              <p class="small text-secondary mb-3">
+                Prueba con «cuadernos», «frazadas», «fideos» o elige una categoría.
+              </p>
+              <a routerLink="/explorar" class="btn btn-primary btn-sm">Ver todas las guías</a>
             </div>
           }
-        </div>
-
-        <div class="alert alert-light border d-flex gap-3 align-items-start mt-3 mb-0" role="note">
-          <app-icon name="alert" />
-          <p class="small mb-0">
-            Las solicitudes concretas se publicarán en
-            <a routerLink="/necesidades">Explorar necesidades</a> cuando existan registros reales.
-          </p>
         </div>
       </div>
     </div>

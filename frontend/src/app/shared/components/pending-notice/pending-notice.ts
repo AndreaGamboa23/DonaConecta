@@ -11,5 +11,5 @@ import { Icon } from '../icon/icon';
 })
 export class PendingNotice {
   readonly estado = input.required<EstadoServicio>();
-  readonly titulo = input<string>('Servicio pendiente de integración');
+  readonly titulo = input<string>('Este servicio todavía no está disponible');
 }

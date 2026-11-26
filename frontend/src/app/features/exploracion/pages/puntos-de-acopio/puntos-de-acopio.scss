@@ -1,3 +1,21 @@
 :host {
   display: block;
 }
+
+.dc-punto-panel {
+  border: 1px solid rgba(213, 164, 81, 0.3);
+  background: linear-gradient(135deg, #f4e6cd 0%, #ffffff 68%);
+}
+
+.dc-punto-icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  background: #ffffff;
+  color: var(--dc-amber, #d5a451);
+  flex-shrink: 0;
+}
+
+.dc-punto-icon app-icon {
+  width: 1.35rem;
+  height: 1.35rem;
+}

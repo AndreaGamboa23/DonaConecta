@@ -1,5 +1,16 @@
-app-icon {
-  width: 1.75rem;
-  height: 1.75rem;
-  color: #3679a8;
+:host {
+  display: block;
+}
+
+.dc-bandeja-icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  background: var(--dc-blue-soft, #dcebf5);
+  color: var(--dc-blue, #3679a8);
+}
+
+.dc-bandeja-icon app-icon,
+.input-group-text app-icon {
+  width: 1.2rem;
+  height: 1.2rem;
 }

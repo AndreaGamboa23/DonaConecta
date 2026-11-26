@@ -2,12 +2,21 @@ import { routes } from './app.routes';
 
 describe('Rutas públicas de DonaConecta', () => {
   const hijas = routes[0]?.children ?? [];
+  const paginas = hijas.flatMap((ruta) =>
+    (ruta.children ?? [ruta]).map((pagina) => ({
+      ...pagina,
+      path: ruta.children ? `${ruta.path}/${pagina.path}`.replace(/\/$/, '') : pagina.path,
+    })),
+  );
 
   it('registra todas las páginas implementadas con carga diferida', () => {
-    const rutas = hijas.map((ruta) => ruta.path);
+    const rutas = paginas.map((pagina) => pagina.path);
 
     expect(rutas).toEqual([
       '',
+      'explorar',
+      'explorar/:categoria',
+      'explorar/:categoria/:producto',
       'necesidades',
       'instituciones',
       'puntos-de-acopio',
@@ -20,17 +29,18 @@ describe('Rutas públicas de DonaConecta', () => {
       'seguimiento/:id',
       'perfil',
       'como-donar',
+      'historias',
       'nosotros',
       'preguntas-frecuentes',
       '**',
     ]);
-    expect(hijas.every((ruta) => typeof ruta.loadComponent === 'function')).toBe(true);
+    expect(paginas.every((pagina) => typeof pagina.loadComponent === 'function')).toBe(true);
   });
 
-  it('cada ruta tiene título y descripción propios', () => {
-    for (const ruta of hijas) {
-      expect(typeof ruta.title).toBe('string');
-      expect(typeof ruta.data?.['description']).toBe('string');
+  it('cada página tiene título y descripción propios', () => {
+    for (const pagina of paginas) {
+      expect(typeof pagina.title).toBe('string');
+      expect(typeof pagina.data?.['description']).toBe('string');
     }
   });
 });

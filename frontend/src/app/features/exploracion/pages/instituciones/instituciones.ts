@@ -1,11 +1,112 @@
-import { Component } from '@angular/core';
-import { ServicePage } from '../../../../shared/components/service-page/service-page';
+import { Component, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { DISTRITOS_HUANCAYO, TIPOS_INSTITUCION } from '../../../../core/data/catalogos-locales';
+import { BackendEstadoService } from '../../../../core/services/backend-estado.service';
+import { normalizarTexto } from '../../../../core/utils/busqueda-texto';
+import { Icon } from '../../../../shared/components/icon/icon';
+import {
+  InstitucionCard,
+  InstitucionDirectorio,
+} from '../../../../shared/components/institucion-card/institucion-card';
+import { PageHero } from '../../../../shared/components/page-hero/page-hero';
 
+type EstadoDirectorio = 'servicio-no-disponible' | 'cargando' | 'error' | 'vacio' | 'datos';
+
+interface TipoInstitucionInformativo {
+  readonly nombre: string;
+  readonly descripcion: string;
+  readonly bienes: readonly string[];
+  readonly imagen: string;
+  readonly altImagen: string;
+  readonly categoriaSlug: string;
+  readonly icono: string;
+}
+
+/** Los tipos son información general; ninguno representa una institución registrada. */
 @Component({
   selector: 'app-instituciones',
   standalone: true,
-  imports: [ServicePage],
+  imports: [FormsModule, RouterLink, Icon, InstitucionCard, PageHero],
   templateUrl: './instituciones.html',
   styleUrl: './instituciones.scss',
 })
-export class Instituciones {}
+export class Instituciones {
+  private readonly estadoServicio = inject(BackendEstadoService);
+
+  readonly estado = this.estadoServicio.estado('instituciones');
+  readonly distritos = DISTRITOS_HUANCAYO;
+  readonly tipos = TIPOS_INSTITUCION;
+
+  readonly tiposInformativos: readonly TipoInstitucionInformativo[] = [
+    {
+      nombre: 'Comedores comunitarios',
+      descripcion: 'Espacios donde se preparan comidas para vecinos y familias de la comunidad.',
+      bienes: ['Alimentos', 'Higiene', 'Útiles escolares'],
+      imagen: '/assets/images/institucion-comedor.webp',
+      altImagen: 'Ilustración de un comedor comunitario',
+      categoriaSlug: 'alimentos',
+      icono: 'food',
+    },
+    {
+      nombre: 'Albergues infantiles',
+      descripcion: 'Espacios de acogida que acompañan a niñas, niños y adolescentes.',
+      bienes: ['Ropa y abrigo', 'Alimentos', 'Útiles escolares'],
+      imagen: '/assets/images/institucion-albergue.webp',
+      altImagen: 'Ilustración de un albergue infantil',
+      categoriaSlug: 'utiles-escolares',
+      icono: 'school',
+    },
+    {
+      nombre: 'Refugios de animales',
+      descripcion: 'Cuidados temporales para animales rescatados y espacios de adopción responsable.',
+      bienes: ['Alimento animal', 'Mantas', 'Comederos'],
+      imagen: '/assets/images/institucion-refugio.webp',
+      altImagen: 'Ilustración de un refugio de animales',
+      categoriaSlug: 'animales',
+      icono: 'animals',
+    },
+    {
+      nombre: 'Personas adultas mayores',
+      descripcion: 'Organizaciones que acompañan a adultos mayores en situación de vulnerabilidad.',
+      bienes: ['Ropa y abrigo', 'Higiene', 'Alimentos'],
+      imagen: '/assets/images/institucion-adultos-mayores.webp',
+      altImagen: 'Ilustración de una organización que acompaña a adultos mayores',
+      categoriaSlug: 'ropa',
+      icono: 'hand',
+    },
+  ];
+
+  readonly termino = signal('');
+  readonly tipoId = signal(0);
+  readonly distritoId = signal(0);
+  readonly soloVerificadas = signal(true);
+  readonly estadoDirectorio = signal<EstadoDirectorio>('servicio-no-disponible');
+  /** Se llenará solo con registros devueltos por la API autorizada. */
+  readonly instituciones = signal<readonly InstitucionDirectorio[]>([]);
+
+  readonly tiposVisibles = computed(() => {
+    const texto = normalizarTexto(this.termino());
+    if (!texto) return this.tiposInformativos;
+    return this.tiposInformativos.filter((tipo) =>
+      `${tipo.nombre} ${tipo.descripcion} ${tipo.bienes.join(' ')}`
+        .toLocaleLowerCase('es')
+        .includes(texto),
+    );
+  });
+
+  readonly filtrosActivos = computed(
+    () =>
+      Number(Boolean(this.termino().trim())) +
+      Number(this.tipoId() > 0) +
+      Number(this.distritoId() > 0) +
+      Number(!this.soloVerificadas()),
+  );
+
+  limpiarFiltros(): void {
+    this.termino.set('');
+    this.tipoId.set(0);
+    this.distritoId.set(0);
+    this.soloVerificadas.set(true);
+  }
+}

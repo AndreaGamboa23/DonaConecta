@@ -1,11 +1,19 @@
-import { Component } from '@angular/core';
-import { ServicePage } from '../../../../shared/components/service-page/service-page';
+import { Component, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { BackendEstadoService } from '../../../../core/services/backend-estado.service';
+import { EmptyState } from '../../../../shared/components/empty-state/empty-state';
+import { Icon } from '../../../../shared/components/icon/icon';
+import { PageHero } from '../../../../shared/components/page-hero/page-hero';
+import { PendingNotice } from '../../../../shared/components/pending-notice/pending-notice';
 
 @Component({
   selector: 'app-perfil',
   standalone: true,
-  imports: [ServicePage],
+  imports: [RouterLink, EmptyState, Icon, PageHero, PendingNotice],
   templateUrl: './perfil.html',
   styleUrl: './perfil.scss',
 })
-export class Perfil {}
+export class Perfil {
+  private readonly estadoServicio = inject(BackendEstadoService);
+  readonly estado = this.estadoServicio.estado('perfil');
+}

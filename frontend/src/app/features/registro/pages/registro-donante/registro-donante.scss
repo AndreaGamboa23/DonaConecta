@@ -1,21 +1,67 @@
-.dc-registro-aside {
-  aspect-ratio: 4 / 3;
-  background: #dcebf5;
+:host {
+  display: block;
 }
 
-.dc-form-card {
+.dc-auth-shell {
   border: 1px solid rgba(18, 48, 74, 0.08);
 }
 
-.dc-form-icon {
-  width: 3rem;
-  height: 3rem;
-  flex-shrink: 0;
-  background: #dcebf5;
-  color: #3679a8;
+.dc-auth-photo {
+  min-height: 30rem;
+  background: var(--dc-navy-deep, #0d2437);
 }
 
-.dc-form-icon app-icon {
-  width: 1.5rem;
-  height: 1.5rem;
+.dc-auth-photo > img {
+  position: absolute;
+  inset: 0;
+}
+
+.dc-auth-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgba(9, 28, 44, 0.98) 0%, rgba(9, 28, 44, 0.88) 52%, rgba(9, 28, 44, 0.48) 100%);
+}
+
+.dc-donante-form .form-control,
+.dc-donante-form .form-select,
+.dc-donante-form .input-group-text {
+  min-height: 3.25rem;
+}
+
+.dc-donante-form .form-label {
+  margin-bottom: 0.45rem;
+}
+
+.dc-form-group {
+  border: 0;
+  border-top: 1px solid rgba(18, 48, 74, 0.1);
+  padding: 1.5rem 0 0;
+  margin: 0 0 1.5rem;
+}
+
+.dc-form-group legend {
+  float: none;
+  width: auto;
+  padding: 0 0.6rem 0 0;
+}
+
+.dc-form-group:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.dc-password-meter {
+  height: 0.45rem;
+}
+
+@media (min-width: 992px) {
+  .dc-auth-photo {
+    min-height: 46rem;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .dc-auth-photo {
+    min-height: 22rem;
+  }
 }

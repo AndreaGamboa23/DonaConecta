@@ -1,11 +1,11 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { DISTRITOS_HUANCAYO } from '../../../../core/data/catalogos-locales';
 import { RegistroDonantePayload } from '../../../../core/interfaces/dona-conecta';
 import { BackendEstadoService } from '../../../../core/services/backend-estado.service';
-import { EmptyState } from '../../../../shared/components/empty-state/empty-state';
+import { Brand } from '../../../../shared/components/brand/brand';
 import { Icon } from '../../../../shared/components/icon/icon';
-import { PageHero } from '../../../../shared/components/page-hero/page-hero';
 import { PendingNotice } from '../../../../shared/components/pending-notice/pending-notice';
 import {
   contraseniasCoinciden,
@@ -18,7 +18,7 @@ import { RegistroApiService } from '../../services/registro-api.service';
 @Component({
   selector: 'app-registro-donante',
   standalone: true,
-  imports: [ReactiveFormsModule, PageHero, PendingNotice, EmptyState, Icon],
+  imports: [ReactiveFormsModule, RouterLink, Brand, PendingNotice, Icon],
   templateUrl: './registro-donante.html',
   styleUrl: './registro-donante.scss',
 })
@@ -89,7 +89,7 @@ export class RegistroDonante {
     this.api.registrarDonante(payload).subscribe({
       error: () =>
         this.respuesta.set(
-          'El registro no está habilitado todavía. Revisaremos este formulario cuando el servicio real esté disponible.',
+          'Tus datos no se han enviado: el servicio oficial aún no está conectado. Vuelve a intentarlo cuando esté disponible.',
         ),
     });
   }

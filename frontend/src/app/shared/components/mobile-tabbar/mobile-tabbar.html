@@ -9,6 +9,7 @@
         [routerLinkActiveOptions]="{ exact: item.exact }"
         [attr.aria-current]="rla.isActive ? 'page' : null"
       >
+        <span class="dc-tabbar-indicator" aria-hidden="true"></span>
         <app-icon [name]="item.icon" />
         <span class="dc-tabbar-label">{{ item.label }}</span>
       </a>

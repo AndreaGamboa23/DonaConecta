@@ -1,0 +1,38 @@
+:host {
+  display: block;
+}
+
+.dc-categoria-portada {
+  min-height: 20rem;
+  background: var(--dc-navy, #12304a);
+  isolation: isolate;
+}
+
+.dc-categoria-overlay {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(11, 31, 48, 0.94) 0%,
+      rgba(11, 31, 48, 0.78) 48%,
+      rgba(11, 31, 48, 0.35) 100%
+    );
+}
+
+.dc-texto-claro {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.dc-check-icon {
+  width: 1.35rem;
+  height: 1.35rem;
+  padding: 0.2rem;
+  border-radius: 50%;
+  background: rgba(128, 182, 154, 0.18);
+  color: #a9d8c0;
+}
+
+.dc-badge-tipo {
+  background: #fff;
+  color: var(--dc-navy, #12304a);
+  font-weight: 600;
+}

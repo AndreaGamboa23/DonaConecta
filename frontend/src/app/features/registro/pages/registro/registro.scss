@@ -1,3 +1,58 @@
 :host {
   display: block;
 }
+
+.dc-registro-option {
+  border: 1px solid rgba(18, 48, 74, 0.08);
+  border-radius: 1.25rem;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.dc-registro-option:hover,
+.dc-registro-option:focus-visible {
+  transform: translateY(-4px);
+  border-color: rgba(54, 121, 168, 0.4);
+  box-shadow: 0 1.25rem 2.5rem rgba(18, 48, 74, 0.12);
+}
+
+.dc-registro-photo {
+  min-height: 100%;
+  background: var(--dc-blue-soft, #dcebf5);
+}
+
+.dc-registro-photo img {
+  object-position: center 28%;
+}
+
+.dc-registro-cta {
+  color: var(--dc-blue, #3679a8);
+}
+
+@media (max-width: 575.98px) {
+  .dc-registro-photo {
+    height: 13rem;
+  }
+}
+
+@media (min-width: 576px) and (max-width: 991.98px) {
+  .dc-registro-photo {
+    min-height: 18rem;
+  }
+}
+
+@media (min-width: 992px) {
+  .dc-registro-option {
+    min-height: 20rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dc-registro-option {
+    transition: none;
+  }
+
+  .dc-registro-option:hover,
+  .dc-registro-option:focus-visible {
+    transform: none;
+  }
+}

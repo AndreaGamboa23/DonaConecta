@@ -6,77 +6,98 @@
   tono="green"
 />
 
-<section class="dc-section-space">
+<section class="dc-section-space bg-white">
   <div class="container">
-    <div class="row g-4 g-lg-5 align-items-start">
-      <div class="col-12 col-lg-7">
-        <div class="card shadow-sm rounded-4 p-3 p-md-4 mb-4">
-          <h2 class="h5 fw-bold mb-3">Dos caminos, una misma comunidad</h2>
-          <div class="row g-3">
-            <div class="col-12 col-sm-4">
-              <span class="badge rounded-pill text-bg-primary">Donante</span>
-              <p class="small text-secondary mt-2 mb-0">
-                Publicas tu disponibilidad para reservar bienes y coordinar entregas.
-              </p>
-            </div>
-            <div class="col-12 col-sm-4">
-              <span class="badge rounded-pill text-bg-success">Representante</span>
-              <p class="small text-secondary mt-2 mb-0">
-                Registras tu institución y su solicitud queda pendiente de verificación.
-              </p>
-            </div>
-            <div class="col-12 col-sm-4">
-              <span class="badge rounded-pill text-bg-warning">Verificación</span>
-              <p class="small text-secondary mt-2 mb-0">
-                El acceso definitivo se habilita solo después de la revisión administrativa.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div class="alert alert-info border-0 rounded-4" role="note">
-          <div class="d-flex gap-3">
-            <app-icon name="shield" />
-            <div>
-              <strong class="d-block small mb-1">Tus datos no se guardan en este navegador</strong>
-              <p class="small mb-0">
-                Los formularios validan localmente. El envío solo se activará cuando exista el
-                servicio real de autenticación.
-              </p>
-            </div>
-          </div>
-        </div>
+    <div class="row g-3 g-lg-4 align-items-end mb-4 mb-lg-5">
+      <div class="col-12 col-lg-8">
+        <span class="dc-eyebrow mb-3">Registro voluntario</span>
+        <h2 class="display-6 fw-bold mb-2">Dos caminos, una misma comunidad</h2>
       </div>
-
-      <div class="col-12 col-lg-5">
-        <div class="row g-3">
-          <div class="col-12">
-            <app-service-card
-              icono="hand"
-              titulo="Registrarme como donante"
-              descripcion="Crea un perfil para ofrecer bienes materiales y seguir tus compromisos."
-              ruta="/registro/donante"
-              etiqueta="Persona natural"
-              tono="blue"
-            />
-          </div>
-          <div class="col-12">
-            <app-service-card
-              icono="building"
-              titulo="Registrar una institución"
-              descripcion="Vincula tu organización, comedor, albergue o refugio para solicitar apoyo."
-              ruta="/registro/institucion"
-              etiqueta="Organización"
-              tono="green"
-            />
-          </div>
-        </div>
-
-        <p class="small text-secondary mt-3 mb-0">
-          ¿Ya tienes una cuenta?
-          <a routerLink="/iniciar-sesion" class="fw-semibold">Inicia sesión</a>
+      <div class="col-12 col-lg-4">
+        <p class="text-secondary mb-0">
+          Explora primero si quieres. Crea una cuenta solo cuando necesites registrar una
+          donación o representar a una institución.
         </p>
       </div>
+    </div>
+
+    <div class="row g-3 g-lg-4 align-items-stretch">
+      <div class="col-12 col-lg-6">
+        <a
+          class="dc-registro-option card h-100 overflow-hidden text-reset text-decoration-none"
+          routerLink="/registro/donante"
+          aria-label="Registrarme como donante de bienes materiales"
+        >
+          <div class="row g-0 h-100">
+            <div class="col-5 dc-registro-photo">
+              <img
+                class="w-100 h-100 object-fit-cover"
+                src="/assets/images/registro-donante.webp"
+                width="1000"
+                height="1333"
+                alt="Ilustración de una persona preparando bienes materiales"
+                loading="eager"
+                fetchpriority="high"
+              />
+            </div>
+            <div class="col-7 p-3 p-md-4 d-flex flex-column justify-content-between">
+              <div>
+                <span class="badge rounded-pill text-bg-primary mb-3">Persona natural</span>
+                <h3 class="h4 fw-bold mb-2">Registrarme como donante</h3>
+                <p class="small text-secondary mb-0">
+                  Crea un perfil para ofrecer bienes materiales, seguir tus compromisos y
+                  coordinar entregas.
+                </p>
+              </div>
+              <span class="dc-registro-cta d-inline-flex align-items-center gap-2 small fw-semibold mt-4">
+                Continuar
+                <span aria-hidden="true">→</span>
+              </span>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-12 col-lg-6">
+        <a
+          class="dc-registro-option card h-100 overflow-hidden text-reset text-decoration-none"
+          routerLink="/registro/institucion"
+          aria-label="Registrar una institución de Huancayo"
+        >
+          <div class="row g-0 h-100">
+            <div class="col-5 dc-registro-photo">
+              <img
+                class="w-100 h-100 object-fit-cover"
+                src="/assets/images/registro-institucion.webp"
+                width="611"
+                height="836"
+                alt="Ilustración de una representante de organización social"
+                loading="lazy"
+              />
+            </div>
+            <div class="col-7 p-3 p-md-4 d-flex flex-column justify-content-between">
+              <div>
+                <span class="badge rounded-pill text-bg-success mb-3">Organización</span>
+                <h3 class="h4 fw-bold mb-2">Registrar una institución</h3>
+                <p class="small text-secondary mb-0">
+                  Vincula tu comedor, albergue, refugio u organización para solicitar apoyo. La
+                  revisión se realiza después del registro.
+                </p>
+              </div>
+              <span class="dc-registro-cta d-inline-flex align-items-center gap-2 small fw-semibold mt-4">
+                Continuar
+                <span aria-hidden="true">→</span>
+              </span>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="d-flex flex-wrap align-items-center gap-3 mt-4">
+      <a routerLink="/iniciar-sesion" class="btn btn-outline-primary px-4">Ya tengo cuenta</a>
+      <a routerLink="/necesidades" class="btn btn-link px-0">Explorar sin registrarme</a>
+      <a routerLink="/" class="btn btn-link px-0">Volver al inicio</a>
     </div>
   </div>
 </section>

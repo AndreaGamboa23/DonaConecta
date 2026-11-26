@@ -98,6 +98,21 @@ Registro de decisiones nuevas tomadas a partir de la Fase 04, según `AGENTS.md`
 | Imagen LCP de `/registro/donante` con `loading="eager"` y `fetchpriority="high"` | Angular 22 emitió `NG0913` porque esa imagen visible era el elemento LCP y estaba diferida. La imagen del catálogo, que queda fuera del primer viewport, conserva `loading="lazy"`. Verificado sin avisos `NG0913` a 390 y 1440 px. |
 | Sin dependencias npm nuevas | Bootstrap 5 y los SVG propios cubren la interfaz; el SCSS propio se limita a conectores, identidad y foco visible. |
 
+## Fase 07.B — Rediseño visual premium sin backend
+
+| Decisión | Justificación |
+|---|---|
+| Usar las ocho imágenes nuevas proporcionadas por el usuario | El usuario las incorporó para esta fase. Se guardan en `public/assets/images/`, se sirven desde `/assets/images/...` y se declaran ilustrativas; no se presentan como evidencia real. |
+| Crear `CategoriaDonacion` y `CategoriasDestacadas` como sistema compartido | Antes había listas duplicadas en Inicio y Cómo donar. Ahora `CATEGORIAS_INFORMATIVAS` contiene imagen y texto alternativo, y una sola rejilla se reutiliza en Inicio, Explorar y Cómo donar. |
+| Sustituir las tarjetas numeradas por acceso fotográfico | Las tarjetas blancas `01–05` no comunicaban prioridad. La foto protagonista, el nombre, la descripción breve y el enlace a la guía hacen de cada categoría una entrada real al servicio. |
+| Mantener `aspect-ratio`, `object-fit`, `width` y `height` en las imágenes | Evita deformación y desplazamiento de layout; las imágenes posteriores al primer viewport conservan `loading="lazy"` y las fotografías LCP usan carga prioritaria. |
+| Reorganizar la navegación sin eliminar rutas | El navbar agrupa cinco enlaces públicos, Mensajes como acceso personal, acciones de cuenta y un menú «Más» para Nosotros y FAQ. La barra inferior conserva cinco destinos reales con icono y etiqueta visibles, indicador de selección y área segura del dispositivo. |
+| Rediseñar registro y acceso como pantallas de dos zonas | Las tres fotografías verticales acompañan al formulario sin sustituir la validación. Se mantienen los 10, 12, 2 y 1 controles, los validadores compartidos, el asistente institucional y `password_confirmation` solo en el navegador. |
+| Consolidar los avisos pendientes en una nota breve por pantalla | Se eliminaron repeticiones en necesidades, mensajes e instituciones. `BackendEstadoService.integracionHabilitada` sigue en `false`; la interfaz no afirma que exista backend, sesión, chat ni GPS. |
+| Mejorar las pantallas personales sin datos inventados | Mensajes, perfil, donaciones, puntos de acopio y seguimiento conservan estados vacíos y acciones reales; no se muestran conversaciones, contadores, ubicaciones ni entregas de ejemplo. |
+| No aumentar el presupuesto de Angular | El build real de la fase se mantiene por debajo de 600 kB iniciales. Las únicas advertencias persistentes son las de deprecación de `@import` de Sass, anteriores a esta fase. |
+| Sin dependencias npm ni cambios de contrato | Bootstrap 5 y el SCSS complementario bastan para el rediseño; no se modifica el modelo de 42 tablas, `docs/contrato-api.md`, Reactive Forms ni la planeación de FastAPI/SQL Server. |
+
 ## Requisitos permanentes de arquitectura, API REST y base de datos (registro)
 
 | Decisión | Justificación |
@@ -191,3 +206,36 @@ precompilados disponibles.
 - Registro duplicado entre `/usuarios` y `/autenticacion/registro` → unificado.
 - Archivos con `institucion_id` genérico → sustituido por tablas de asociación explícitas.
 - Marca de lectura sin validación de conversación → FK compuesto añadido.
+
+## Fase 07.B.1 — Navegación, servicios preparados y mapa base
+
+| Decisión | Justificación |
+|---|---|
+| Navbar de una sola fila en escritorio con `Más` desplegable | Inicio, Explorar, Instituciones, Mensajes, Iniciar sesión y Regístrate permanecen visibles. Puntos de acopio, Mis donaciones, Cómo donar, Nosotros y FAQ se agrupan en `Más`, con chevron propio, `aria-expanded`, Escape y cierre por clic fuera. |
+| Mantener la barra inferior de cinco destinos y accesos de cuenta en el menú móvil | No se eliminan rutas reales y la sesión/registro siguen visibles sin desplazamientos extra. Las áreas táctiles se elevaron a un mínimo de 4 rem para la barra y 2,75 rem para enlaces y botones del navbar. |
+| Reducir el encabezado compartido y eliminar el círculo decorativo de 9 rem | `PageHero` conserva el icono dentro de la etiqueta, usa código de color explícito para el título y disminuye el espacio vertical; corrige el título oscuro sobre azul y evita grandes círculos con iconos diminutos. |
+| Instalar Leaflet 1.9.4 y `@types/leaflet` 1.9.23 | Única dependencia cartográfica añadida, con licencias BSD-2-Clause y MIT y 0 vulnerabilidades. Se importa de forma diferida y su CSS se carga globalmente; `allowedCommonJsDependencies` documenta el paquete UMD sin aumentar presupuestos. |
+| Usar teselas públicas de OpenStreetMap con centro verificado de Huancayo | Coordenada Q468782 de Wikidata. El marcador es una referencia geográfica, nunca un punto de acopio. Se respeta la política de teselas: URL canónica, atribución visible, Referer válido, sin prefetch ni modo offline. |
+| Geollocalización solo manual y local | «Consultar mi ubicación» no se ejecuta automáticamente, no se guarda ni se envía; se manejan denegación, sin señal, error y fallo de teselas. No hay rutas, ETAs ni rastreo. |
+| Catálogo y directorio con filtros y estados honestos | Los filtros son reales sobre catálogos sembrados, pero los resultados permanecen en `servicio-no-disponible` mientras `integracionHabilitada` sea `false`. No se afirma que no existan solicitudes ni instituciones. |
+| `InstitucionCard` reutilizable sin datos de ejemplo | Acepta un DTO real opcional, muestra foto solo si existe y enlaces a necesidades, puntos y mensajes. El enlace a perfil solo se renderiza si la ruta pública llega a implementarse. |
+| Bandeja y conversación preparadas sin chats simulados | La bandeja tiene buscador real sobre cero registros; el panel conserva estado de selección, adjunto y envío deshabilitados con explicación. En móvil la vista cambia solo cuando llega un identificador real desde la API. |
+| Corregir los textos de registro sin activar el envío | Un solo aviso por pantalla, mensaje de error claro y explícita advertencia de no usar datos reales. `confirmacion` sigue siendo exclusiva del navegador y no se envía ninguna petición HTTP. |
+| Informe de contratos en `docs/informe-backend-fase-07b1.md` | Centraliza endpoints, JSON, DTO, eventos WebSocket, paneles pendientes y estrategia de `DonaConectaDB_Pruebas` sin modificar `docs/contrato-api.md` ni la base desplegada. |
+
+## Fase 07.B.2 — Catálogo informativo, búsqueda local y experiencias
+
+| Decisión | Justificación |
+|---|---|
+| Catálogo editorial de 41 bienes en `core/data/catalogo-informativo.ts` | Es información de orientación para el donante, no solicitudes ni stock real. Se mantiene separado de los servicios REST y se activará solo cuando el backend entregue datos reales. |
+| Búsqueda determinista con normalización, sinónimos y distancia de edición moderada | Responde a los ejemplos pedidos sin depender de IA externa, red ni persistencia. Prioriza coincidencias exactas y ofrece relacionados antes que una lista plana. |
+| Un solo `BuscadorCatalogo` compartido entre portada, Explorar y guía por categoría | Evita duplicar validación y lógica; el valor se propaga con `model()` y el envío con `output()`, sin lógica de negocio en la plantilla. |
+| Rutas `/explorar`, `/explorar/:categoria`, `/explorar/:categoria/:producto` | Permiten una guía navegable por niveles con breadcrumb real, sin conectarse a rutas de necesidades pendientes del backend. |
+| Categorías con enlace directo a su guía en `/explorar/:slug` | Sustituye el antiguo destino genérico `/como-donar#bienes` y elimina las etiquetas redundantes «BIEN MATERIAL» y «Ver guía». |
+| `InstitucionCard` y `/instituciones` muestran tipos, no organizaciones | Cumple la regla de no inventar instituciones verificadas. El componente ya acepta un DTO real para cuando exista el directorio. |
+| `/historias` editorial y propuesta documental de comentarios, valoraciones y favoritos | La página comunica la preparación de dones con ilustraciones declaradas; las interacciones se dejan como propuesta, sin contadores falsos ni sesión. |
+| Reservar espacio inferior del hero para la ola crema | Corrige el borde recortado sin `overflow` adicional ni alturas fijas; `object-fit: cover` y las utilidades Bootstrap mantienen el responsive. |
+| Eliminar el marcador de referencia del mapa y añadir `invalidateSize()`/`ResizeObserver` | El punto azul parecía un punto de acopio y contaba como elemento interactivo. El mapa ahora solo muestra teselas OSM, zoom, retorno y geolocalización voluntaria. |
+| Importar `leaflet.css` globalmente en la compilación de desarrollo | La ausencia de ese CSS en una compilación anterior causó huecos azules; la verificación CDP confirmó `.leaflet-pane` en `absolute` y 18/18 mosaicos cargados. |
+| `loading="eager"` solo en la primera tarjeta y en la imagen principal de Historias | Evita `NG0913` sin marcar como prioritarias todas las fotografías; el resto mantiene `loading="lazy"`. |
+| Sin dependencias nuevas, sin HTTP, sin WebSocket y sin localStorage | La fase es frontend-only con `BackendEstadoService.integracionHabilitada = false`; no se activó autenticación, GPS, chat ni persistencia. |

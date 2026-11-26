@@ -1,5 +1,5 @@
 .dc-tabbar {
-  background: rgba(255, 255, 255, 0.97);
+  background: rgba(255, 255, 255, 0.98);
   border-top: 1px solid rgba(18, 48, 74, 0.12);
   box-shadow: 0 -0.5rem 1.8rem rgba(18, 48, 74, 0.08);
   padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -11,25 +11,44 @@
 }
 
 .dc-tabbar-item {
-  min-height: 3.5rem;
-  color: rgba(18, 48, 74, 0.62);
-  font-size: 0.72rem;
+  position: relative;
+  min-height: 4rem;
+  color: #3d566b;
+  font-size: 0.8rem;
   font-weight: 600;
+  transition: color 0.18s ease, background-color 0.18s ease;
+}
+
+.dc-tabbar-item:hover,
+.dc-tabbar-item.active {
+  color: var(--dc-blue, #3679a8);
+  background: rgba(220, 235, 245, 0.45);
 }
 
 .dc-tabbar-item app-icon {
-  width: 1.35rem;
-  height: 1.35rem;
+  width: 1.45rem;
+  height: 1.45rem;
 }
 
-.dc-tabbar-item.active {
-  color: #3679a8;
+.dc-tabbar-indicator {
+  position: absolute;
+  inset-inline: 30%;
+  top: 0;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  background: transparent;
 }
 
-.dc-tabbar-item.active app-icon {
-  transform: translateY(-1px);
+.dc-tabbar-item.active .dc-tabbar-indicator {
+  background: var(--dc-blue, #3679a8);
 }
 
 .dc-tabbar-label {
   line-height: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dc-tabbar-item {
+    transition: none;
+  }
 }

@@ -1,10 +1,15 @@
-<section class="card rounded-4 shadow-sm h-100 d-flex flex-column" aria-label="Conversación">
-  <div class="card-header bg-transparent border-0 pt-3 px-3 px-md-4">
-    <div class="d-flex align-items-center gap-3">
+<section class="card rounded-4 shadow-sm h-100 d-flex flex-column dc-chat" aria-label="Conversación">
+  <div class="card-header bg-white border-0 pt-3 px-3 px-md-4">
+    <div class="d-flex align-items-center gap-2">
+      @if (conversacionId() !== null) {
+        <button type="button" class="btn btn-light btn-sm" (click)="volver.emit()" aria-label="Volver a la bandeja">
+          <app-icon name="arrow-left" aria-hidden="true" />
+        </button>
+      }
       <span class="dc-chat-avatar d-flex align-items-center justify-content-center rounded-circle">
         <app-icon name="chat" />
       </span>
-      <div>
+      <div class="overflow-hidden">
         <h2 class="h6 fw-bold mb-0">Selecciona una conversación</h2>
         <small class="text-secondary">Solo participantes autorizados podrán leerla</small>
       </div>
@@ -15,29 +20,26 @@
     <span class="dc-chat-empty d-inline-flex align-items-center justify-content-center rounded-circle mx-auto mb-3">
       <app-icon name="mail" />
     </span>
-    <p class="text-secondary small mb-1">No hay mensajes cargados.</p>
-    <p class="text-secondary small mb-0">
-      Los mensajes quedarán guardados y solo serán visibles para las personas autorizadas.
+    <p class="fw-semibold mb-1">No hay mensajes cargados.</p>
+    <p class="text-secondary mb-3">
+      Inicia sesión para consultar tus conversaciones cuando el servicio esté disponible.
     </p>
+    <a routerLink="/mis-donaciones" class="fw-semibold link-primary">Ver donaciones relacionadas</a>
   </div>
 
-  <div class="card-footer bg-transparent border-0 px-3 px-md-4 pb-3">
-    <app-pending-notice [estado]="estado" titulo="Envío de mensajes no disponible" />
-    <div class="input-group mt-3">
-      <label class="visually-hidden" for="mensaje-borrador">Escribe un mensaje</label>
-      <input
-        id="mensaje-borrador"
-        type="text"
-        class="form-control"
-        placeholder="Escribe un mensaje…"
-        disabled
-      />
-      <button class="btn btn-primary" type="button" disabled aria-label="Enviar mensaje">
-        <app-icon name="send" />
+  <div class="card-footer bg-white border-0 px-3 px-md-4 pb-3 pb-md-4">
+    <label class="form-label small fw-semibold visually-hidden" for="mensajeNuevo">Escribir mensaje</label>
+    <textarea id="mensajeNuevo" class="form-control" rows="2" disabled
+      placeholder="La escritura se habilitará con una sesión autorizada"></textarea>
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-2">
+      <button type="button" class="btn btn-outline-secondary btn-sm" disabled aria-label="Adjuntar archivo">
+        <app-icon name="paperclip" aria-hidden="true" />
+        Adjuntar
       </button>
+      <button type="button" class="btn btn-primary btn-sm" disabled>Enviar mensaje</button>
     </div>
-    <small class="text-secondary d-block mt-2">
-      El borrador no se guarda en este navegador ni se envía a ningún servidor.
-    </small>
+    <p class="small text-secondary mt-2 mb-0">
+      Los mensajes se persistirán en el servidor; no se guardan en este navegador.
+    </p>
   </div>
 </section>

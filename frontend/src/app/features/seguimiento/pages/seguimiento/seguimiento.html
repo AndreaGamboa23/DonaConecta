@@ -1,74 +1,62 @@
 <app-page-hero
   eyebrow="Seguimiento de entrega"
   titulo="Seguimiento autorizado"
-  descripcion="Un seguimiento de ubicación solo puede iniciarse de forma manual y con tu consentimiento explícito."
+  descripcion="Consulta el estado de una entrega y prepara la ubicación manual con consentimiento explícito."
   icono="route"
-  tono="amber"
 />
 
 <section class="dc-section-space">
   <div class="container">
-    <div class="row g-4 g-lg-5">
+    <app-pending-notice
+      [estado]="estado"
+      titulo="El seguimiento GPS todavía no está disponible"
+      class="d-block mb-4"
+    />
+
+    <div class="row g-4 g-lg-5 align-items-stretch">
       <div class="col-12 col-lg-7">
-        <div class="card shadow-sm rounded-4 p-3 p-md-4 mb-4">
-          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-            <div>
-              <span class="text-secondary small d-block">Identificador de la sesión</span>
-              <strong class="fs-5">#{{ sesionId }}</strong>
-            </div>
-            <span class="badge rounded-pill text-bg-warning">Sin iniciar</span>
+        <div class="card border-0 bg-white shadow-sm rounded-4 p-3 p-md-4 mb-4">
+          <span class="dc-eyebrow mb-3">Estado de la sesión</span>
+          <h2 class="h4 fw-bold mb-3">Sin sesión activa</h2>
+          <div class="alert alert-light border mb-0" role="status">
+            No hay una entrega autorizada consultada. El identificador de seguimiento se obtendrá
+            de una donación real; mientras tanto no se muestra una ubicación ni un estado inventado.
           </div>
-
-          <div class="list-group rounded-4 mb-4">
-            <div class="list-group-item d-flex gap-3 align-items-start">
-              <span class="badge rounded-pill text-bg-primary mt-1">1</span>
-              <span class="small">Solicitas el seguimiento desde una entrega coordinada.</span>
-            </div>
-            <div class="list-group-item d-flex gap-3 align-items-start">
-              <span class="badge rounded-pill text-bg-success mt-1">2</span>
-              <span class="small">Activas la ubicación manualmente y ves un indicador visible.</span>
-            </div>
-            <div class="list-group-item d-flex gap-3 align-items-start">
-              <span class="badge rounded-pill text-bg-warning mt-1">3</span>
-              <span class="small">La sesión caduca y puedes detenerla en cualquier momento.</span>
-            </div>
-          </div>
-
-          <div class="d-flex flex-wrap gap-2">
-            <button type="button" class="btn btn-primary" (click)="intentarIniciar()">
-              <app-icon name="pin" /> Iniciar seguimiento
-            </button>
-            <button type="button" class="btn btn-outline-secondary" disabled aria-label="Detener seguimiento">
-              <app-icon name="stop" /> Detener
-            </button>
-          </div>
-
-          @if (aviso()) {
-            <div class="alert alert-warning d-flex gap-2 align-items-start mt-4 mb-0" role="status">
-              <app-icon name="alert" />
-              <span>{{ aviso() }}</span>
-            </div>
-          }
         </div>
 
-        <div class="alert alert-light border d-flex gap-3 align-items-start" role="note">
-          <app-icon name="shield" />
-          <p class="small mb-0">
-            GPS no sustituye la confirmación de recepción. Las coordenadas serían privadas, no se
-            publicarían en el directorio y no se rastrearía a nadie de forma permanente.
-          </p>
-        </div>
+        <app-mapa-huancayo titulo="Mapa de referencia de la entrega" />
       </div>
 
       <div class="col-12 col-lg-5">
-        <app-pending-notice [estado]="estado" titulo="Seguimiento GPS no disponible" />
+        <div class="card border-0 bg-light rounded-4 h-100 p-3 p-md-4">
+          <span class="dc-eyebrow mb-3">Privacidad desde el inicio</span>
+          <h2 class="h5 fw-bold mb-3">Cómo se activaría una sesión</h2>
+          <ol class="list-unstyled d-grid gap-3 mb-4">
+            <li class="d-flex gap-3 align-items-start">
+              <app-icon name="hand" class="dc-seguimiento-icon flex-shrink-0" aria-hidden="true" />
+              <span><strong>Inicio manual.</strong> Tú decides cuándo compartir la ubicación.</span>
+            </li>
+            <li class="d-flex gap-3 align-items-start">
+              <app-icon name="pin" class="dc-seguimiento-icon flex-shrink-0" aria-hidden="true" />
+              <span><strong>Dato privado.</strong> No se publica ni sustituye la confirmación de recepción.</span>
+            </li>
+            <li class="d-flex gap-3 align-items-start">
+              <app-icon name="clock" class="dc-seguimiento-icon flex-shrink-0" aria-hidden="true" />
+              <span><strong>Caducidad y detención.</strong> Podrías detenerla en cualquier momento.</span>
+            </li>
+          </ol>
 
-        <div class="card rounded-4 border-0 bg-light p-3 p-md-4 mt-4">
-          <h2 class="h6 fw-bold mb-3">Mientras tanto</h2>
+          <h2 class="h6 fw-bold mb-2">Limitaciones conocidas de la PWA</h2>
+          <p class="small text-secondary mb-4">
+            La geolocalización en segundo plano no está garantizada: el navegador puede suspenderla,
+            requiere HTTPS y permiso del dispositivo. Por eso la entrega se confirma siempre con las
+            personas participantes, nunca solo con una coordenada.
+          </p>
+
           <div class="d-grid gap-2">
+            <a routerLink="/mensajes" class="btn btn-primary">Contactar por mensajes</a>
             <a routerLink="/mis-donaciones" class="btn btn-outline-primary">Ver mis donaciones</a>
-            <a routerLink="/mensajes" class="btn btn-outline-primary">Ir a mensajes</a>
-            <a routerLink="/preguntas-frecuentes" class="btn btn-outline-primary">Consultar privacidad</a>
+            <a routerLink="/preguntas-frecuentes" class="btn btn-outline-secondary">Consultar privacidad</a>
           </div>
         </div>
       </div>

@@ -16,6 +16,47 @@ export const routes: Routes = [
         },
       },
       {
+        path: 'explorar',
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./features/exploracion/pages/necesidades/necesidades').then(
+                (modulo) => modulo.Necesidades,
+              ),
+            title: 'Explorar bienes y solicitudes | DonaConecta',
+            data: {
+              description:
+                'Busca bienes materiales por categoría, producto o sinónimo y consulta las solicitudes publicadas en Huancayo.',
+            },
+          },
+          {
+            path: ':categoria',
+            loadComponent: () =>
+              import('./features/exploracion/pages/categoria-catalogo/categoria-catalogo').then(
+                (modulo) => modulo.CategoriaCatalogo,
+              ),
+            title: 'Guía de bienes materiales | DonaConecta',
+            data: {
+              description:
+                'Guía informativa de bienes materiales: condiciones, preparación y tipos de institución que podrían recibirlos.',
+            },
+          },
+          {
+            path: ':categoria/:producto',
+            loadComponent: () =>
+              import('./features/exploracion/pages/producto-detalle/producto-detalle').then(
+                (modulo) => modulo.ProductoDetalle,
+              ),
+            title: 'Guía de un bien material | DonaConecta',
+            data: {
+              description:
+                'Condiciones recomendadas, preparación e instituciones relacionadas con un bien material.',
+            },
+          },
+        ],
+      },
+      {
         path: 'necesidades',
         loadComponent: () =>
           import('./features/exploracion/pages/necesidades/necesidades').then(
@@ -149,6 +190,16 @@ export const routes: Routes = [
         data: {
           description:
             'Guía para donar bienes materiales en DonaConecta: categorías, estado de los productos, pasos y seguimiento previsto.',
+        },
+      },
+      {
+        path: 'historias',
+        loadComponent: () =>
+          import('./features/historias/historias').then((modulo) => modulo.Historias),
+        title: 'Historias que conectan | DonaConecta',
+        data: {
+          description:
+            'Historias editoriales sobre preparar donaciones, colaborar con responsabilidad y construir comunidad en Huancayo.',
         },
       },
       {

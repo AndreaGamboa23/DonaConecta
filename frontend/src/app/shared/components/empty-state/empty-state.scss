@@ -1,13 +1,6 @@
 .dc-empty-state {
-  background: repeating-linear-gradient(
-    135deg,
-    #f7f5ef,
-    #f7f5ef 12px,
-    #fff 12px,
-    #fff 24px
-  );
-  border-style: dashed !important;
-  border-color: rgba(18, 48, 74, 0.18) !important;
+  background: #f7f5ef;
+  border: 1px solid rgba(18, 48, 74, 0.14);
 }
 
 .dc-empty-icon {

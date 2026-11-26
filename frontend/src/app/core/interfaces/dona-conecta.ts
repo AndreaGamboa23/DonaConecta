@@ -12,12 +12,60 @@ export interface TipoInstitucionOpcion {
 }
 
 export interface CategoriaInformativa {
+  /** ID del catálogo sembrado, según el orden de `categorias_bienes`. */
+  readonly id: number;
   readonly codigo: string;
+  /** Segmento estable de la URL: /explorar/:categoria. */
+  readonly slug: string;
   readonly nombre: string;
   readonly descripcion: string;
   readonly ejemplos: string;
   readonly icono: string;
   readonly tono: 'blue' | 'cream' | 'green' | 'amber' | 'navy';
+  /** Recurso ilustrativo local, usado solo por la interfaz; no es dato de negocio. */
+  readonly imagen: string;
+  readonly altImagen: string;
+  readonly beneficio: string;
+  readonly condiciones: readonly string[];
+  readonly noRecomendados: readonly string[];
+  readonly tiposInstitucion: readonly string[];
+}
+
+/** Contenido orientativo local. No representa solicitudes, stock ni precios. */
+export interface ProductoInformativo {
+  readonly slug: string;
+  readonly nombre: string;
+  readonly categoriaSlug: string;
+  readonly descripcion: string;
+  readonly utilidad: string;
+  readonly condiciones: readonly string[];
+  readonly preparacion: readonly string[];
+  readonly instituciones: readonly string[];
+  readonly sinonimos: readonly string[];
+}
+
+export type TipoCoincidencia =
+  | 'exacta'
+  | 'parcial'
+  | 'sinonimo'
+  | 'aproximada'
+  | 'relacionada';
+
+export interface ResultadoCatalogo {
+  readonly tipo: 'producto' | 'categoria';
+  readonly id: string;
+  readonly categoriaSlug: string;
+  readonly nombre: string;
+  readonly descripcion: string;
+  readonly puntuacion: number;
+  readonly coincidencia: TipoCoincidencia;
+}
+
+export interface RespuestaBusqueda {
+  readonly normalizado: string;
+  readonly resultados: readonly ResultadoCatalogo[];
+  readonly relacionados: readonly ResultadoCatalogo[];
+  readonly sugerencias: readonly string[];
 }
 
 export interface RegistroDonantePayload {

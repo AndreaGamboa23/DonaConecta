@@ -15,7 +15,7 @@ explícita; no se adelanta una fase sin esa autorización.
 | 05 | Modelo entidad-relación y normalización 3FN. | Ejecutada (propuesta revisada en 05.1) |
 | 05.1 | Revisión, corrección y documentación técnica del modelo. | Ejecutada |
 | 06 | Implementación de Microsoft SQL Server. | Ejecutada |
-| 07 | Backend FastAPI, conexión y arquitectura de servicios. | Pendiente |
+| 07 | Backend FastAPI, conexión y arquitectura de servicios. | Pendiente (Fases 07.A, 07.B, 07.B.1 y 07.B.2 frontend ejecutadas) |
 | 08 | Landing definitiva y navegación pública integrada. | Pendiente |
 | 09 | Autenticación segura, registro, sesiones y roles. | Pendiente |
 | 10 | Registro, verificación y directorio de instituciones. | Pendiente |
@@ -195,3 +195,149 @@ commits ni push. `DonaConectaDB` no fue modificada.
 
 La Fase 07 (FastAPI, PyODBC, Pydantic, OpenAPI y `uv`) continúa pendiente y es requisito para
 activar los servicios y las rutas privadas de las fases 09 a 17.
+
+## 9. Resultado real de la Fase 07.B (rediseño visual, solo frontend)
+
+La Fase 07.B mantiene las dieciséis rutas y los contratos de la Fase 07.A. La rama sigue siendo
+`Andrea`; no se modificaron `backend/` ni `database/`, no se instalaron dependencias, no se crearon
+tablas ni datos de negocio y no se ejecutaron commits ni push. `BackendEstadoService` continúa con
+`integracionHabilitada = false`, por lo que ninguna pantalla afirma que exista backend, sesión,
+chat, donaciones ni GPS.
+
+1. Se integraron las ocho imágenes nuevas proporcionadas por el usuario: cinco fotografías de
+   categoría y tres paneles verticales para registro donante, registro institucional y acceso.
+   Todas se sirven desde `/assets/images/...`, declaran `width` y `height`, usan `alt` descriptivo
+   y no se presentan como evidencia real. Las cuatro ilustraciones anteriores y sus derivados
+   `-opt.webp` y `-movil.webp` se conservaron con sus `srcset` y `<picture>` originales.
+2. `CATEGORIAS_INFORMATIVAS` incorpora `imagen` y `altImagen`. Los componentes `CategoriaDonacion`
+   y `CategoriasDestacadas` centralizan la rejilla de cinco categorías en Inicio, Explorar y Cómo
+   donar; se eliminaron las tarjetas blancas numeradas y las listas duplicadas. Cada categoría
+   enlaza con `/como-donar#bienes` y usa `aspect-ratio`, `object-fit` y cuadrícula responsive.
+3. El navbar separa la marca, cinco enlaces públicos, Mensajes como acceso personal, Iniciar sesión
+   como acción secundaria y Regístrate como acción principal. Nosotros y FAQ pasaron al menú
+   secundario. La barra inferior móvil conserva cinco destinos reales con icono y etiqueta
+   visibles, indicador de selección y `env(safe-area-inset-bottom)`.
+4. La portada es una entrada a servicios: buscador informativo de las cinco categorías locales,
+   accesos reales a exploración, guía, instituciones, puntos de acopio, mensajes, donaciones y
+   registro. El hero fotográfico conserva el concepto de marca sin ocupar casi toda la primera
+   pantalla.
+5. Se rediseñaron `/registro`, sus dos formularios y `/iniciar-sesion` sin alterar los 10, 12, 2 y
+   1 controles, los validadores compartidos, el asistente por etapas ni `password_confirmation`
+   como campo exclusivo del navegador. Mensajes, perfil, mis donaciones, puntos de acopio y
+   seguimiento muestran estados vacíos claros, sin conversaciones, contadores, ubicaciones ni
+   entregas de ejemplo. Se retiraron los controles deshabilitados sin función.
+6. Se consolidaron los avisos pendientes en una nota breve por pantalla, se eliminaron los fondos
+   rayados y el contrato muerto `operacion` de `ServicePage`, y se corrigió el fragmento
+   `/nosotros#creditos-visuales` enlazado desde el pie.
+7. Verificación de imágenes: las 20 imágenes del directorio devolvieron `200`,
+   `Content-Type: image/webp`, decodificaron con `decode()` y tenían `naturalWidth` y
+   `naturalHeight` reales. Ninguna era HTML ni estaba rota. Las ocho nuevas son WebP VP8 con las
+   dimensiones exactas documentadas en `frontend/public/assets/images/README.md`.
+8. Build de producción correcto: **547.00 kB** iniciales y **105.43 kB** transferidos, por debajo
+   del presupuesto de 600 kB. Persisten únicamente las advertencias de deprecación de `@import` de
+   Sass, anteriores a esta fase. Pruebas: **9 archivos y 14/14 pruebas** aprobadas.
+9. Verificación con Edge headless y CDP: **47 combinaciones** de 16 rutas y siete anchos
+   (360, 390, 576, 768, 1024, 1440 y 1920 px). Resultados: 0 desbordamientos horizontales, 0 títulos
+   o metadescripciones ausentes, 0 imágenes rotas o sin `alt`/dimensiones, 0 anclas rotas, 0 errores
+   de consola, 0 avisos `NG0913`, 0 lenguaje técnico detectado y `FormGroupDirective` presente en
+   los formularios verificados. La barra inferior aparece solo por debajo de `lg`.
+10. Comprobación interactiva adicional con CDP a 390 y 1440 px: menú móvil `false → true → false`
+    con `aria-expanded` y clase `show` sincronizados; barra inferior con cinco etiquetas e iconos,
+    un solo elemento `aria-current="page"` y oculta en escritorio; buscador informativo de cinco a
+    una categoría al escribir «ropa» y de vuelta a cinco al limpiar; cinco tarjetas de categoría con
+    imagen y enlace real, sin numeración `01–05`.
+11. Las capturas se generaron en `C:\Users\ANDREA\AppData\Local\Temp\opencode\dc-07b-capturas`,
+    fuera del repositorio. `git diff --check` no reportó errores de whitespace; solo avisos de
+    normalización LF/CRLF. La valoración estética final continúa pendiente de revisión humana porque
+    este modelo no puede inspeccionar imágenes ni capturas.
+
+La Fase 07 de backend sigue pendiente y no se inicia sin autorización explícita.
+
+## 10. Resultado de la Fase 07.B.1 (corrección de navegación y servicios)
+
+1. Navbar definitivo con Inicio, Explorar, Instituciones, Mensajes, `Más`, Iniciar sesión y
+   Regístrate en una sola fila de escritorio. `Más` contiene Puntos de acopio, Mis donaciones,
+   Cómo donar, Nosotros y Preguntas frecuentes; se cierra con Escape, clic fuera y Selección.
+   La barra inferior móvil conserva cinco destinos y el menú muestra acceso a sesión y registro.
+2. `PageHero` pasó a un encabezado compacto con icono en la etiqueta, color explícito para el
+   título en fondo azul y sin el círculo decorativo de 9 rem. Se elevaron las áreas táctiles y
+   los textos secundarios, y se reforzó el contraste de los encabezados sobre fotografía.
+3. `/necesidades` es ahora un catálogo con buscador informativo, categorías fotográficas al inicio,
+   filtros por categoría, distrito y prioridad, y un panel de resultados con estados
+   `servicio-no-disponible`, `cargando`, `error`, `vacio` y `datos`. Se eliminó la frase
+   «No vamos a mostrar necesidades inventadas» y no se afirma ausencia de registros reales.
+4. `/instituciones` dispone de buscador, filtros por tipo, distrito y verificación, tarjeta
+   reutilizable `InstitucionCard` preparada para DTO reales y un panel de resultados con los
+   mismos estados. No hay nombres, direcciones ni verificaciones inventadas.
+5. `/mensajes` separa bandeja y conversación con vista móvil independiente, buscador real sobre
+   cero registros, adjunto y envío deshabilitados con explicación y un solo aviso pendiente.
+6. `/puntos-de-acopio` incorpora un mapa Leaflet real con centro verificado de Huancayo, zoom,
+   desplazamiento, volver, consulta voluntaria de ubicación y estados de permiso/error. La
+   atribución de OpenStreetMap es visible; no hay marcadores de negocio, rutas ni ETAs.
+7. `/seguimiento/:id` prepara el estado de la sesión, el mapa, el contacto por mensajes y
+   documenta las limitaciones de geolocalización en PWA y segundo plano.
+8. Se consolidaron los avisos de registro, se corrigió el mensaje «El registro no está
+   habilitado» y se advierte explícitamente que no se escriban datos reales.
+9. Se redactó `docs/informe-backend-fase-07b1.md` con el flujo actual y definitivo, los JSON
+   exactos, endpoints, diferencias de DTO, eventos WebSocket, inventario de paneles privados y
+   estrategia de `DonaConectaDB_Pruebas`.
+10. Verificación: build de producción con **562,41 kB** iniciales y **108,35 kB** transferidos,
+    dentro del presupuesto de 600 kB; **9 archivos y 15/15 pruebas** aprobadas. Solo persisten
+    las advertencias de deprecación de `@import` de Sass, anteriores a esta fase. `git diff --check`
+    y `git status` se revisaron al cierre; las capturas quedan fuera del repositorio.
+
+La Fase 07 de backend continúa pendiente y no se inicia sin autorización explícita.
+
+## 11. Resultado de la Fase 07.B.2 (aplicación de servicios comunitarios)
+
+1. Catálogo informativo local en `core/data/catalogo-informativo.ts`: **41 bienes** en cinco
+   categorías, con condiciones, preparación, no recomendados, alternativas y tipos de
+   institución. Es contenido editorial, no solicitudes reales ni inventario disponible.
+2. Buscador determinista en `core/utils/busqueda-texto.ts` y
+   `core/services/catalogo-informativo.service.ts`: normaliza tildes y mayúsculas, trata
+   singular/plural y sinónimos, prioriza coincidencias exactas, ofrece relacionados y muestra
+   estado sin coincidencias. Casos verificados: cuadernos/lápices/mochilas,
+   chompas/casacas/cobijas, arroz/menestras/frejoles, jabón/champú/shampoo y
+   croquetas/perros/mascotas.
+3. Componentes compartidos `BuscadorCatalogo` y `ProductoCard`; rutas `/explorar`,
+   `/explorar/:categoria`, `/explorar/:categoria/:producto` y `/historias`, con título y
+   metadescripción propios. El buscador de portada envía a `/explorar?q=...` y el de Explorar
+   reutiliza el mismo servicio sin acceso a red.
+4. `CategoriaDonacion` enlaza a su guía por categoría; se eliminaron las etiquetas redundantes
+   «BIEN MATERIAL» y «Ver guía» y se uniformó la fotografía con `object-fit: cover`. La primera
+   tarjeta carga su imagen con `eager` para evitar `NG0913`.
+5. `/instituciones` muestra cuatro **tipos** de institución con las nuevas ilustraciones, sin
+   nombres, direcciones, distritos ni verificaciones inventados. `InstitucionCard` sigue
+   preparada para DTO reales futuros con foto, descripción, necesidades, horarios, puntos y chat.
+6. `/historias` usa `experiencias-solidarias.webp` y `comunidad-solidaria.webp` como contenido
+   editorial sobre la preparación de dones; no incluye testimonios, puntuaciones ni favoritos
+   activos. `docs/propuesta-experiencias-valoraciones-favoritos.md` deja esa funcionalidad como
+   propuesta pendiente.
+7. Hero: `.dc-hero-inner` reserva 7,75 rem en móvil y 8,25 rem en escritorio para la ola de
+   5,5 rem; se corrigió el recorte inferior sin `overflow` adicional ni alturas fijas. La
+   separación medida entre el último botón y la ola fue de 150–207 px en cinco anchos.
+8. Mapa: se eliminó el marcador de referencia que contaba como `leaflet-interactive`, se añadieron
+   `invalidateSize()`, `ResizeObserver`, contador moderado de fallos de teselas y limpieza en
+   `ngOnDestroy`. Atribución OSM, zoom, desplazamiento, retorno y geolocalización voluntaria
+   permanecen; no hay puntos de acopio, rutas ni ETAs inventados.
+9. Documentos nuevos: `docs/propuesta-experiencias-valoraciones-favoritos.md` y
+   `docs/entorno-datos-pruebas.md`; se actualizaron README de imágenes, mapa de navegación,
+   decisiones técnicas, sistema de diseño, este plan y `AGENTS.md`.
+10. Build de producción: **564,27 kB** iniciales y **108,82 kB** transferidos, dentro del
+    presupuesto de 600 kB. Pruebas: **12 archivos y 28/28** aprobadas. Solo persisten las
+    advertencias de deprecación de `@import` de Sass.
+11. Verificación CDP: **105 combinaciones** de 27 rutas y siete anchos (360, 390, 576, 768,
+    1024, 1440 y 1920 px). Resultados: 0 títulos o metadescripciones ausentes, 0 `h1`
+    duplicados, 0 desbordes horizontales, 0 imágenes rotas, 0 anclas rotas, 0 errores de consola,
+    0 fallos de red y 0 enlaces internos inválidos. El buscador de portada con «cobijas» llevó a
+    Frazadas; «mochilas» devolvió dos resultados y seis sugerencias; el detalle de Arroz mostró
+    condiciones, preparación y relacionados. Navbar con cinco enlaces principales, `Más` con
+    «Historias que conectan», menú móvil `false → true → false`, barra inferior con cinco
+    destinos, Leaflet con 18/18 mosaicos y `.leaflet-pane` en `absolute`, bandeja/panel de
+    mensajes intactos y formulario de donante con 10 controles.
+12. Las capturas se guardaron en `C:\Users\ANDREA\AppData\Local\Temp\opencode\dc-07b2-capturas`,
+    fuera del repositorio. `git diff --check` y `git status` se revisan al cierre. La valoración
+    estética final continúa pendiente de revisión humana porque este modelo no puede inspeccionar
+    imágenes ni capturas.
+
+La Fase 07 de backend sigue pendiente y no se inicia sin autorización explícita.

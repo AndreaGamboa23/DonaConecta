@@ -3,10 +3,10 @@
     <div class="row g-4 g-lg-5 align-items-center mb-5 mb-lg-6">
       <div class="col-12 col-lg-6">
         <span class="dc-eyebrow mb-3">Bienes materiales</span>
-        <h2 class="display-5 fw-bold mb-3">Qué puedes donar</h2>
+        <h2 class="display-5 fw-bold mb-3">Cinco categorías protagonistas</h2>
         <p class="lead text-secondary mb-3">
-          Cinco tipos de bienes que ayudan a las organizaciones de Huancayo. Elige una categoría
-          para conocer qué puedes donar.
+          Cada acceso muestra una fotografía y una guía breve. Elige la categoría que quieres
+          preparar y conoce los bienes que suele recibir una organización de Huancayo.
         </p>
       </div>
 
@@ -35,60 +35,6 @@
       </div>
     </div>
 
-    <div class="row g-3 g-lg-4">
-      @for (category of categories; track category.name; let i = $index) {
-        <div
-          class="col-12 col-md-6"
-          [class.col-lg-7]="i === 0"
-          [class.col-lg-5]="i === 1"
-          [class.col-lg-4]="i > 1"
-        >
-          <a
-            [routerLink]="['/como-donar']"
-            fragment="bienes"
-            class="dc-category-link text-decoration-none text-reset d-block h-100"
-            [attr.aria-label]="'Ver qué puedes donar en ' + category.name"
-          >
-            <article
-              class="dc-category-card card h-100 p-4 p-lg-5"
-              [class.dc-tone-blue]="category.tone === 'blue'"
-              [class.dc-tone-cream]="category.tone === 'cream'"
-              [class.dc-tone-green]="category.tone === 'green'"
-              [class.dc-tone-amber]="category.tone === 'amber'"
-              [class.dc-tone-navy]="category.tone === 'navy'"
-              [class.text-white]="category.tone === 'navy'"
-            >
-              <div class="d-flex justify-content-between align-items-start gap-3 mb-4">
-                <span class="dc-category-index" aria-hidden="true">0{{ i + 1 }}</span>
-                <span
-                  class="dc-tile-icon bg-white bg-opacity-75 text-primary shadow-sm"
-                  [class.bg-opacity-100]="category.tone === 'navy'"
-                >
-                  <app-icon [name]="category.icon" />
-                </span>
-              </div>
-
-              <h3 class="h4 fw-bold mb-3">{{ category.name }}</h3>
-              <p
-                class="mb-4"
-                [class.text-secondary]="category.tone !== 'navy'"
-                [class.text-white-50]="category.tone === 'navy'"
-              >
-                {{ category.description }}
-              </p>
-
-              <div
-                class="dc-category-examples pt-3"
-                [class.text-secondary]="category.tone !== 'navy'"
-                [class.text-white-50]="category.tone === 'navy'"
-              >
-                <span class="fw-bold d-block small mb-1">Ejemplos</span>
-                <span class="small">{{ category.examples }}</span>
-              </div>
-            </article>
-          </a>
-        </div>
-      }
-    </div>
+    <app-categorias-destacadas />
   </div>
 </section>
