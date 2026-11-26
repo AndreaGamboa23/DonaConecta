@@ -1,0 +1,42 @@
+:host {
+  display: block;
+}
+
+.dc-mapa-lienzo {
+  width: 100%;
+  height: clamp(24rem, 52vh, 36rem);
+  background: var(--dc-blue-soft, #dcebf5);
+}
+
+.dc-mapa-estado {
+  min-height: 3rem;
+  border-radius: 0.75rem;
+  background: var(--dc-blue-soft, #dcebf5);
+}
+
+.dc-mapa app-icon,
+.dc-mapa button app-icon {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+:host ::ng-deep .leaflet-container {
+  font-family: var(--dc-font-body, Inter, sans-serif);
+  z-index: 0;
+}
+
+:host ::ng-deep .leaflet-control-attribution {
+  font-size: 0.72rem;
+  padding: 0.15rem 0.4rem;
+}
+
+:host ::ng-deep .leaflet-tooltip {
+  font-size: 0.85rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :host ::ng-deep .leaflet-container,
+  :host ::ng-deep .leaflet-marker-icon {
+    transition: none !important;
+  }
+}

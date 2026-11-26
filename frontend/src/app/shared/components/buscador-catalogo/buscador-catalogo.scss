@@ -1,0 +1,16 @@
+:host {
+  display: block;
+}
+
+.dc-buscador-sugerencia {
+  --bs-btn-font-size: 0.8rem;
+  border-color: rgba(18, 48, 74, 0.12) !important;
+  color: var(--dc-navy, #12304a);
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.dc-buscador-sugerencia:hover,
+.dc-buscador-sugerencia:focus-visible {
+  background-color: var(--dc-blue-soft, #dcebf5);
+  border-color: rgba(54, 121, 168, 0.45) !important;
+}

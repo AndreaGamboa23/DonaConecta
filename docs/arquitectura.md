@@ -117,7 +117,79 @@ app.ts (RouterOutlet)
   `TitleStrategy` propia que actualiza título y metadescripción por ruta.
 - `core/seo/dona-title-strategy.ts` centraliza el SEO sin dependencias adicionales.
 - Todas las páginas usan `loadComponent`, de modo que el bundle inicial se mantiene por debajo
-  del presupuesto de 500 kB y cada sección se descarga bajo demanda.
+  del presupuesto de 600 kB ajustado en Fase 07.A y cada sección se descarga bajo demanda.
 - Las rutas privadas futuras añadirán guards de Angular como ayuda de navegación; la
   autorización definitiva permanecerá en el backend.
 - El mapa completo de rutas implementadas y planificadas está en `docs/mapa-navegacion.md`.
+
+## 11. Requisitos académicos permanentes (registro actual)
+
+Estos requisitos complementan lo anterior y son obligatorios desde la Fase 05. La norma
+completa está en `AGENTS.md`, sección 18; aquí se resume la organización acordada.
+
+- Cliente-servidor: Angular consume HTTP/WebSocket; FastAPI es el único acceso a SQL Server.
+- Backend de referencia: `backend/src/backend/` con `apis/`, `repositories/`, `schemas/`,
+  `services/`, `database/`, `security/`, `core/`, `websockets/`, `__init__.py` y `main.py`.
+  `backend/tests/` y los archivos de configuración se crearán cuando exista una necesidad real.
+- `main.py` solo configura la aplicación y registra enrutamiento; no concentra responsabilidades.
+- `uv` se evaluará en la Fase 07 siguiendo el procedimiento de clases. No se instala todavía,
+  no se duplican gestores y no se versionan `.venv/`, `__pycache__/` ni `.env`.
+
+## 12. Separación de responsabilidades por capa
+
+| Capa | Responsabilidad |
+|---|---|
+| `apis/` | Reciben solicitudes HTTP, verifican autenticación/autorización, invocan servicios y devuelven respuestas. |
+| `schemas/` | Modelos Pydantic que validan entradas y salidas de las APIs. |
+| `services/` | Reglas de negocio, validaciones funcionales y coordinación de operaciones. |
+| `repositories/` | Consultas parametrizadas a SQL Server mediante PyODBC. |
+| `database/` | Conexiones, transacciones y configuración de acceso a SQL Server. |
+| `security/` | Hashing Argon2id, cifrado evaluado, autenticación, autorización y protección de credenciales. |
+| `websockets/` | Conexiones autorizadas para mensajería privada y seguimiento GPS en tiempo real. |
+
+## 13. Contrato REST y documentación
+
+- `GET` consulta, `POST` crea, `PUT` reemplaza por completo, `PATCH` modifica parcialmente y
+  `DELETE` solo cuando las reglas de negocio lo permitan. Prohibido `GET` que modifique datos;
+  no se implementan métodos innecesarios solo para completar un CRUD.
+- Convención propuesta, a validar en Fase 05/07: `/api/v1/usuarios`, `/api/v1/instituciones`,
+  `/api/v1/necesidades`, `/api/v1/donaciones`, `/api/v1/entregas`, `/api/v1/puntos-de-acopio`,
+  `/api/v1/conversaciones`, `/api/v1/notificaciones` y `/api/v1/seguimientos`.
+- Parámetros de ruta, consulta, filtros, paginación y cuerpos JSON según corresponda; respuestas
+  con esquemas Pydantic consistentes.
+- Códigos: `200`, `201`, `202`, `204`, `400`, `401`, `403`, `404`, `409`, `422`, `429` y `500`.
+  Formato de error homogéneo, sin trazas, credenciales ni mensajes de SQL Server.
+- OpenAPI, Swagger UI y ReDoc disponibles en desarrollo; en producción se evalúa restringirlos.
+  Cada operación documenta parámetros, esquemas, respuestas, errores, autenticación y permisos.
+- Donaciones, entregas y recepciones conservan su trazabilidad: se prefiere baja lógica o
+  cambio de estado antes que eliminación física cuando existen relaciones.
+
+## 14. Modelo de datos y tiempo real
+
+- Modelos conceptual, lógico y físico; entidad-relación y cardinalidades; 1FN, 2FN y 3FN;
+  PK, FK, `UNIQUE`, `CHECK`, integridad referencial, `JOIN`, vistas y procedimientos
+  justificados; índices, transacciones, control de concurrencia, respaldos, restauración
+  y auditoría.
+- El modelo contemplará usuarios, donantes voluntarios, instituciones y su verificación,
+  roles y permisos, directorio público, necesidades, categorías de bienes, compromisos,
+  entregas parciales y totales, confirmaciones de recepción, puntos de acopio, horarios,
+  GPS autorizado, chat privado, notificaciones, evidencias, historiales, dashboards
+  y auditoría. Solo bienes materiales: sin pagos ni transferencias.
+- REST persiste cada operación y consulta datos reales. WebSockets solo transporta eventos de
+  mensajería privada, GPS autorizado, cambios de estado y notificaciones; valida identidad y
+  autorización de cada participante y persiste lo necesario en SQL Server. Sin rastreo
+  permanente, coordenadas públicas ni GPS como sustituto de la confirmación de recepción.
+
+## 15. Seguridad y trabajo en equipo
+
+- Argon2id para contraseñas; AES-256-GCM evaluado solo para datos recuperables que lo justifiquen;
+  HTTPS/TLS y WSS según entorno; CORS restringido, rate limiting y errores sin trazas.
+- Autorización en backend por rol **y** propiedad del recurso, también en WebSockets. Los guards
+  de Angular son ayuda de navegación, no control definitivo.
+- El frontend se trabaja en `frontend/`; backend y base de datos en `backend/` y `database/`.
+  No se modifican ramas ni archivos de otro integrante sin coordinación. Antes de implementar
+  se acuerdan modelo de datos, nombres de campos, rutas, métodos HTTP, esquemas JSON, estados,
+  reglas de negocio, contratos de integración y seguridad.
+- **Estado actual:** solo se registra documentación. No hay backend instalado, tablas
+  definitivas ni scripts SQL. La Fase 04.4 permanece intacta y la Fase 05 sigue pendiente de
+  autorización explícita.

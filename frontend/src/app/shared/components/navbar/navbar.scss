@@ -1,29 +1,111 @@
-.navbar {
-  --bs-navbar-padding-y: 0.65rem;
+.dc-navbar {
+  --bs-navbar-padding-y: 0.6rem;
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(18, 48, 74, 0.08);
+  z-index: 1040;
 }
 
-.nav-link {
-  color: inherit;
-}
-
-.nav-link::after {
+.dc-navbar::before {
   content: '';
   position: absolute;
-  left: 0.75rem;
-  right: 0.75rem;
-  bottom: 0.15rem;
+  inset-inline: 0;
+  top: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #12304a 0%, #3679a8 58%, #d5a451 100%);
+}
+
+.dc-navbar .navbar-toggler {
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+}
+
+.dc-navbar .nav-link {
+  position: relative;
+  color: var(--dc-navy, #12304a);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.4;
+  min-height: 2.75rem;
+  padding: 0.65rem 0.8rem;
+  border-radius: 0.75rem;
+  white-space: nowrap;
+  transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+.dc-navbar .nav-link:hover {
+  background: var(--dc-blue-soft, #dcebf5);
+  color: var(--dc-navy-deep, #0d2437);
+}
+
+.dc-navbar .nav-link.active {
+  background: var(--dc-blue-soft, #dcebf5);
+  color: var(--dc-blue, #3679a8);
+}
+
+.dc-navbar .nav-link.active::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0.8rem;
+  bottom: 0.4rem;
   height: 2px;
   border-radius: 2px;
-  background: var(--dc-amber);
-  transform: scaleX(0);
-  transition: transform 0.2s ease;
+  background: var(--dc-blue, #3679a8);
 }
 
-.nav-link:hover::after,
-.nav-link.active::after {
-  transform: scaleX(1);
+.dc-nav-icon {
+  width: 1.15rem;
+  height: 1.15rem;
 }
 
-.nav-link.active {
-  color: var(--dc-navy);
+.dc-nav-chevron {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+.dc-nav-mas .dropdown-toggle::after {
+  display: none;
+}
+
+.dc-nav-mas .dropdown-menu {
+  min-width: 15rem;
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 1rem;
+}
+
+.dc-nav-mas .dropdown-item {
+  padding: 0.7rem 0.9rem;
+  border-radius: 0.65rem;
+  font-size: 1rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.dc-nav-mas .dropdown-item.active {
+  background: var(--dc-blue-soft, #dcebf5);
+  color: var(--dc-blue, #3679a8);
+}
+
+.dc-nav-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+@media (max-width: 1199.98px) {
+  .dc-nav-actions {
+    padding-block: 0.25rem 0.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dc-navbar .nav-link {
+    transition: none;
+  }
 }

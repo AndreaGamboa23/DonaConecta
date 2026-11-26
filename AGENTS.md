@@ -14,6 +14,8 @@ animales de Huancayo, Junín, Perú.
 - Gestiona **exclusivamente donaciones de bienes materiales**.
 - **No** procesa pagos, transferencias bancarias ni donaciones monetarias.
 - Objetivo académico: Ingeniería de Sistemas e Informática — Universidad Continental.
+- Debe demostrar los conocimientos de desarrollo web, programación backend y bases de datos
+  vistos en clases, con código comprensible y sostenible ante el docente.
 - Repositorio: `https://github.com/AndreaGamboa23/DonaConecta.git`.
 
 ---
@@ -39,13 +41,18 @@ animales de Huancayo, Junín, Perú.
 | Capa | Tecnologías |
 |---|---|
 | Frontend | Angular 22, TypeScript, HTML5, Bootstrap 5, CSS y SCSS |
-| Backend | Python 3.13, FastAPI, Uvicorn, Pydantic |
-| Base de datos | Microsoft SQL Server 2025 Express, T-SQL, pyodbc |
+| Backend | Python 3.13, FastAPI, Uvicorn, Pydantic, PyODBC, WebSockets |
+| Base de datos | Microsoft SQL Server 2025 Express, T-SQL, PyODBC |
+| Gestor de entornos | `uv` en evaluación, siguiendo el procedimiento de clases; no duplicar gestores |
 | Versionamiento y herramientas | Git, GitHub, OpenCode, Visual Studio Code |
 
 - No sustituir estas tecnologías.
 - No agregar dependencias innecesarias. Toda dependencia nueva debe justificarse
   técnicamente y documentarse en `docs/decisiones-tecnicas.md`.
+- Evaluar `uv` como gestor de dependencias y entornos virtuales en la Fase 07, antes de
+  instalar backend. No introducir gestores incompatibles o duplicados.
+- No versionar `.venv/`, `__pycache__/`, archivos `.env` ni credenciales; `.env.example`
+  debe permanecer sin valores sensibles.
 - No usar Tailwind CSS, Angular Material ni otros frameworks de diseño adicionales.
 - No usar Firebase, Supabase, MongoDB, SQLite ni otras bases de datos sustitutas.
 - No crear nuevamente el proyecto Angular existente.
@@ -140,11 +147,14 @@ Arquitectura cliente-servidor modular y organizada por capas, sin complejidad in
 **Frontend:** `core`, `shared`, `layouts`, `features`, `services`, `guards`,
 `interceptors`, `interfaces`, `routing`, `assets`, `styles`.
 
-**Backend:** `main.py`, `core`, `routers`, `services`, `repositories`, `models`,
-`schemas`, `database`, `dependencies`, `tests`.
+**Backend:** referencia obligatoria `backend/src/backend/` con `apis/`, `repositories/`,
+`schemas/`, `services/`, `database/`, `security/`, `core/`, `websockets/`, `__init__.py` y
+`main.py`. La carpeta `backend/tests/` y los archivos de configuración se crearán solo cuando
+exista una necesidad real en las fases autorizadas.
 
-Separar correctamente presentación, lógica de negocio y persistencia. El frontend nunca
-accede directamente a SQL Server: toda operación pasa por APIs REST reales.
+Separar correctamente presentación, lógica de negocio y persistencia. `main.py` no concentra
+todas las responsabilidades. El frontend nunca accede directamente a SQL Server: toda operación
+pasa por APIs REST reales; los WebSockets solo complementan los eventos en tiempo real.
 
 ---
 
@@ -155,9 +165,12 @@ accede directamente a SQL Server: toda operación pasa por APIs REST reales.
 - Controlador: `ODBC Driver 18 for SQL Server`. Autenticación local: Windows.
 - `Encrypt=yes` y `TrustServerCertificate=yes` **solo en el entorno local autorizado**.
   En producción debe validarse un certificado confiable (`TrustServerCertificate=no`).
-- Normalización hasta **tercera forma normal (3FN)**.
+- Diseñar modelo **conceptual, lógico y físico**, con modelo entidad-relación y cardinalidades.
+- Normalizar desde 1FN y 2FN hasta **tercera forma normal (3FN)**.
 - Usar claves primarias, claves foráneas, restricciones `UNIQUE` y `CHECK`,
   integridad referencial, campos obligatorios, índices justificados y transacciones.
+- Emplear `JOIN`, vistas y procedimientos almacenados solo cuando estén justificados;
+  planificar respaldos, restauración y auditoría desde el diseño.
 - Consultas **parametrizadas**; prohibida la concatenación de cadenas SQL.
 - Prevenir compromisos que superen las cantidades disponibles mediante control
   transaccional (bloqueo y validación en repositorio/servicio).
@@ -172,6 +185,12 @@ accede directamente a SQL Server: toda operación pasa por APIs REST reales.
 
 Perfiles del sistema: **visitante**, **donante**, **representante de organización** y
 **administrador**. Los módulos respetan los requisitos del diagnóstico de la Fase 01.
+
+El modelo de datos y las APIs deberán contemplar, en las fases correspondientes: usuarios,
+registro voluntario de donantes, registro y verificación de instituciones, roles y permisos,
+directorio público, necesidades, categorías de bienes, compromisos de donación, entregas
+parciales y totales, confirmaciones de recepción, puntos de acopio, horarios, GPS autorizado,
+chat privado, notificaciones, evidencias, historiales, dashboards y auditoría.
 
 - Todas las operaciones de negocio se comunican mediante **APIs REST reales** y persisten
   en SQL Server.
@@ -198,7 +217,11 @@ Perfiles del sistema: **visitante**, **donante**, **representante de organizaci�
 - Configuración y secretos en variables de entorno; `.env` ignorado por Git.
 - Protección de datos personales; DTO de respuesta explícitos sin campos sensibles
   como `PasswordHash` o tokens.
-- Validación de archivos: extensión, MIME, tamaño y nombre.
+- Validación de archivos: extensión, MIME, tamaño y nombre; documentos privados fuera de rutas públicas.
+- Evaluar AES-256-GCM solo para datos recuperables que lo justifiquen; no desarrollar criptografía propia.
+- HTTPS/TLS y WSS en los entornos que correspondan; CORS restringido y rate limiting en operaciones sensibles.
+- Autorización por rol **y** propiedad del recurso, también en WebSockets.
+- Gestión segura de claves y secretos; rotación y versión documentadas si se implementa cifrado.
 - Manejo seguro de errores: sin stack traces ni credenciales en respuestas.
 - Principio de mínimo privilegio. No exponer credenciales en código ni en GitHub.
 
@@ -350,6 +373,21 @@ DonaConecta no es una landing de anclas: es una SPA con páginas independientes.
 - Perfiles: visitante (no autenticado), donante, representante institucional y
   administrador. El registro público nunca crea administradores.
 
+**Plan de experiencia como aplicación de servicios (desde Fase 04.4, solo documental):**
+
+- La portada funciona como entrada a servicios, no como una landing de anclas. El visitante debe
+  encontrar primero accesos reales: explorar categorías, guía de donación, proyecto y ayuda.
+- Navegación pública prevista cuando existan las páginas correspondientes: Inicio, Explorar
+  necesidades, Instituciones, Puntos de acopio, Cómo donar, Mis donaciones, Mensajes,
+  Notificaciones y Perfil. Los módulos privados solo se enlazarán después de autenticación y
+  autorización en backend; hasta entonces no se muestran como enlaces funcionales.
+- En móvil, la futura barra inferior autenticada contendrá Inicio, Explorar, Mis donaciones,
+  Mensajes y Perfil. No se crearán pestañas inactivas ni contadores falsos. Esta barra se
+  implementará con la PWA (Fase 18) y solo para sesiones válidas.
+- La sensación de aplicación debe lograrse con jerarquía clara, paneles de acceso, iconografía
+  consistente, estados reales y microinteracciones sutiles; nunca copiando la identidad visual ni
+  el comportamiento de aplicaciones comerciales de reparto.
+
 ---
 
 ## 16. Seguridad y privacidad desde el diseño (requisito permanente)
@@ -395,9 +433,12 @@ La seguridad se implementa progresivamente en todas las fases, no solo al final.
 | 03 | Organización de arquitectura en `frontend/`, `backend/`, `database/` y `docs/`. | Ejecutada |
 | 04 | Diseño visual profesional, Bootstrap e identidad original. | Ejecutada |
 | 04.2 | Ampliación funcional documental, navegación pública independiente y plan de seguridad. | Ejecutada |
-| 05 | Modelo entidad-relación y normalización 3FN. | Pendiente |
-| 06 | Implementación de Microsoft SQL Server. | Pendiente |
-| 07 | Backend FastAPI, conexión y arquitectura de servicios. | Pendiente |
+| 04.3 | Rediseño visual fotográfico con ilustraciones generadas con IA, optimización de imágenes y verificación responsive. | Ejecutada |
+| 04.4 | Contraste legible del hero, imagen principal confirmada, limpieza de mensajes técnicos y portada como acceso a servicios. | Ejecutada |
+| 05 | Modelo entidad-relación y normalización 3FN. | Ejecutada (propuesta revisada en 05.1) |
+| 05.1 | Revisión, corrección y documentación técnica del modelo. | Ejecutada |
+| 06 | Implementación de Microsoft SQL Server. | Ejecutada |
+| 07 | Backend FastAPI, conexión y arquitectura de servicios. | Pendiente (Fases 07.A, 07.B, 07.B.1 y 07.B.2 frontend ejecutadas) |
 | 08 | Landing definitiva y navegación pública integrada. | Pendiente |
 | 09 | Autenticación segura, registro, sesiones y roles. | Pendiente |
 | 10 | Registro, verificación y directorio de instituciones. | Pendiente |
@@ -417,3 +458,259 @@ implementar `/como-donar`, `/nosotros`, `/preguntas-frecuentes` y 404; conectar 
 existentes con Angular Router; mantener la calidad visual; verificar build, pruebas y
 navegación. No implementar GPS real, mensajería, autenticación, cifrado de datos de negocio,
 API ni base de datos. No comenzar Fase 05 sin autorización explícita.
+
+**Alcance autorizado y resultado de la Fase 04.3:** integrar únicamente las cuatro ilustraciones
+generadas con IA proporcionadas por el usuario; conservar los originales y crear derivados WebP
+optimizados y móviles sin instalar dependencias; rediseñar la portada, `/como-donar`, `/nosotros`,
+FAQ, 404, navbar y footer manteniendo rutas, fragmentos, `RouterLinkActive` y `<details>` reales;
+actualizar `AGENTS.md` y documentación visual/técnica; verificar build, pruebas, imágenes,
+enlaces, menú móvil, contraste, accesibilidad y ausencia de desbordamiento en 360, 390, 576, 768,
+1024, 1440 y 1920 px. No se agregó funcionalidad de negocio, autenticación, GPS, chat, API ni
+base de datos; las imágenes se declaran ilustrativas y la valoración estética final queda pendiente
+de revisión humana. No comenzar Fase 05 sin autorización explícita.
+
+**Alcance autorizado de la Fase 04.4:** corregir el contraste de los encabezados sobre fotografía
+sin `!important`; usar `nosotros-comunidad.webp` como hero principal y `hero-comunidad.webp` en la
+guía de bienes materiales; eliminar de la interfaz aclaraciones repetidas, mensajes de fases,
+construcción y lenguaje dirigido al programador; concentrar los créditos visuales en
+`/nosotros#creditos-visuales` con enlace discreto desde el pie; reorganizar la portada como entrada
+a servicios mediante accesos reales, sin buscador ni ubicación simulados; optimizar navbar, footer
+y experiencia móvil; actualizar documentación; verificar build, pruebas, rutas, enlaces, imágenes,
+contraste efectivo, accesibilidad, menú móvil, consola y `git status`. No implementar
+autenticación, GPS real, chat, API, cifrado de negocio ni base de datos. No comenzar Fase 05 sin
+autorización explícita.
+
+**Resultado de la Fase 04.4:** el hero usa `nosotros-comunidad` con título blanco y destacado crema;
+`hero-comunidad` pasó a la guía de bienes materiales. La portada incorpora cuatro accesos reales y
+las categorías enlazan a `/como-donar#bienes`. Se eliminaron los mensajes técnicos de la interfaz y
+los créditos visuales quedaron centralizados en `/nosotros#creditos-visuales`. Build: 494.03 kB
+(92.51 kB transferidos) y seis chunks diferidos; pruebas: 3 archivos y 5 pruebas aprobadas.
+Verificación CDP: 5 rutas con título/meta propios y un solo `h1`, 35 combinaciones de ancho y ruta
+sin desbordamiento ni imágenes rotas, 0 errores de consola y 0 fallos de red, menú móvil
+`false → true → false`, FAQ real y fragmentos activos. Contraste efectivo del título muestreado
+sobre la imagen: 12.03:1 medio, 9.06:1 en el percentil 90 y 3.87:1 en el peor 0.1% a 1440 px;
+9.70:1 / 6.20:1 / 4.57:1 a 390 px. El texto es negrita de 66.24 px y 37.05 px respectivamente,
+por lo que supera el umbral AA de 3:1 para texto grande. La valoración estética final sigue
+pendiente de revisión humana; el modelo no puede inspeccionar capturas ni imágenes.
+
+**Alcance autorizado de la Fase 05.1:** revisar, corregir y documentar el modelo entidad-relación
+aprobado, sin implementación. Se crearon `docs/modelo-conceptual.md`,
+`docs/modelo-entidad-relacion.md`, `docs/modelo-logico.md`, `docs/modelo-fisico.md`,
+`docs/diccionario-datos.md`, `docs/normalizacion.md`, `docs/reglas-negocio.md` y
+`docs/contrato-api.md`; se actualizaron seguridad/privacidad, decisiones técnicas, plan de
+desarrollo y este archivo. No se creó `DonaConectaDB`, no se ejecutó DDL ni DML, no se instalaron
+dependencias, no se modificó el frontend, no se inventaron datos y no se realizaron commits.
+No comenzar Fase 06 sin autorización explícita.
+
+**Resultado de la Fase 05.1:** modelo definitivo de **42 tablas** en ocho módulos; ocho diagramas
+Mermaid; registro diferenciado con endpoint único `POST /api/v1/autenticacion/registro`;
+activación institucional por rol, vínculo y estado; disponibilidad calculada como
+`requerida − (reserva vigente restante + recibido)` sin doble conteo; FK compuestos contra
+asociaciones cruzadas; GPS con una sola posición privada cifrada; notificaciones con recurso
+opcional; dos procedimientos dueños de su transacción; borrado físico limitado a borradores.
+La validación fue documental en ese momento; las pruebas reales de SQL Server y concurrencia se
+ejecutaron después en la Fase 06 y se resumen más abajo.
+
+**Alcance autorizado de la Fase 06:** crear físicamente `DonaConectaDB` en `.\SQLEXPRESS` desde el
+modelo de Fase 05.1; versionar scripts numerados para base, tablas, FK, índices, catálogos,
+vistas, procedimientos y permisos; sembrar solo roles, permisos, tipos de institución, unidades,
+categorías y distritos verificables; crear cuenta/rol de aplicación sin contraseñas versionadas;
+probar integridad, reglas, concurrencia con dos conexiones, respaldo y restauración en bases
+separadas; actualizar documentación. No modificar `frontend/`, no implementar FastAPI, no instalar
+dependencias Python, no crear datos de negocio inventados, no ejecutar commits ni push.
+
+**Resultado de la Fase 06:** `DonaConectaDB` existe con **42 tablas**, **79 FK** `NO ACTION`,
+**11 índices propios**, **9 vistas** y **2 procedimientos** transaccionales. Catálogos reales:
+3 roles, 37 permisos, 83 asignaciones, 5 tipos de institución, 5 categorías, 6 unidades y 28
+distritos de Huancayo. La base real permanece con **0 filas** en todas las tablas de negocio.
+`dc_app` puede leer catálogos y escribir operaciones, pero no insertar catálogos ni borrar
+auditoría; `dc_admin` no tiene DDL. Pruebas ejecutadas: 11/11 de integridad, 15/15 de
+procedimientos y concurrencia con dos conexiones (una operación válida y una `409` lógica
+`52001`/`52006`, sin interbloqueos `1205`). Respaldo final verificado con `CHECKSUM` y
+`RESTORE VERIFYONLY`, y restaurado en `DonaConectaDB_Verificacion` sin datos de negocio.
+Se documentaron los ajustes de implementación (sin historial de creación, parámetros opcionales
+de recepción y `fecha_real_inicio` obligatoria) y las contradicciones documentales pendientes de
+coordinación (`docs/arquitectura.md` §15, `backend/README.md`, `README.md` y RF-12). No se afirma
+TDE, Always Encrypted, cifrado de respaldo ni cifrado de aplicación: la instancia es Express y la
+estrategia Argon2id/AES-256-GCM queda para Fase 07. No comenzar Fase 07 sin autorización explícita.
+
+**Alcance autorizado de la Fase 07.A:** preparar en `frontend/` la SPA de servicios con rutas
+independientes, formularios reactivos de registro y acceso, pantallas preparadas de exploración,
+mensajería, donaciones, perfil y seguimiento, navbar y barra inferior móvil; actualizar
+`docs/mapa-navegacion.md`, `docs/decisiones-tecnicas.md`, `docs/seguridad-privacidad.md`,
+`docs/plan-desarrollo.md` y este archivo. No implementar FastAPI, dependencias Python, SQL,
+autenticación, tokens, GPS, chat real, documentos privados ni almacenamiento local de datos;
+no modificar el trabajo del compañero ni ejecutar commits o push.
+
+**Resultado de la Fase 07.A:** dieciséis rutas `loadComponent` con título y metadescripción propios;
+layout público con navbar, pie y barra móvil de cinco destinos reales; formularios con
+`FormGroupDirective` verificado en ejecución (10 controles de donante, 12 de institución, 2 de
+acceso y 1 de recuperación) y validadores compartidos. `BackendEstadoService` mantiene la
+integración en `false`: los servicios devuelven `ServicioPendienteError` y `HttpClient` se resuelve
+solo al activar el flag. Build: 545.17 kB iniciales y 105.02 kB transferidos, sin exceder el
+presupuesto ajustado a 600 kB; pruebas: 14/14. Verificación CDP: 52 combinaciones de 16 rutas y
+siete anchos (360–1920 px), 0 errores de consola, 0 desbordamientos, 0 imágenes o anclas rotas, un
+solo `h1` por ruta y menú móvil `false → true → false`. Sin avisos `NG0913` tras marcar como
+`eager` la imagen LCP visible de `/registro/donante`. No se crearon datos, sesiones ni
+estadísticas simuladas. La valoración estética final sigue pendiente de revisión humana. La Fase 07
+de backend continúa pendiente y no se inicia sin autorización explícita.
+
+**Alcance autorizado de la Fase 07.B:** rediseñar visualmente la SPA existente en `frontend/` con
+las ocho imágenes nuevas proporcionadas por el usuario; reorganizar navbar y barra inferior móvil;
+convertir las categorías en accesos protagonistas reutilizables en Inicio, Explorar y Cómo donar;
+mejorar registro, acceso, mensajes, perfil, donaciones, puntos de acopio y seguimiento sin datos,
+sesiones, mensajes ni GPS simulados; reducir los avisos técnicos a una nota breve por pantalla;
+actualizar `AGENTS.md`, `docs/sistema-diseno.md`, `docs/mapa-navegacion.md`,
+`docs/decisiones-tecnicas.md`, `docs/plan-desarrollo.md` y el README de imágenes; verificar build,
+pruebas, imágenes, enlaces, formularios, navegación, consola y responsive. No modificar `backend/`
+ni `database/`; no instalar dependencias; no activar FastAPI, autenticación, chat ni GPS; no
+aumentar presupuestos para ocultar advertencias; no ejecutar commits ni push.
+
+**Resultado de la Fase 07.B:** las ocho imágenes nuevas se sirven desde `/assets/images/...` y se
+verificaron como WebP reales con HTTP `200` y `Content-Type: image/webp`; las 20 imágenes del
+directorio decodificaron correctamente sin HTML ni recursos rotos. El sistema compartido de
+categorías sustituye las tarjetas numeradas por fotografía, nombre, descripción y enlace real a
+`/como-donar#bienes`. El navbar separa navegación pública, acceso personal y registro; la barra
+móvil conserva cinco destinos reales con icono, etiqueta e indicador de selección. Se eliminaron
+los fondos rayados, los controles deshabilitados sin función, los avisos repetidos y el contrato
+muerto `operacion` de `ServicePage`. Perfil, mis donaciones y seguimiento muestran composiciones
+propias con estados vacíos honestos. Build: 547.00 kB iniciales y 105.43 kB transferidos, dentro
+del presupuesto de 600 kB; pruebas: 9 archivos y 14/14 pruebas. Verificación CDP: 47 combinaciones
+de 16 rutas y siete anchos (360–1920 px), 0 desbordamientos, 0 títulos o metadescripciones
+ausentes, 0 imágenes rotas o sin dimensiones, 0 anclas rotas, 0 errores de consola, 0 avisos
+`NG0913`, 0 lenguaje técnico y formularios con `FormGroupDirective` en los casos verificados.
+`git diff --check` no reportó errores de whitespace; solo avisos de normalización LF/CRLF. Las
+capturas quedaron fuera del repositorio. La valoración estética final sigue pendiente de revisión
+humana; la Fase 07 de backend continúa pendiente y no se inicia sin autorización explícita.
+
+**Alcance autorizado de la Fase 07.B.1:** corregir en `frontend/` la navegación, la jerarquía visual
+y la experiencia de servicios; implementar la parte visual/cartográfica autorizada del mapa en
+`/puntos-de-acopio`; preparar catálogo, directorio, chat y seguimiento para la integración futura;
+auditar el flujo real de registro y entregar el informe de contratos para backend. Instalar solo
+las dependencias cartográficas necesarias (`leaflet`, `@types/leaflet`); conservar `BackendEstadoService`
+en `false`; no modificar `backend/` ni `database/`; no activar autenticación, GPS real, chat ni
+envíos HTTP; no crear datos simulados ni ejecutar commits o push. La Fase 07 de backend sigue
+pendiente y separada.
+
+**Resultado de la Fase 07.B.1:** el navbar quedó en una sola fila de escritorio con Inicio,
+Explorar, Instituciones, Mensajes, `Más`, Iniciar sesión y Regístrate; el desplegable incluye
+Puntos de acopio, Mis donaciones, Cómo donar, Nosotros y FAQ, con chevron propio, `aria-expanded`,
+Escape y cierre por clic fuera. La barra inferior móvil conserva cinco destinos y el menú muestra
+acceso a sesión y registro. `PageHero` eliminó el círculo decorativo de 9 rem, usa color explícito
+para el título sobre azul y redujo el espacio vertical; se reforzó el contraste fotográfico y se
+elevaron las áreas táctiles. `/necesidades` e `/instituciones` incorporan buscadores, filtros y
+estados de resultado honestos; `InstitucionCard` está preparada para DTO reales sin datos de
+ejemplo. `/mensajes` separa bandeja y conversación con vista móvil independiente y sin chats
+simulados. `/puntos-de-acopio` usa Leaflet 1.9.4 con teselas de OpenStreetMap, centro verificado
+de Huancayo (Wikidata Q468782), zoom, desplazamiento, retorno, geolocalización voluntaria y
+estados de permisos; no hay marcadores de negocio, rutas ni ETAs. `/seguimiento/:id` documenta
+las limitaciones de geolocalización en PWA y segundo plano. Se corrigieron los avisos de registro
+sin activar el envío y se creó `docs/informe-backend-fase-07b1.md` con el contrato para backend.
+Build: **562,41 kB** iniciales y **108,35 kB** transferidos, dentro del presupuesto de 600 kB;
+pruebas: **9 archivos y 15/15** aprobadas. Persisten únicamente las advertencias de deprecación
+de `@import` de Sass. La verificación con CDP y el `git diff --check` final se registran en
+`docs/plan-desarrollo.md`. La valoración estética final sigue pendiente de revisión humana; la
+Fase 07 de backend no se inicia sin autorización explícita.
+
+**Alcance autorizado de la Fase 07.B.2:** convertir `frontend/` en una aplicación de servicios
+comunitarios con catálogo informativo de 41 bienes, buscador local tolerante a tildes, mayúsculas,
+sinónimos, singular/plural y aproximación moderada, detalle por producto, guías por categoría,
+directorio por tipos de institución y la página editorial «Historias que conectan». Corregir el
+borde inferior del hero, usar las seis imágenes nuevas como ilustraciones declaradas, reforzar el
+navbar y la barra móvil, robustecer el mapa Leaflet sin puntos inventados y documentar como
+propuestas los comentarios, valoraciones, favoritos y el entorno `DonaConectaDB_Pruebas`. No
+modificar `backend/` ni `database/`; no instalar dependencias; no activar HTTP, WebSocket,
+autenticación, GPS real ni chat; no crear datos de negocio simulados; no ejecutar commits ni push.
+
+**Resultado de la Fase 07.B.2:** rutas nuevas `/explorar`, `/explorar/:categoria` y
+`/explorar/:categoria/:producto` con título y metadescripción propios, además de `/historias`.
+El buscador de portada lleva «cobijas» a `/explorar?q=cobijas` y muestra Frazadas; el de Explorar
+devuelve resultados para «mochilas» y ofrece seis sugerencias. Las categorías son accesos reales
+con foto uniforme, sin etiquetas redundantes, y el detalle muestra condiciones, preparación y
+relacionados. Instituciones presenta cuatro tipos ilustrativos sin nombres ni verificaciones
+inventados; Historias usa las dos ilustraciones nuevas sin testimonios ni puntuaciones. El hero
+reserva 5,5 rem para la ola crema y conserva `object-fit: cover` en los cinco anchos medidos.
+Leaflet conserva la atribución de OpenStreetMap, cargó 18/18 mosaicos, dejó `.leaflet-pane` en
+`absolute` y no muestra marcadores de negocio. La causa del fallo anterior era una compilación de
+desarrollo sin `leaflet.css`; el build de producción sí lo incluía. Build: **564,27 kB** iniciales
+y **108,82 kB** transferidos, dentro del presupuesto de 600 kB; pruebas: **12 archivos y 28/28**
+aprobadas. Verificación CDP: **105 combinaciones** de 27 rutas y siete anchos (360–1920 px) con
+0 títulos o metadescripciones ausentes, 0 `h1` duplicados, 0 desbordes, 0 imágenes o anclas rotas,
+0 lenguaje técnico, 0 errores de consola y 0 enlaces internos inválidos; menú móvil
+`false → true → false`, `Más` con «Historias que conectan» y formulario de donante con 10
+controles. Las capturas quedan en `C:\Users\ANDREA\AppData\Local\Temp\opencode\dc-07b2-capturas`,
+fuera del repositorio. Persisten solo las advertencias de deprecación de `@import` de Sass. La
+valoración estética final sigue pendiente de revisión humana; la Fase 07 de backend continúa
+pendiente y no se inicia sin autorización explícita.
+
+---
+
+## 18. Requisitos permanentes de arquitectura académica, API REST y base de datos
+
+Esta sección complementa las secciones 3, 6 a 9 y 16. Toda fase posterior debe respetarla.
+
+### 18.1 Arquitectura y capas
+
+- Cliente-servidor: Angular consume APIs HTTP/WebSocket; FastAPI es el único acceso a SQL Server.
+- Backend de referencia: `backend/src/backend/` con `apis/`, `repositories/`, `schemas/`,
+  `services/`, `database/`, `security/`, `core/`, `websockets/`, `__init__.py` y `main.py`.
+- Responsabilidades: las APIs reciben peticiones y verifican autenticación/autorización;
+  `schemas/` valida entradas y salidas con Pydantic; `services/` contiene reglas de negocio;
+  `repositories/` ejecuta consultas parametrizadas con PyODBC; `database/` gestiona conexiones
+  y transacciones; `security/` implementa hashing, cifrado, autenticación y autorización;
+  `websockets/` gestiona conexiones autorizadas para mensajería y seguimiento GPS.
+- `main.py` solo configura la aplicación y registra enrutamiento; no concentra las
+  responsabilidades. Se evita sobreingeniería y se prioriza código explicable en sustentación.
+- Evaluar `uv` como gestor de dependencias y entornos siguiendo clases. No instalar todavía,
+  no duplicar gestores y no versionar `.venv/`, `__pycache__/` ni `.env`.
+
+### 18.2 API REST
+
+- Usar `GET` para consultar, `POST` para crear, `PUT` para reemplazar completamente, `PATCH`
+  para modificar parcialmente y `DELETE` solo cuando las reglas de negocio lo permitan.
+- Prohibido usar `GET` para operaciones que modifiquen datos. Diferenciar `PUT` de `PATCH`.
+  No implementar métodos innecesarios solo para completar un CRUD.
+- Convención propuesta, a validar en Fase 05/07: `/api/v1/usuarios`, `/api/v1/instituciones`,
+  `/api/v1/necesidades`, `/api/v1/donaciones`, `/api/v1/entregas`,
+  `/api/v1/puntos-de-acopio`, `/api/v1/conversaciones`, `/api/v1/notificaciones` y
+  `/api/v1/seguimientos`.
+- Emplear parámetros de ruta, parámetros de consulta, filtros, paginación y cuerpos JSON según
+  corresponda. Las respuestas usan esquemas Pydantic consistentes.
+- Códigos: `200`, `201`, `202`, `204`, `400`, `401`, `403`, `404`, `409`, `422`, `429` y `500`
+  según el caso. Formato de error homogéneo, sin trazas, credenciales ni mensajes de SQL Server.
+- FastAPI debe exponer OpenAPI, Swagger UI y ReDoc en desarrollo. En producción se evalúa
+  restringir la documentación. Cada operación documenta parámetros, esquemas, respuestas,
+  errores, autenticación y permisos.
+- Proteger la trazabilidad de donaciones, entregas y recepciones; preferir baja lógica o
+  cambios de estado antes que eliminación física cuando existan relaciones.
+
+### 18.3 Frontend Angular
+
+- Mantener la arquitectura modular existente: interfaces TypeScript, servicios, páginas,
+  layouts, componentes, rutas, guards e interceptores dentro de los módulos funcionales.
+- Usar `HttpClient` y Observables para APIs reales; centralizar errores, sesión y headers en
+  servicios/interceptores. Evitar llamadas repetitivas o lógica de negocio dentro de componentes.
+- No conectar Angular directamente con SQL Server ni usar `localStorage` como base de datos.
+
+### 18.4 Base de datos y tiempo real
+
+- Diseñar modelos conceptual, lógico y físico; entidad-relación, cardinalidades, 1FN, 2FN y
+  3FN; PK, FK, `UNIQUE`, `CHECK`, integridad referencial, JOIN, vistas y procedimientos
+  justificados; índices, transacciones, concurrencia, respaldos, restauración y auditoría.
+- REST persiste operaciones y consulta datos reales. WebSockets solo transporta eventos de
+  mensajería privada, GPS autorizado, cambios de estado y notificaciones; valida identidad y
+  autorización de cada participante y persiste lo necesario en SQL Server.
+- No rastreo permanente, no coordenadas públicas y no sustituir confirmación de recepción por GPS.
+
+### 18.5 Trabajo en equipo y alcance actual
+
+- El frontend se trabaja en `frontend/`; backend y base de datos en `backend/` y `database/`.
+  No modificar ramas ni archivos de otro integrante sin coordinación.
+- Acordar antes de implementar: modelo de datos, nombres de campos, rutas, métodos HTTP,
+  esquemas JSON, estados, reglas de negocio, contratos de integración y seguridad.
+- **Alcance actual:** la Fase 06 implementó físicamente el modelo único compartido en
+  `docs/modelo-*.md`, `docs/diccionario-datos.md`, `docs/normalizacion.md`,
+  `docs/reglas-negocio.md` y `docs/contrato-api.md`, con scripts en `database/scripts/`. No crear
+  backend, dependencias Python ni nuevas tablas sin autorización de fase. No reorganizar el
+  frontend existente ni interrumpir o reemplazar Fase 04.4. El único modelo válido para el equipo
+  sigue siendo el de Fase 05.1, ahora desplegado en `DonaConectaDB`.

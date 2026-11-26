@@ -1,0 +1,23 @@
+<a
+  [routerLink]="ruta()"
+  [fragment]="fragmento() || undefined"
+  class="dc-service-card text-decoration-none text-reset d-block h-100 rounded-4 p-3 p-lg-4"
+  [class.dc-service-card--cream]="tono() === 'cream'"
+  [class.dc-service-card--green]="tono() === 'green'"
+  [class.dc-service-card--amber]="tono() === 'amber'"
+  [class.dc-service-card--navy]="tono() === 'navy'"
+>
+  <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+    <span class="dc-service-icon d-flex align-items-center justify-content-center rounded-3">
+      <app-icon [name]="icono()" />
+    </span>
+    @if (etiqueta()) {
+      <span class="badge rounded-pill text-bg-light">{{ etiqueta() }}</span>
+    }
+  </div>
+  <h3 class="h6 fw-bold mb-2">{{ titulo() }}</h3>
+  <p class="small mb-3">{{ descripcion() }}</p>
+  <span class="small fw-bold d-inline-flex align-items-center gap-2">
+    Abrir sección <app-icon name="arrow-right" />
+  </span>
+</a>

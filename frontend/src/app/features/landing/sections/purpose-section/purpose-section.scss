@@ -1,3 +1,40 @@
 :host {
   display: block;
 }
+
+.dc-purpose {
+  background: #0d2437;
+}
+
+.dc-purpose-glow {
+  position: absolute;
+  right: -10rem;
+  top: -7rem;
+  width: 32rem;
+  height: 32rem;
+  border: 1px solid rgba(213, 164, 81, 0.2);
+  border-radius: 42% 58% 61% 39% / 46% 42% 58% 54%;
+  transform: rotate(18deg);
+  pointer-events: none;
+}
+
+.dc-purpose-title {
+  color: var(--dc-white);
+}
+
+.dc-purpose-manifesto {
+  border-left: 3px solid #d5a451;
+}
+
+.dc-purpose-quote {
+  font-family: var(--dc-font-heading);
+  font-size: clamp(1.5rem, 2.8vw, 2.1rem);
+  line-height: 1.18;
+  letter-spacing: -0.03em;
+  color: #f4e6cd;
+}
+
+.dc-purpose-commitments {
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  padding-top: 2rem;
+}

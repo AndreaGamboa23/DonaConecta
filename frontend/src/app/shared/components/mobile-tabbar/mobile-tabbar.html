@@ -1,0 +1,18 @@
+<nav class="dc-tabbar fixed-bottom d-lg-none" aria-label="Navegación móvil principal">
+  <div class="d-grid grid-template-columns h-100">
+    @for (item of items; track item.route) {
+      <a
+        #rla="routerLinkActive"
+        class="dc-tabbar-item d-flex flex-column align-items-center justify-content-center gap-1 text-decoration-none"
+        [routerLink]="item.route"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: item.exact }"
+        [attr.aria-current]="rla.isActive ? 'page' : null"
+      >
+        <span class="dc-tabbar-indicator" aria-hidden="true"></span>
+        <app-icon [name]="item.icon" />
+        <span class="dc-tabbar-label">{{ item.label }}</span>
+      </a>
+    }
+  </div>
+</nav>

@@ -1,0 +1,32 @@
+<section id="solicitudes" class="dc-section-space bg-light">
+  <div class="container">
+    <div class="row g-4 g-lg-5 align-items-center">
+      <div class="col-12 col-lg-5">
+        <span class="dc-eyebrow mb-3">Solicitudes reales</span>
+        <h2 class="display-6 fw-bold mb-3">Pronto, cada necesidad será visible</h2>
+        <p class="lead text-secondary mb-4">
+          Queremos que sepas exactamente qué bienes faltan y cuánto se ha recibido. No publicamos
+          cifras de ejemplo mientras no haya registros verificados.
+        </p>
+        <div class="d-flex flex-wrap gap-2">
+          <a routerLink="/necesidades" class="btn btn-primary px-4">Ver catálogo</a>
+          <a routerLink="/registro/institucion" class="btn btn-outline-secondary px-4">
+            Registrar institución
+          </a>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-7">
+        <app-empty-state
+          icono="box"
+          titulo="Aún no hay solicitudes publicadas"
+          mensaje="Cuando una institución verificada registre una necesidad, aparecerá aquí con su progreso calculado a partir de compromisos reales."
+          accionPrincipal="Cómo donar"
+          rutaPrincipal="/como-donar"
+          accionSecundaria="Conocer el proyecto"
+          rutaSecundaria="/nosotros"
+        />
+      </div>
+    </div>
+  </div>
+</section>

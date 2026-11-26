@@ -1,0 +1,65 @@
+<app-page-hero
+  eyebrow="Seguimiento de entrega"
+  titulo="Seguimiento autorizado"
+  descripcion="Consulta el estado de una entrega y prepara la ubicación manual con consentimiento explícito."
+  icono="route"
+/>
+
+<section class="dc-section-space">
+  <div class="container">
+    <app-pending-notice
+      [estado]="estado"
+      titulo="El seguimiento GPS todavía no está disponible"
+      class="d-block mb-4"
+    />
+
+    <div class="row g-4 g-lg-5 align-items-stretch">
+      <div class="col-12 col-lg-7">
+        <div class="card border-0 bg-white shadow-sm rounded-4 p-3 p-md-4 mb-4">
+          <span class="dc-eyebrow mb-3">Estado de la sesión</span>
+          <h2 class="h4 fw-bold mb-3">Sin sesión activa</h2>
+          <div class="alert alert-light border mb-0" role="status">
+            No hay una entrega autorizada consultada. El identificador de seguimiento se obtendrá
+            de una donación real; mientras tanto no se muestra una ubicación ni un estado inventado.
+          </div>
+        </div>
+
+        <app-mapa-huancayo titulo="Mapa de referencia de la entrega" />
+      </div>
+
+      <div class="col-12 col-lg-5">
+        <div class="card border-0 bg-light rounded-4 h-100 p-3 p-md-4">
+          <span class="dc-eyebrow mb-3">Privacidad desde el inicio</span>
+          <h2 class="h5 fw-bold mb-3">Cómo se activaría una sesión</h2>
+          <ol class="list-unstyled d-grid gap-3 mb-4">
+            <li class="d-flex gap-3 align-items-start">
+              <app-icon name="hand" class="dc-seguimiento-icon flex-shrink-0" aria-hidden="true" />
+              <span><strong>Inicio manual.</strong> Tú decides cuándo compartir la ubicación.</span>
+            </li>
+            <li class="d-flex gap-3 align-items-start">
+              <app-icon name="pin" class="dc-seguimiento-icon flex-shrink-0" aria-hidden="true" />
+              <span><strong>Dato privado.</strong> No se publica ni sustituye la confirmación de recepción.</span>
+            </li>
+            <li class="d-flex gap-3 align-items-start">
+              <app-icon name="clock" class="dc-seguimiento-icon flex-shrink-0" aria-hidden="true" />
+              <span><strong>Caducidad y detención.</strong> Podrías detenerla en cualquier momento.</span>
+            </li>
+          </ol>
+
+          <h2 class="h6 fw-bold mb-2">Limitaciones conocidas de la PWA</h2>
+          <p class="small text-secondary mb-4">
+            La geolocalización en segundo plano no está garantizada: el navegador puede suspenderla,
+            requiere HTTPS y permiso del dispositivo. Por eso la entrega se confirma siempre con las
+            personas participantes, nunca solo con una coordenada.
+          </p>
+
+          <div class="d-grid gap-2">
+            <a routerLink="/mensajes" class="btn btn-primary">Contactar por mensajes</a>
+            <a routerLink="/mis-donaciones" class="btn btn-outline-primary">Ver mis donaciones</a>
+            <a routerLink="/preguntas-frecuentes" class="btn btn-outline-secondary">Consultar privacidad</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

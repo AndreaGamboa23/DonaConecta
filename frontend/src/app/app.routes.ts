@@ -1,4 +1,4 @@
-﻿import { Routes } from '@angular/router';
+import { Routes } from '@angular/router';
 import { PublicLayout } from './layouts/public-layout/public-layout';
 
 export const routes: Routes = [
@@ -12,25 +12,175 @@ export const routes: Routes = [
         title: 'DonaConecta | Una comunidad, muchas manos, un mismo propósito',
         data: {
           description:
-            'Conectamos la solidaridad de Huancayo con organizaciones que necesitan bienes materiales. Sin pagos ni transferencias.',
+            'Explora necesidades, instituciones y puntos de acopio en Huancayo. Conectamos solidaridad con donaciones de bienes materiales, sin pagos ni transferencias.',
         },
+      },
+      {
+        path: 'explorar',
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./features/exploracion/pages/necesidades/necesidades').then(
+                (modulo) => modulo.Necesidades,
+              ),
+            title: 'Explorar bienes y solicitudes | DonaConecta',
+            data: {
+              description:
+                'Busca bienes materiales por categoría, producto o sinónimo y consulta las solicitudes publicadas en Huancayo.',
+            },
+          },
+          {
+            path: ':categoria',
+            loadComponent: () =>
+              import('./features/exploracion/pages/categoria-catalogo/categoria-catalogo').then(
+                (modulo) => modulo.CategoriaCatalogo,
+              ),
+            title: 'Guía de bienes materiales | DonaConecta',
+            data: {
+              description:
+                'Guía informativa de bienes materiales: condiciones, preparación y tipos de institución que podrían recibirlos.',
+            },
+          },
+          {
+            path: ':categoria/:producto',
+            loadComponent: () =>
+              import('./features/exploracion/pages/producto-detalle/producto-detalle').then(
+                (modulo) => modulo.ProductoDetalle,
+              ),
+            title: 'Guía de un bien material | DonaConecta',
+            data: {
+              description:
+                'Condiciones recomendadas, preparación e instituciones relacionadas con un bien material.',
+            },
+          },
+        ],
       },
       {
         path: 'necesidades',
         loadComponent: () =>
-          import('./features/necesidades/necesidades').then((modulo) => modulo.Necesidades),
-        title: 'Necesidades | DonaConecta',
+          import('./features/exploracion/pages/necesidades/necesidades').then(
+            (modulo) => modulo.Necesidades,
+          ),
+        title: 'Explorar necesidades | DonaConecta',
+        data: {
+          description:
+            'Consulta el catálogo de solicitudes de bienes materiales de organizaciones verificadas en Huancayo.',
+        },
       },
       {
         path: 'instituciones',
         loadComponent: () =>
-          import('./features/instituciones/instituciones').then((modulo) => modulo.Instituciones),
+          import('./features/exploracion/pages/instituciones/instituciones').then(
+            (modulo) => modulo.Instituciones,
+          ),
         title: 'Instituciones | DonaConecta',
+        data: {
+          description:
+            'Directorio público de comedores, albergues, refugios y organizaciones sociales verificadas de Huancayo.',
+        },
       },
       {
-        path: 'gestion',
-        loadComponent: () => import('./features/gestion/gestion').then((modulo) => modulo.Gestion),
-        title: 'Gestión | DonaConecta',
+        path: 'puntos-de-acopio',
+        loadComponent: () =>
+          import('./features/exploracion/pages/puntos-de-acopio/puntos-de-acopio').then(
+            (modulo) => modulo.PuntosDeAcopio,
+          ),
+        title: 'Puntos de acopio | DonaConecta',
+        data: {
+          description:
+            'Conoce dónde se coordinan las entregas de bienes materiales en la provincia de Huancayo.',
+        },
+      },
+      {
+        path: 'registro',
+        loadComponent: () =>
+          import('./features/registro/pages/registro/registro').then((modulo) => modulo.Registro),
+        title: 'Crea tu cuenta | DonaConecta',
+        data: {
+          description:
+            'Regístrate como donante de bienes materiales o como representante de una institución en Huancayo.',
+        },
+      },
+      {
+        path: 'registro/donante',
+        loadComponent: () =>
+          import('./features/registro/pages/registro-donante/registro-donante').then(
+            (modulo) => modulo.RegistroDonante,
+          ),
+        title: 'Registro de donante | DonaConecta',
+        data: {
+          description:
+            'Crea un perfil de donante para ofrecer bienes materiales y seguir tus compromisos con la comunidad.',
+        },
+      },
+      {
+        path: 'registro/institucion',
+        loadComponent: () =>
+          import('./features/registro/pages/registro-institucion/registro-institucion').then(
+            (modulo) => modulo.RegistroInstitucion,
+          ),
+        title: 'Registro de institución | DonaConecta',
+        data: {
+          description:
+            'Registra una institución social de Huancayo y vincula al representante responsable de la solicitud.',
+        },
+      },
+      {
+        path: 'iniciar-sesion',
+        loadComponent: () =>
+          import('./features/autenticacion/pages/iniciar-sesion/iniciar-sesion').then(
+            (modulo) => modulo.IniciarSesion,
+          ),
+        title: 'Iniciar sesión | DonaConecta',
+        data: {
+          description:
+            'Accede a tu cuenta de DonaConecta para ver donaciones, mensajes y preferencias de tu perfil.',
+        },
+      },
+      {
+        path: 'mensajes',
+        loadComponent: () =>
+          import('./features/mensajes/pages/mensajes/mensajes').then((modulo) => modulo.Mensajes),
+        title: 'Mensajes | DonaConecta',
+        data: {
+          description:
+            'Espacio privado previsto para coordinar entregas de bienes materiales con instituciones verificadas.',
+        },
+      },
+      {
+        path: 'mis-donaciones',
+        loadComponent: () =>
+          import('./features/donaciones/pages/mis-donaciones/mis-donaciones').then(
+            (modulo) => modulo.MisDonaciones,
+          ),
+        title: 'Mis donaciones | DonaConecta',
+        data: {
+          description:
+            'Consulta tus compromisos de bienes materiales, entregas y confirmaciones de recepción.',
+        },
+      },
+      {
+        path: 'seguimiento/:id',
+        loadComponent: () =>
+          import('./features/seguimiento/pages/seguimiento/seguimiento').then(
+            (modulo) => modulo.Seguimiento,
+          ),
+        title: 'Seguimiento de entrega | DonaConecta',
+        data: {
+          description:
+            'Seguimiento autorizado y manual de una entrega de bienes materiales, con privacidad y caducidad.',
+        },
+      },
+      {
+        path: 'perfil',
+        loadComponent: () =>
+          import('./features/perfil/pages/perfil/perfil').then((modulo) => modulo.Perfil),
+        title: 'Mi perfil | DonaConecta',
+        data: {
+          description:
+            'Gestiona tus datos personales, roles y preferencias de notificación de tu cuenta DonaConecta.',
+        },
       },
       {
         path: 'como-donar',
@@ -40,6 +190,16 @@ export const routes: Routes = [
         data: {
           description:
             'Guía para donar bienes materiales en DonaConecta: categorías, estado de los productos, pasos y seguimiento previsto.',
+        },
+      },
+      {
+        path: 'historias',
+        loadComponent: () =>
+          import('./features/historias/historias').then((modulo) => modulo.Historias),
+        title: 'Historias que conectan | DonaConecta',
+        data: {
+          description:
+            'Historias editoriales sobre preparar donaciones, colaborar con responsabilidad y construir comunidad en Huancayo.',
         },
       },
       {
@@ -62,17 +222,6 @@ export const routes: Routes = [
           description:
             'Respuestas claras sobre donaciones materiales, registro, privacidad, seguimiento GPS y mensajería en DonaConecta.',
         },
-      },
-      {
-        path: 'iniciar-sesion',
-        loadComponent: () => import('./features/auth/login/login').then((modulo) => modulo.Login),
-        title: 'Iniciar sesión | DonaConecta',
-      },
-      {
-        path: 'registro',
-        loadComponent: () =>
-          import('./features/auth/registro/registro').then((modulo) => modulo.Registro),
-        title: 'Crear cuenta | DonaConecta',
       },
       {
         path: '**',

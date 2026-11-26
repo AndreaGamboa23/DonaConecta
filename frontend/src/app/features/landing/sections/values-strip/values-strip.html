@@ -1,17 +1,30 @@
-<section class="bg-dark text-white py-4" aria-label="Valores de DonaConecta">
-  <div class="container">
-    <div class="row g-4 align-items-center">
-      @for (value of values; track value.title; let first = $first) {
-        <div class="col-12 col-sm-6 col-lg-3" [class.border-lg-start]="!first">
-          <div class="d-flex align-items-center gap-3 px-lg-2">
-            <span class="dc-tile-icon bg-primary-subtle text-primary flex-shrink-0">
-              <app-icon [name]="value.icon" />
-            </span>
-            <div>
-              <h2 class="h6 fw-bold mb-1">{{ value.title }}</h2>
-              <p class="small dc-footer-note mb-0">{{ value.text }}</p>
+<section class="bg-light dc-values-section" aria-labelledby="valoresTitulo">
+  <div class="container position-relative">
+    <h2 id="valoresTitulo" class="visually-hidden">Valores que guían DonaConecta</h2>
+
+    <div class="dc-value-rail mx-auto mb-5" aria-hidden="true">
+      <span class="dc-value-rail-node"></span>
+    </div>
+
+    <p class="dc-values-intro text-center fw-semibold mb-5 mb-lg-6">
+      Una comunidad. Muchas manos. Un mismo propósito.
+    </p>
+
+    <div class="row g-4 gy-lg-0 dc-values-grid">
+      @for (value of values; track value.title; let i = $index) {
+        <div class="col-12 col-sm-6 col-lg-3">
+          <article class="h-100 pe-lg-3">
+            <div class="d-flex align-items-start gap-3">
+              <span class="dc-value-mark d-flex align-items-center justify-content-center flex-shrink-0">
+                <app-icon [name]="value.icon" />
+              </span>
+              <div>
+                <span class="dc-values-index d-block mb-1">0{{ i + 1 }}</span>
+                <h3 class="h6 fw-bold mb-2">{{ value.title }}</h3>
+                <p class="small text-secondary mb-0">{{ value.text }}</p>
+              </div>
             </div>
-          </div>
+          </article>
         </div>
       }
     </div>

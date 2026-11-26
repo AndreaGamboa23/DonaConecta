@@ -11,14 +11,14 @@ import { Icon } from '../../../../shared/components/icon/icon';
 export class ValuesStrip {
   protected readonly values = [
     {
-      icon: 'box',
-      title: 'Donaciones en especie',
-      text: 'Bienes nuevos o en buen estado, nunca dinero.',
+      icon: 'people',
+      title: 'Solidaridad comunitaria',
+      text: 'Ciudadanos que se organizan para apoyar a otras personas.',
     },
     {
-      icon: 'people',
-      title: 'Colaboración comunitaria',
-      text: 'Ciudadanos y organizaciones trabajando juntos.',
+      icon: 'box',
+      title: 'Donaciones materiales',
+      text: 'Bienes nuevos o en buen estado, nunca dinero.',
     },
     {
       icon: 'route',
@@ -27,7 +27,7 @@ export class ValuesStrip {
     },
     {
       icon: 'shield',
-      title: 'Seguimiento transparente',
+      title: 'Transparencia',
       text: 'Cada entrega podrá ser confirmada por quien la recibe.',
     },
   ];

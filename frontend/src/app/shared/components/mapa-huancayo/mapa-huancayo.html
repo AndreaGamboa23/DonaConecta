@@ -1,0 +1,59 @@
+<section class="dc-mapa" [attr.aria-label]="titulo()">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
+    <div>
+      <h2 class="h5 fw-bold mb-1">{{ titulo() }}</h2>
+      <p class="small text-secondary mb-0">
+        Referencia: Huancayo, Junín. Explora el mapa sin compartir tu ubicación.
+      </p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      <button type="button" class="btn btn-outline-primary" (click)="restablecerVista()">
+        <app-icon name="compass" aria-hidden="true" />
+        Volver a Huancayo
+      </button>
+      @if (mostrarBotonUbicacion()) {
+        <button
+          type="button"
+          class="btn btn-primary"
+          [disabled]="estadoUbicacion() === 'consultando'"
+          (click)="consultarUbicacion()"
+        >
+          @if (estadoUbicacion() === 'consultando') {
+            <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+            Consultando…
+          } @else {
+            <app-icon name="pin" aria-hidden="true" />
+            Consultar mi ubicación
+          }
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (cargandoMapa()) {
+    <div class="dc-mapa-estado d-flex align-items-center justify-content-center gap-2 mb-2" role="status">
+      <span class="spinner-border spinner-border-sm text-primary" aria-hidden="true"></span>
+      <span class="small fw-semibold">Cargando mapa…</span>
+    </div>
+  }
+
+  @if (mensajeEstado() && !cargandoMapa()) {
+    <div class="alert py-2 px-3 small" [class]="alertaEstado()" role="status">
+      {{ mensajeEstado() }}
+    </div>
+  }
+
+  <div
+    #lienzoMapa
+    class="dc-mapa-lienzo rounded-4 border overflow-hidden"
+    role="region"
+    aria-label="Mapa interactivo de la ciudad de Huancayo"
+  ></div>
+
+  <p class="small text-secondary mt-2 mb-0">
+    Datos cartográficos ©
+    <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer"
+      >OpenStreetMap contributors</a
+    >. Leaflet no calcula rutas ni tiempos de llegada por sí mismo.
+  </p>
+</section>

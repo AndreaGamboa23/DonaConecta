@@ -1,48 +1,16 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { CategoriasDestacadas } from '../../shared/components/categorias-destacadas/categorias-destacadas';
 import { Icon } from '../../shared/components/icon/icon';
 
 @Component({
   selector: 'app-como-donar',
   standalone: true,
-  imports: [RouterLink, Icon],
+  imports: [RouterLink, Icon, CategoriasDestacadas],
   templateUrl: './como-donar.html',
   styleUrl: './como-donar.scss',
 })
 export class ComoDonar {
-  protected readonly categories = [
-    {
-      icon: 'food',
-      title: 'Alimentos no perecibles',
-      text: 'Arroz, frijoles, leche en polvo, aceite y conservas.',
-      tone: 'blue',
-    },
-    {
-      icon: 'clothing',
-      title: 'Ropa de abrigo y frazadas',
-      text: 'Chompas, frazadas, calcetines y gorros en buen estado.',
-      tone: 'green',
-    },
-    {
-      icon: 'hygiene',
-      title: 'Higiene y limpieza',
-      text: 'Jabón, pasta de dientes, detergente y papel higiénico.',
-      tone: 'amber',
-    },
-    {
-      icon: 'animals',
-      title: 'Productos para animales',
-      text: 'Concentrado, mantas, correas y utensilios de limpieza.',
-      tone: 'blue',
-    },
-    {
-      icon: 'school',
-      title: 'Útiles escolares',
-      text: 'Cuadernos, lápices, mochilas y libros.',
-      tone: 'green',
-    },
-  ];
-
   protected readonly recommendations = [
     'Entrega productos nuevos o en buen estado, limpios y completos.',
     'Revisa fechas de caducidad y envases sellados en alimentos.',

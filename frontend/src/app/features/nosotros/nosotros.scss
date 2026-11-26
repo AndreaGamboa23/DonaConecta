@@ -1,3 +1,108 @@
 :host {
   display: block;
 }
+
+.dc-page-hero {
+  min-height: 32rem;
+  background: linear-gradient(135deg, #12304a 0%, #0d2437 58%, #3679a8 100%);
+  isolation: isolate;
+}
+
+.dc-page-hero-glow {
+  position: absolute;
+  right: -8rem;
+  top: -10rem;
+  width: 32rem;
+  height: 32rem;
+  border: 1px solid rgba(213, 164, 81, 0.24);
+  border-radius: 44% 56% 61% 39% / 48% 42% 58% 52%;
+  transform: rotate(16deg);
+  pointer-events: none;
+}
+
+.dc-breadcrumb-light .breadcrumb-item a {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.dc-breadcrumb-light .breadcrumb-item.active {
+  color: #f4e6cd;
+}
+
+.dc-breadcrumb-light .breadcrumb-item + .breadcrumb-item::before {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.dc-page-title {
+  max-width: 54rem;
+  color: var(--dc-white);
+  font-size: clamp(2.35rem, 4.6vw, 4.4rem);
+  line-height: 1.06;
+  letter-spacing: -0.045em;
+  text-shadow: 0 0.15rem 1.2rem rgba(13, 36, 55, 0.35);
+}
+
+.dc-page-copy {
+  max-width: 43rem;
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.dc-narrative-panel {
+  background: #f7f5ef;
+  border-left: 4px solid #d5a451;
+}
+
+.dc-narrative-mark {
+  display: block;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #3679a8;
+}
+
+.dc-narrative-quote {
+  font-family: var(--dc-font-heading);
+  font-size: clamp(1.55rem, 3vw, 2.35rem);
+  line-height: 1.15;
+  letter-spacing: -0.035em;
+  color: #12304a;
+}
+
+.dc-commitments-section {
+  background: #0d2437;
+}
+
+.dc-commitments-title {
+  color: var(--dc-white);
+}
+
+.dc-commitments-arc {
+  position: absolute;
+  right: -9rem;
+  top: -12rem;
+  width: 30rem;
+  height: 30rem;
+  border: 1px solid rgba(213, 164, 81, 0.2);
+  border-radius: 44% 56% 62% 38% / 50% 42% 58% 50%;
+  pointer-events: none;
+}
+
+.dc-limits-panel {
+  background: #dcebf5;
+  border-top: 3px solid #3679a8;
+}
+
+.dc-credits-section {
+  padding-block: 1.25rem;
+  background: #f7f5ef;
+}
+
+@media (max-width: 575.98px) {
+  .dc-page-hero {
+    min-height: 34rem;
+  }
+
+  .dc-page-title {
+    font-size: clamp(2.2rem, 9vw, 3rem);
+  }
+}

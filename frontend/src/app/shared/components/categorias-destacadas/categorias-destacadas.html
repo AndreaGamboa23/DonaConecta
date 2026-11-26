@@ -1,0 +1,18 @@
+<div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3 g-lg-4">
+  @for (categoria of categorias(); track categoria.codigo; let i = $index) {
+    <div class="col">
+      <app-categoria-donacion
+        [categoria]="categoria"
+        [destacada]="i === 0"
+        [prioritaria]="i === 0"
+      />
+    </div>
+  } @empty {
+    <div class="col-12">
+      <div class="alert alert-light border mb-0" role="status">
+        No hay categorías que coincidan con esa búsqueda. Prueba con «alimentos», «ropa»,
+        «higiene», «animales» o «útiles».
+      </div>
+    </div>
+  }
+</div>

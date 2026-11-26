@@ -1,0 +1,221 @@
+<section class="dc-auth-layout dc-section-space bg-white">
+  <div class="container">
+    <div class="row g-0 dc-auth-shell shadow-sm rounded-5 overflow-hidden">
+      <div class="col-lg-5 dc-auth-photo position-relative text-white">
+        <img
+          class="w-100 h-100 object-fit-cover"
+          src="/assets/images/registro-donante.webp"
+          width="1000"
+          height="1333"
+          alt="Ilustración de bienes materiales preparados para donar"
+          loading="eager"
+          fetchpriority="high"
+        />
+        <span class="dc-auth-overlay" aria-hidden="true"></span>
+        <div class="dc-auth-photo-content position-absolute bottom-0 start-0 end-0 p-4 p-lg-5">
+          <app-brand [inverted]="true" />
+          <span class="dc-eyebrow dc-eyebrow-light d-block mt-4 mb-3">Registro voluntario</span>
+          <h1 class="display-6 fw-bold mb-3">Tu primera donación empieza aquí</h1>
+          <p class="mb-0 text-white">
+            Prepara tu perfil para ofrecer bienes materiales en Huancayo.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-lg-7 bg-white p-3 p-md-4 p-lg-5">
+        <a routerLink="/registro" class="btn btn-link px-0 small mb-3">
+          <app-icon name="arrow-left" /> Cambiar tipo de registro
+        </a>
+        <span class="dc-eyebrow d-block mb-3">Donante de bienes materiales</span>
+        <h2 class="display-6 fw-bold mb-3">Crea tu perfil</h2>
+        <p class="text-secondary mb-4">
+          Puedes revisar el formulario, pero no escribas datos reales: todavía no se envían ni se
+          guardan. Los campos con * son obligatorios.
+        </p>
+
+        <app-pending-notice [estado]="estado" titulo="El envío estará disponible al conectar el servicio" />
+
+        <form
+          class="dc-donante-form mt-4"
+          novalidate
+          [formGroup]="form"
+          (ngSubmit)="enviar()"
+        >
+          <fieldset class="dc-form-group">
+            <legend class="h6 fw-bold mb-3">Datos personales</legend>
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label for="donante-nombres" class="form-label small fw-semibold">Nombres *</label>
+                <input
+                  id="donante-nombres"
+                  name="nombres"
+                  type="text"
+                  class="form-control"
+                  autocomplete="given-name"
+                  [class.is-invalid]="form.controls.nombres.invalid && form.controls.nombres.touched"
+                  formControlName="nombres"
+                />
+                <div class="invalid-feedback">Ingresa tus nombres, mínimo dos caracteres.</div>
+              </div>
+
+              <div class="col-12 col-md-6">
+                <label for="donante-apellidos" class="form-label small fw-semibold">Apellidos *</label>
+                <input
+                  id="donante-apellidos"
+                  name="apellidos"
+                  type="text"
+                  class="form-control"
+                  autocomplete="family-name"
+                  [class.is-invalid]="form.controls.apellidos.invalid && form.controls.apellidos.touched"
+                  formControlName="apellidos"
+                />
+                <div class="invalid-feedback">Ingresa tus apellidos, mínimo dos caracteres.</div>
+              </div>
+
+              <div class="col-12 col-md-7">
+                <label for="donante-email" class="form-label small fw-semibold">Correo electrónico *</label>
+                <div class="input-group has-validation">
+                  <span class="input-group-text"><app-icon name="mail" /></span>
+                  <input
+                    id="donante-email"
+                    name="email"
+                    type="email"
+                    class="form-control"
+                    autocomplete="email"
+                    placeholder="nombre@ejemplo.com"
+                    [class.is-invalid]="form.controls.email.invalid && form.controls.email.touched"
+                    formControlName="email"
+                  />
+                  <div class="invalid-feedback">Escribe un correo electrónico válido.</div>
+                </div>
+              </div>
+
+              <div class="col-12 col-md-5">
+                <label for="donante-telefono" class="form-label small fw-semibold">Celular (opcional)</label>
+                <input
+                  id="donante-telefono"
+                  name="telefono"
+                  type="tel"
+                  class="form-control"
+                  inputmode="numeric"
+                  autocomplete="tel"
+                  placeholder="999000111"
+                  [class.is-invalid]="form.controls.telefono.invalid && form.controls.telefono.touched"
+                  formControlName="telefono"
+                />
+                <div class="invalid-feedback">Debe tener 9 dígitos y empezar en 9.</div>
+              </div>
+
+              <div class="col-12 col-md-6">
+                <label for="donante-distrito" class="form-label small fw-semibold">Distrito *</label>
+                <select
+                  id="donante-distrito"
+                  name="distritoId"
+                  class="form-select"
+                  [class.is-invalid]="form.controls.distritoId.invalid && form.controls.distritoId.touched"
+                  formControlName="distritoId"
+                >
+                  <option [ngValue]="0">Selecciona tu distrito</option>
+                  @for (distrito of distritos; track distrito.id) {
+                    <option [ngValue]="distrito.id">{{ distrito.nombre }}</option>
+                  }
+                </select>
+                <div class="invalid-feedback">Selecciona un distrito de Huancayo.</div>
+              </div>
+
+              <div class="col-12 col-md-6">
+                <label for="donante-notificaciones" class="form-label small fw-semibold">Preferencia de notificaciones</label>
+                <select id="donante-notificaciones" class="form-select" formControlName="preferenciaNotificacion">
+                  <option value="IMPORTANTES">Solo importantes</option>
+                  <option value="TODAS">Todas</option>
+                  <option value="NINGUNA">Ninguna</option>
+                </select>
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class="dc-form-group">
+            <legend class="h6 fw-bold mb-3">Acceso a tu cuenta</legend>
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label for="donante-password" class="form-label small fw-semibold">Contraseña *</label>
+                <div class="input-group has-validation">
+                  <input
+                    id="donante-password"
+                    name="password"
+                    [type]="verContrasena() ? 'text' : 'password'"
+                    class="form-control"
+                    autocomplete="new-password"
+                    minlength="8"
+                    [class.is-invalid]="form.controls.password.invalid && form.controls.password.touched"
+                    formControlName="password"
+                  />
+                  <button class="btn btn-outline-secondary" type="button" (click)="alternarContrasena()" [attr.aria-label]="verContrasena() ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+                    <app-icon [name]="verContrasena() ? 'eye-off' : 'eye'" />
+                  </button>
+                  <div class="invalid-feedback">La contraseña debe tener al menos 8 caracteres.</div>
+                </div>
+                <div class="dc-password-meter progress mt-2" [attr.aria-label]="'Seguridad: ' + etiquetaFuerza()">
+                  <div
+                    class="progress-bar"
+                    [class.bg-secondary]="fuerza() === 1"
+                    [class.bg-warning]="fuerza() === 2"
+                    [class.bg-info]="fuerza() === 3"
+                    [class.bg-success]="fuerza() === 4"
+                    [style.width.%]="fuerza() * 25"
+                  ></div>
+                </div>
+                <small class="text-secondary d-block mt-1">Seguridad orientativa: {{ etiquetaFuerza() }}.</small>
+              </div>
+
+              <div class="col-12 col-md-6">
+                <label for="donante-confirmacion" class="form-label small fw-semibold">Confirmar contraseña *</label>
+                <input
+                  id="donante-confirmacion"
+                  name="confirmacion"
+                  [type]="verContrasena() ? 'text' : 'password'"
+                  class="form-control"
+                  autocomplete="new-password"
+                  [class.is-invalid]="form.invalid && form.controls.confirmacion.touched"
+                  formControlName="confirmacion"
+                />
+                @if (form.errors?.['noCoinciden'] && form.controls.confirmacion.touched) {
+                  <small class="text-danger d-block mt-1">Las contraseñas no coinciden.</small>
+                }
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class="dc-form-group">
+            <legend class="h6 fw-bold mb-3">Consentimiento</legend>
+            <div class="form-check mb-2">
+              <input id="donante-consentimiento" class="form-check-input" type="checkbox" formControlName="consentimientoDatos" />
+              <label class="form-check-label small" for="donante-consentimiento">
+                Acepto el tratamiento de mis datos para gestionar donaciones de bienes materiales. *
+              </label>
+            </div>
+            <div class="form-check">
+              <input id="donante-terminos" class="form-check-input" type="checkbox" formControlName="aceptaTerminos" />
+              <label class="form-check-label small" for="donante-terminos">
+                He leído y acepto los términos de uso y la política de privacidad. *
+              </label>
+            </div>
+          </fieldset>
+
+          @if (respuesta()) {
+            <div class="alert alert-warning d-flex gap-2 align-items-start mt-4 mb-0" role="status">
+              <app-icon name="alert" />
+              <span>{{ respuesta() }}</span>
+            </div>
+          }
+
+          <div class="d-flex flex-column flex-sm-row flex-wrap gap-2 mt-4">
+            <button class="btn btn-primary btn-lg px-4" type="submit">Continuar con el registro</button>
+            <a routerLink="/iniciar-sesion" class="btn btn-outline-secondary btn-lg px-4">Ya tengo cuenta</a>
+            <a routerLink="/" class="btn btn-link">Volver al inicio</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>

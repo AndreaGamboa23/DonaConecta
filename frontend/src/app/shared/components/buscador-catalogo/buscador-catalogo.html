@@ -1,0 +1,41 @@
+<form class="dc-buscador" (submit)="enviar($event)">
+  <label class="form-label fw-semibold" [for]="id()">{{ etiqueta() }}</label>
+  <div class="input-group input-group-lg">
+    <span class="input-group-text bg-white">
+      <app-icon name="search" aria-hidden="true" />
+    </span>
+    <input
+      [id]="id()"
+      type="search"
+      class="form-control"
+      [placeholder]="placeholder()"
+      autocomplete="off"
+      [value]="valor()"
+      (input)="cambiar($event)"
+    />
+    @if (valor()) {
+      <button
+        type="button"
+        class="btn btn-outline-secondary"
+        aria-label="Borrar búsqueda"
+        (click)="limpiar()"
+      >
+        &times;
+      </button>
+    }
+    <button class="btn btn-primary px-4" type="submit">Buscar</button>
+  </div>
+
+  <div class="d-flex flex-wrap align-items-center gap-2 mt-3" aria-label="Términos sugeridos">
+    <span class="small text-secondary">Prueba con</span>
+    @for (sugerencia of sugerenciasVisibles(); track sugerencia) {
+      <button
+        type="button"
+        class="btn btn-sm btn-light border rounded-pill dc-buscador-sugerencia"
+        (click)="usar(sugerencia)"
+      >
+        {{ sugerencia }}
+      </button>
+    }
+  </div>
+</form>

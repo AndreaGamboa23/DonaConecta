@@ -1,0 +1,19 @@
+<section
+  class="dc-page-hero"
+  [class.dc-page-hero--navy]="tono() === 'navy'"
+  [class.dc-page-hero--green]="tono() === 'green'"
+  [class.dc-page-hero--amber]="tono() === 'amber'"
+>
+  <div class="container py-4 py-lg-5">
+    <div class="row align-items-center g-3">
+      <div class="col-12">
+        <span class="dc-eyebrow mb-3">
+          <app-icon [name]="icono()" class="dc-page-hero-icon" aria-hidden="true" />
+          {{ eyebrow() }}
+        </span>
+        <h1 class="fw-bold mb-3 dc-page-hero-title">{{ titulo() }}</h1>
+        <p class="lead mb-0 dc-page-hero-copy">{{ descripcion() }}</p>
+      </div>
+    </div>
+  </div>
+</section>

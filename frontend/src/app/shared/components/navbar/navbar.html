@@ -1,12 +1,12 @@
 ﻿<nav
-  class="navbar navbar-expand-lg bg-white border-bottom border-light-subtle shadow-sm sticky-top"
+  class="dc-navbar navbar navbar-expand-xl bg-white sticky-top"
   aria-label="Navegación principal"
 >
-  <div class="container py-1">
+  <div class="container-xxl d-flex align-items-center gap-3">
     <app-brand />
 
     <button
-      class="navbar-toggler border-0"
+      class="navbar-toggler border-0 ms-auto d-xl-none"
       type="button"
       (click)="toggleMenu()"
       [attr.aria-expanded]="menuOpen()"
@@ -17,63 +17,108 @@
     </button>
 
     <div class="collapse navbar-collapse" id="menuPublico" [class.show]="menuOpen()">
-      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center gap-lg-3">
-        @for (link of links; track link.route) {
-          <li class="nav-item">
-            <a
-              #rla="routerLinkActive"
-              class="nav-link px-lg-2"
-              [routerLink]="link.route"
-              routerLinkActive="active"
-              [routerLinkActiveOptions]="{ exact: link.exact }"
-              [attr.aria-current]="rla.isActive ? 'page' : null"
-              (click)="closeMenu()"
-            >
-              {{ link.label }}
-            </a>
-          </li>
-        }
-
-        @if (auth.usuarioActual(); as usuario) {
-          @if (usuario.roles.includes('ADMINISTRADOR') || usuario.roles.includes('REPRESENTANTE')) {
+      <div class="d-flex flex-column flex-xl-row align-items-xl-center w-100 gap-2 gap-xl-2">
+        <ul class="navbar-nav align-items-xl-center gap-1">
+          @for (link of links; track link.route) {
             <li class="nav-item">
               <a
-                class="nav-link px-lg-2 fw-semibold text-primary"
-                routerLink="/gestion"
+                #rla="routerLinkActive"
+                class="nav-link dc-nav-link d-inline-flex align-items-center gap-2"
+                [routerLink]="link.route"
                 routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: link.exact }"
+                [attr.aria-current]="rla.isActive ? 'page' : null"
                 (click)="closeMenu()"
               >
-                Gestión
+                @if (link.icon) {
+                  <app-icon [name]="link.icon" class="dc-nav-icon" />
+                }
+                {{ link.label }}
               </a>
             </li>
           }
-          <li class="nav-item mt-2 mt-lg-0 ms-lg-2 d-flex align-items-center gap-2">
-            <span class="badge bg-light text-dark border px-3 py-2">
-              Hola, {{ usuario.nombres }}
-            </span>
+
+          <li class="nav-item">
+            <a
+              #rlaMensajes="routerLinkActive"
+              class="nav-link dc-nav-link d-inline-flex align-items-center gap-2"
+              [routerLink]="personalLink.route"
+              routerLinkActive="active"
+              [attr.aria-current]="rlaMensajes.isActive ? 'page' : null"
+              (click)="closeMenu()"
+            >
+              <app-icon [name]="personalLink.icon" class="dc-nav-icon" />
+              {{ personalLink.label }}
+            </a>
+          </li>
+
+          <li class="nav-item dropdown dc-nav-mas">
+            <button
+              id="botonMas"
+              type="button"
+              class="nav-link dropdown-toggle dc-nav-link d-inline-flex align-items-center gap-2"
+              [attr.aria-expanded]="masAbierto()"
+              aria-controls="menuMas"
+              (click)="toggleMas()"
+            >
+              Más
+              <app-icon name="chevron-down" class="dc-nav-chevron" />
+            </button>
+            <ul
+              id="menuMas"
+              class="dropdown-menu dropdown-menu-end shadow"
+              [class.show]="masAbierto()"
+              aria-labelledby="botonMas"
+            >
+              @for (link of secondaryLinks; track link.route) {
+                <li>
+                  <a
+                    #rlaSecundario="routerLinkActive"
+                    class="dropdown-item"
+                    [routerLink]="link.route"
+                    routerLinkActive="active"
+                    [attr.aria-current]="rlaSecundario.isActive ? 'page' : null"
+                    (click)="seleccionarMas()"
+                  >
+                    {{ link.label }}
+                  </a>
+                </li>
+              }
+            </ul>
+          </li>
+        </ul>
+
+        <div class="dc-nav-actions d-flex flex-column flex-xl-row align-items-stretch align-items-xl-center gap-2 ms-xl-auto">
+          @if (sesion.autenticado()) {
+            <a
+              class="btn btn-outline-primary d-inline-flex align-items-center justify-content-center gap-2"
+              routerLink="/perfil"
+              (click)="closeMenu()"
+            >
+              <app-icon name="user" />
+              <span>{{ sesion.usuario()?.nombres }}</span>
+            </a>
             <button
               type="button"
-              class="btn btn-outline-danger btn-sm px-3"
-              (click)="auth.cerrarSesion(); closeMenu()"
+              class="btn btn-outline-secondary"
+              (click)="cerrarSesion()"
             >
-              Salir
+              Cerrar sesión
             </button>
-          </li>
-        } @else {
-          <li class="nav-item mt-2 mt-lg-0 ms-lg-2 d-flex align-items-center gap-2">
+          } @else {
             <a
+              class="btn btn-outline-secondary dc-nav-login"
               routerLink="/iniciar-sesion"
-              class="btn btn-outline-primary btn-sm px-3"
               (click)="closeMenu()"
             >
               Iniciar sesión
             </a>
-            <a routerLink="/como-donar" class="btn btn-primary btn-sm px-3" (click)="closeMenu()">
-              Cómo ayudar
+            <a class="btn btn-primary dc-nav-register" routerLink="/registro" (click)="closeMenu()">
+              Regístrate
             </a>
-          </li>
-        }
-      </ul>
+          }
+        </div>
+      </div>
     </div>
   </div>
 </nav>

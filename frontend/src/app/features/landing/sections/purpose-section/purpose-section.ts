@@ -15,7 +15,4 @@ export class PurposeSection {
     'No realizamos transferencias bancarias.',
     'Facilitamos la colaboración entre ciudadanos y organizaciones.',
   ];
-
-  // Al recibir una fotografía autorizada, asignar aquí su ruta en public/assets/images/.
-  protected readonly photoSrc = '';
 }

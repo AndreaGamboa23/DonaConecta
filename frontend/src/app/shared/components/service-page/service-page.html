@@ -1,0 +1,27 @@
+<app-page-hero
+  [eyebrow]="eyebrow()"
+  [titulo]="titulo()"
+  [descripcion]="descripcion()"
+  [icono]="icono()"
+  [tono]="tono()"
+/>
+
+<section class="dc-section-space">
+  <div class="container">
+    <div class="row g-4 g-xl-5">
+      <div class="col-12 col-xl-7"><ng-content /></div>
+
+      <div class="col-12 col-xl-5">
+        <app-empty-state
+          [icono]="icono()"
+          [titulo]="tituloVacio()"
+          [mensaje]="mensajeVacio()"
+          [accionPrincipal]="accionPrincipal()"
+          [rutaPrincipal]="rutaPrincipal()"
+          [accionSecundaria]="accionSecundaria()"
+          [rutaSecundaria]="rutaSecundaria()"
+        />
+      </div>
+    </div>
+  </div>
+</section>

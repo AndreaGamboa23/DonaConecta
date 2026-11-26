@@ -2,6 +2,25 @@
   display: block;
 }
 
-details summary::marker {
-  color: var(--dc-blue);
+.dc-faq-hero {
+  background: #f7f5ef;
+}
+
+.dc-faq-arc {
+  position: absolute;
+  right: -8rem;
+  top: -9rem;
+  width: 27rem;
+  height: 27rem;
+  border: 1px solid rgba(213, 164, 81, 0.35);
+  border-radius: 47% 53% 60% 40% / 55% 43% 57% 45%;
+  pointer-events: none;
+}
+
+.dc-faq-item {
+  border-left: 3px solid rgba(54, 121, 168, 0.35);
+}
+
+.dc-faq-item[open] {
+  border-left-color: #d5a451;
 }

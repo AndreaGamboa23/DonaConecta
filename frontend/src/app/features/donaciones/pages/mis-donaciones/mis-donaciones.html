@@ -1,0 +1,130 @@
+﻿<app-page-hero
+  eyebrow="Tu actividad"
+  titulo="Mis donaciones"
+  [descripcion]="sesion.autenticado() ? 'Aquí puedes revisar tus compromisos de bienes materiales, puntos de entrega y confirmaciones.' : 'Inicia sesión para revisar tus compromisos de bienes materiales y entregas.'"
+  icono="gift"
+  tono="navy"
+/>
+
+<section class="dc-section-space">
+  <div class="container">
+    <app-pending-notice
+      [estado]="estado"
+      titulo="El historial todavía no está disponible"
+      class="d-block mb-4"
+    />
+
+    @if (sesion.autenticado()) {
+      @if (cargando()) {
+        <div class="card border-0 bg-white shadow-sm rounded-4 p-4 text-center">
+          <p class="text-secondary mb-0">Cargando tus compromisos de donación...</p>
+        </div>
+      } @else if (donaciones().length > 0) {
+        <div class="row g-4">
+          @for (item of donaciones(); track item.id_compromiso) {
+            <div class="col-12 col-md-6">
+              <div class="card border-0 bg-white shadow-sm rounded-4 h-100 p-3 p-md-4">
+                <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                  <span class="badge rounded-pill text-bg-primary">{{ item.estado }}</span>
+                  <span class="small text-secondary">#{{ item.id_compromiso }}</span>
+                </div>
+                <h2 class="h5 fw-bold mb-1">{{ item.necesidad }}</h2>
+                <p class="small text-secondary mb-3">{{ item.institucion }}</p>
+                <p class="mb-2">
+                  <strong>Cantidad:</strong> {{ item.cantidad_comprometida }} {{ item.unidad_medida_base }}
+                </p>
+                <p class="small text-secondary mb-0">
+                  <strong>Punto de acopio:</strong> {{ item.punto_acopio }} ({{ item.direccion_acopio }})
+                </p>
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="row g-4 g-lg-5 align-items-stretch">
+          <div class="col-12 col-lg-7">
+            <div class="card border-0 bg-white shadow-sm rounded-4 h-100 p-3 p-md-4">
+              <span class="dc-eyebrow mb-3">Cómo funciona</span>
+              <h2 class="h4 fw-bold mb-4">Del interés a la recepción</h2>
+              <div class="row g-3">
+                <div class="col-12 col-sm-4">
+                  <div class="card border-0 bg-light rounded-4 h-100 p-3">
+                    <span class="dc-value-mark mb-3"><app-icon name="compass" /></span>
+                    <span class="badge rounded-pill text-bg-primary mb-2">1</span>
+                    <h3 class="h6 fw-bold mb-1">Explorar</h3>
+                    <p class="small text-secondary mb-0">Conoce necesidades publicadas por instituciones.</p>
+                  </div>
+                </div>
+                <div class="col-12 col-sm-4">
+                  <div class="card border-0 bg-light rounded-4 h-100 p-3">
+                    <span class="dc-value-mark mb-3"><app-icon name="hand" /></span>
+                    <span class="badge rounded-pill text-bg-success mb-2">2</span>
+                    <h3 class="h6 fw-bold mb-1">Compromiso</h3>
+                    <p class="small text-secondary mb-0">Reserva los bienes que puedes entregar.</p>
+                  </div>
+                </div>
+                <div class="col-12 col-sm-4">
+                  <div class="card border-0 bg-light rounded-4 h-100 p-3">
+                    <span class="dc-value-mark mb-3"><app-icon name="check-circle" /></span>
+                    <span class="badge rounded-pill text-bg-warning mb-2">3</span>
+                    <h3 class="h6 fw-bold mb-1">Recepción</h3>
+                    <p class="small text-secondary mb-0">Confirma la entrega con la institución.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12 col-lg-5">
+            <app-empty-state
+              icono="gift"
+              titulo="Aún no tienes donaciones registradas"
+              mensaje="Explora las necesidades activas de las instituciones verificadas y registra tu primer compromiso."
+              accionPrincipal="Explorar necesidades"
+              rutaPrincipal="/necesidades"
+              accionSecundaria="Ver instituciones"
+              rutaSecundaria="/instituciones"
+            />
+          </div>
+        </div>
+      }
+    } @else {
+      <div class="row g-4 g-lg-5 align-items-stretch">
+        <div class="col-12 col-lg-7">
+          <div class="card border-0 bg-white shadow-sm rounded-4 h-100 p-3 p-md-4">
+            <span class="dc-eyebrow mb-3">Cómo funcionará</span>
+            <h2 class="h4 fw-bold mb-4">Del interés a la recepción</h2>
+            <p class="text-secondary mb-0">
+              Inicia sesión con tu cuenta de donante para comprometer bienes materiales y dar seguimiento a tus entregas.
+            </p>
+          </div>
+        </div>
+        <div class="col-12 col-lg-5">
+          <app-empty-state
+            icono="gift"
+            titulo="Todavía no hay donaciones para mostrar"
+            mensaje="Inicia sesión para consultar tus compromisos registrados."
+            accionPrincipal="Iniciar sesión"
+            rutaPrincipal="/iniciar-sesion"
+            accionSecundaria="Explorar necesidades"
+            rutaSecundaria="/necesidades"
+          />
+        </div>
+      </div>
+    }
+
+    <div class="card border-0 bg-light rounded-4 p-3 p-md-4 mt-4">
+      <div class="row g-3 align-items-center">
+        <div class="col-12 col-md-5">
+          <h2 class="h6 fw-bold mb-1">Mientras tanto</h2>
+          <p class="small text-secondary mb-0">Prepara tu donación con la guía oficial.</p>
+        </div>
+        <div class="col-12 col-md-7 d-flex flex-wrap gap-2">
+          <a routerLink="/como-donar" class="btn btn-outline-primary btn-sm">Cómo donar</a>
+          <a routerLink="/puntos-de-acopio" class="btn btn-outline-primary btn-sm">Puntos de acopio</a>
+          <a routerLink="/mensajes" class="btn btn-outline-primary btn-sm">Mensajes</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
