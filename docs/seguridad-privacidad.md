@@ -14,10 +14,12 @@ evaluarse formalmente antes de cualquier declaración.
 
 ## 2. Estado actual
 
-Las páginas públicas **no solicitan ni almacenan datos personales**. No hay formularios,
-cookies de sesión, `localStorage` como base de datos, API ni conexión a SQL Server. En la
-Fase 05.1 se documentó el modelo de datos y su estrategia de seguridad; **no se implementó**
-ningún mecanismo. La información de privacidad mostrada al usuario sigue siendo orientativa.
+Las páginas públicas incorporan formularios de registro y acceso que **validan localmente pero no
+envían ni almacenan datos**: no hay cookies de sesión, tokens, `localStorage` como base de datos,
+llamadas HTTP reales ni conexión a SQL Server. `BackendEstadoService.integracionHabilitada`
+está en `false`, por lo que cada servicio devuelve un error controlado. En la Fase 05.1 se
+documentó el modelo de datos y su estrategia de seguridad; los mecanismos de backend siguen
+**sin implementar**. La información de privacidad mostrada al usuario es orientativa.
 
 La matriz de protección aprobada en la Fase 05.1 está en la sección 11. Los detalles de
 estructura están en `docs/modelo-logico.md`, `docs/modelo-fisico.md` y

@@ -1,0 +1,82 @@
+<app-page-hero
+  eyebrow="Crea tu cuenta"
+  titulo="Elige cómo quieres sumarte"
+  descripcion="Puedes registrarte como donante de bienes materiales o representar a una institución de Huancayo. El registro público nunca crea cuentas de administrador."
+  icono="hand"
+  tono="green"
+/>
+
+<section class="dc-section-space">
+  <div class="container">
+    <div class="row g-4 g-lg-5 align-items-start">
+      <div class="col-12 col-lg-7">
+        <div class="card shadow-sm rounded-4 p-3 p-md-4 mb-4">
+          <h2 class="h5 fw-bold mb-3">Dos caminos, una misma comunidad</h2>
+          <div class="row g-3">
+            <div class="col-12 col-sm-4">
+              <span class="badge rounded-pill text-bg-primary">Donante</span>
+              <p class="small text-secondary mt-2 mb-0">
+                Publicas tu disponibilidad para reservar bienes y coordinar entregas.
+              </p>
+            </div>
+            <div class="col-12 col-sm-4">
+              <span class="badge rounded-pill text-bg-success">Representante</span>
+              <p class="small text-secondary mt-2 mb-0">
+                Registras tu institución y su solicitud queda pendiente de verificación.
+              </p>
+            </div>
+            <div class="col-12 col-sm-4">
+              <span class="badge rounded-pill text-bg-warning">Verificación</span>
+              <p class="small text-secondary mt-2 mb-0">
+                El acceso definitivo se habilita solo después de la revisión administrativa.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="alert alert-info border-0 rounded-4" role="note">
+          <div class="d-flex gap-3">
+            <app-icon name="shield" />
+            <div>
+              <strong class="d-block small mb-1">Tus datos no se guardan en este navegador</strong>
+              <p class="small mb-0">
+                Los formularios validan localmente. El envío solo se activará cuando exista el
+                servicio real de autenticación.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-5">
+        <div class="row g-3">
+          <div class="col-12">
+            <app-service-card
+              icono="hand"
+              titulo="Registrarme como donante"
+              descripcion="Crea un perfil para ofrecer bienes materiales y seguir tus compromisos."
+              ruta="/registro/donante"
+              etiqueta="Persona natural"
+              tono="blue"
+            />
+          </div>
+          <div class="col-12">
+            <app-service-card
+              icono="building"
+              titulo="Registrar una institución"
+              descripcion="Vincula tu organización, comedor, albergue o refugio para solicitar apoyo."
+              ruta="/registro/institucion"
+              etiqueta="Organización"
+              tono="green"
+            />
+          </div>
+        </div>
+
+        <p class="small text-secondary mt-3 mb-0">
+          ¿Ya tienes una cuenta?
+          <a routerLink="/iniciar-sesion" class="fw-semibold">Inicia sesión</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>

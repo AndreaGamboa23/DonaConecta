@@ -1,0 +1,47 @@
+:host {
+  display: block;
+}
+
+.dc-page-hero {
+  background: linear-gradient(135deg, #dcebf5 0%, #f7f5ef 100%);
+  border-bottom: 1px solid rgba(18, 48, 74, 0.08);
+}
+
+.dc-page-hero--navy {
+  background: linear-gradient(135deg, #12304a 0%, #3679a8 100%);
+  color: #fff;
+}
+
+.dc-page-hero--navy .dc-eyebrow {
+  color: #d5a451;
+}
+
+.dc-page-hero--green {
+  background: linear-gradient(135deg, #e4f0e9 0%, #f7f5ef 100%);
+}
+
+.dc-page-hero--amber {
+  background: linear-gradient(135deg, #f4e6cd 0%, #f7f5ef 100%);
+}
+
+.dc-page-hero-copy {
+  color: rgba(18, 48, 74, 0.76);
+}
+
+.dc-page-hero--navy .dc-page-hero-copy {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.dc-page-hero-mark {
+  width: 9rem;
+  height: 9rem;
+  border-radius: 42% 58% 54% 46% / 52% 44% 56% 48%;
+  background: rgba(255, 255, 255, 0.68);
+  color: #3679a8;
+  box-shadow: 0 1.5rem 3rem rgba(18, 48, 74, 0.12);
+}
+
+.dc-page-hero--navy .dc-page-hero-mark {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}

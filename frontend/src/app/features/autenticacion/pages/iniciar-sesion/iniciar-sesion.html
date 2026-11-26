@@ -1,0 +1,134 @@
+<app-page-hero
+  eyebrow="Acceso a tu cuenta"
+  titulo="Bienvenido de nuevo"
+  descripcion="Ingresa para ver tus donaciones, mensajes y perfil. Si todavía no tienes cuenta, puedes crearla en unos pasos."
+  icono="lock"
+  tono="blue"
+/>
+
+<section class="dc-section-space">
+  <div class="container">
+    <div class="row g-4 g-lg-5">
+      <div class="col-12 col-lg-7">
+        <form
+          class="card shadow-sm rounded-4 p-3 p-md-4 p-lg-5"
+          novalidate
+          [formGroup]="form"
+          (ngSubmit)="entrar()"
+        >
+          <div class="d-flex align-items-center gap-3 mb-4">
+            <span class="dc-login-icon d-flex align-items-center justify-content-center rounded-3">
+              <app-icon name="log-in" />
+            </span>
+            <div>
+              <h2 class="h5 fw-bold mb-1">Inicia sesión</h2>
+              <p class="small text-secondary mb-0">Ingresa con el correo que usaste al registrarte.</p>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="login-email" class="form-label small fw-semibold">Correo electrónico</label>
+            <div class="input-group has-validation">
+              <span class="input-group-text"><app-icon name="mail" /></span>
+              <input
+                id="login-email"
+                type="email"
+                class="form-control"
+                autocomplete="email"
+                placeholder="nombre@ejemplo.com"
+                [class.is-invalid]="form.controls.email.invalid && form.controls.email.touched"
+                formControlName="email"
+              />
+              <div class="invalid-feedback">Escribe un correo electrónico válido.</div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-center gap-2">
+              <label for="login-password" class="form-label small fw-semibold mb-0">Contraseña</label>
+              <a routerLink="/registro" class="small">¿No tienes cuenta?</a>
+            </div>
+            <div class="input-group has-validation mt-2">
+              <input
+                id="login-password"
+                [type]="verContrasena() ? 'text' : 'password'"
+                class="form-control"
+                autocomplete="current-password"
+                [class.is-invalid]="form.controls.password.invalid && form.controls.password.touched"
+                formControlName="password"
+              />
+              <button
+                class="btn btn-outline-secondary"
+                type="button"
+                (click)="alternarContrasena()"
+                [attr.aria-label]="verContrasena() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+              >
+                <app-icon [name]="verContrasena() ? 'eye-off' : 'eye'" />
+              </button>
+              <div class="invalid-feedback">La contraseña debe tener al menos 8 caracteres.</div>
+            </div>
+          </div>
+
+          @if (respuesta()) {
+            <div class="alert alert-warning d-flex gap-2 align-items-start" role="status">
+              <app-icon name="alert" />
+              <span>{{ respuesta() }}</span>
+            </div>
+          }
+
+          <div class="d-flex flex-column flex-sm-row flex-wrap gap-2 mt-4">
+            <button class="btn btn-primary px-4" type="submit">Iniciar sesión</button>
+            <a routerLink="/necesidades" class="btn btn-outline-secondary px-4">Continuar explorando</a>
+          </div>
+        </form>
+
+        <div class="card rounded-4 border-0 bg-light p-3 p-md-4 mt-4">
+          <details>
+            <summary class="small fw-semibold">¿Olvidaste tu contraseña?</summary>
+            <p class="small text-secondary mt-2 mb-3">
+              Cuando el servicio esté listo, enviamos un enlace temporal a tu correo. Ahora mismo no se envía ningún mensaje.
+            </p>
+            <form
+              class="row g-2 align-items-start"
+              novalidate
+              [formGroup]="recuperacionForm"
+              (ngSubmit)="recuperar()"
+            >
+              <div class="col-12 col-sm-8">
+                <label for="recuperacion-email" class="visually-hidden">Correo para recuperación</label>
+                <input
+                  id="recuperacion-email"
+                  type="email"
+                  class="form-control form-control-sm"
+                  placeholder="nombre@ejemplo.com"
+                  [class.is-invalid]="recuperacionForm.controls.email.invalid && recuperacionForm.controls.email.touched"
+                  formControlName="email"
+                />
+              </div>
+              <div class="col-12 col-sm-4">
+                <button class="btn btn-outline-secondary btn-sm w-100" type="submit">Solicitar enlace</button>
+              </div>
+            </form>
+            <p class="small text-secondary mt-2 mb-0">
+              Recuperación: {{ estadoRecuperacion.mensaje }}
+            </p>
+          </details>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-5">
+        <app-pending-notice [estado]="estadoLogin" titulo="El acceso aún no está conectado" />
+
+        <div class="card rounded-4 border-0 bg-light p-3 p-md-4 mt-4">
+          <h2 class="h6 fw-bold mb-3">Mientras tanto, puedes</h2>
+          <div class="d-grid gap-2">
+            <a routerLink="/necesidades" class="btn btn-outline-primary">Explorar necesidades</a>
+            <a routerLink="/como-donar" class="btn btn-outline-primary">Leer la guía de donación</a>
+            <a routerLink="/registro/donante" class="btn btn-outline-primary">Crear perfil de donante</a>
+            <a routerLink="/registro/institucion" class="btn btn-outline-primary">Registrar institución</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

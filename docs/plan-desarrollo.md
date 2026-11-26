@@ -155,3 +155,43 @@ La ejecución completa está en `database/README.md`; los scripts de prueba est�
 - **Coordinación previa:** nombres de tablas y columnas, códigos de estado, rutas, métodos HTTP,
   JSON de respuesta, formato de error y eventos WebSocket. Se usa un único modelo: el de esta
   fase. `backend/README.md` se corrige de forma coordinada en Fase 07.
+
+## 8. Resultado real de la Fase 07.A (solo frontend)
+
+La Fase 07.A prepara la SPA de servicios sin adelantar el backend de la Fase 07. La rama sigue
+siendo `Andrea`; no se crearon dependencias Python, archivos `.env`, tablas, datos de negocio,
+commits ni push. `DonaConectaDB` no fue modificada.
+
+1. Dieciséis rutas cargadas con `loadComponent`, título y metadescripción propios: `/`,
+   `/necesidades`, `/instituciones`, `/puntos-de-acopio`, `/registro`, `/registro/donante`,
+   `/registro/institucion`, `/iniciar-sesion`, `/mensajes`, `/mis-donaciones`,
+   `/seguimiento/:id`, `/perfil`, `/como-donar`, `/nosotros`, `/preguntas-frecuentes` y 404.
+   `/seguimiento/:id` no se enlaza todavía porque no existe un identificador real.
+2. Layout público compartido con navbar, pie de escritorio y barra inferior móvil de cinco
+   destinos reales; `env(safe-area-inset-bottom)` y `RouterLinkActive` con `aria-current`.
+3. Formularios Reactivos: donante (10 controles), registro institucional por pasos (12 controles)
+   y acceso más recuperación (2 y 1 controles). Validadores compartidos, coincide contraseñas,
+   mostrar/ocultar clave e indicador de fuerza orientativo. `password_confirmation` no se envía.
+4. `BackendEstadoService.integracionHabilitada = false`. Los servicios de registro, acceso,
+   exploración, donaciones, mensajería, seguimiento y perfil devuelven `ServicioPendienteError`.
+   `HttpClient` se resuelve desde `Injector` solo al activar el flag; no se registra un proveedor
+   global ni se fingen respuestas, sesiones, tokens o datos.
+5. Catálogos locales exclusivamente informativos (categorías, tipos de institución, unidades y
+   distritos ya sembrados). El buscador filtra solo esas categorías y no simula necesidades.
+6. Build de producción correcto: 545.17 kB iniciales y 105.02 kB transferidos, con páginas
+   diferidas. El aviso de presupuesto inicial se ajustó de 500 a 600 kB; el error sigue en 1 MB.
+   Persisten solo advertencias de deprecación de `@import` de Sass, ya presentes antes de la fase.
+7. Pruebas: **14/14** aprobadas (`npm test -- --watch=false`). Verificación con Edge headless y
+   CDP: 16 rutas × 7 anchos (360 a 1920 px) y 52 combinaciones, sin desbordamiento horizontal,
+   imágenes rotas, anclas rotas, errores de consola ni lenguaje técnico en la interfaz. Un solo
+   `h1` y metadescripción en cada ruta; títulos únicos; barra móvil visible solo bajo `lg`. La
+   imagen LCP de `/registro/donante` se marcó como `eager` con prioridad alta para eliminar el aviso
+   `NG0913`; la del catálogo permanece diferida por estar fuera del primer viewport.
+8. Comprobación del estado de Angular en tiempo de ejecución: `FormGroupDirective` presente en
+   los tres formularios y menú móvil `false → true → false` con `aria-expanded` sincronizado.
+   `prefers-reduced-motion` se respeta en estilos globales y de componentes.
+9. La valoración estética final queda pendiente de revisión humana: el modelo no puede inspeccionar
+   capturas. No se implementó autenticación, GPS, chat, notificaciones ni cifrado de negocio.
+
+La Fase 07 (FastAPI, PyODBC, Pydantic, OpenAPI y `uv`) continúa pendiente y es requisito para
+activar los servicios y las rutas privadas de las fases 09 a 17.

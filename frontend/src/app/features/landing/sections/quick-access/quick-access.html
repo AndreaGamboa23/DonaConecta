@@ -1,6 +1,6 @@
-<section class="dc-quick-access" aria-label="Accesos rápidos">
+<section class="dc-quick-access" aria-label="Accesos a los servicios">
   <div class="container">
-    <div class="dc-quick-panel rounded-4 shadow-sm p-3 p-md-4">
+    <div class="dc-quick-panel rounded-4 shadow-sm p-3 p-md-4 mb-4">
       <div class="row g-3 align-items-center">
         <div class="col-12 col-md-4">
           <div class="d-flex align-items-center gap-3">
@@ -15,24 +15,27 @@
         </div>
 
         <div class="col-12 col-md-8">
-          <div class="row g-2 row-cols-2 row-cols-sm-4">
-            @for (action of actions; track action.label) {
-              <div class="col">
-                <a
-                  [routerLink]="action.route"
-                  [fragment]="action.fragment || undefined"
-                  class="dc-quick-link d-flex flex-column align-items-center justify-content-center gap-2 h-100 text-center text-decoration-none rounded-3 p-3"
-                >
-                  <span class="dc-quick-link-icon d-flex align-items-center justify-content-center">
-                    <app-icon [name]="action.icon" />
-                  </span>
-                  <span class="small fw-semibold">{{ action.label }}</span>
-                </a>
-              </div>
-            }
-          </div>
+          <p class="small text-secondary mb-0">
+            Elige un servicio para empezar. Las funciones todavía no disponibles muestran su
+            estado real: no hay datos ni acciones de ejemplo.
+          </p>
         </div>
       </div>
+    </div>
+
+    <div class="row g-3 row-cols-1 row-cols-sm-2 row-cols-lg-4">
+      @for (action of actions; track action.route) {
+        <div class="col">
+          <app-service-card
+            [icono]="action.icon"
+            [titulo]="action.label"
+            [descripcion]="action.descripcion"
+            [ruta]="action.route"
+            [etiqueta]="action.etiqueta"
+            [tono]="action.tono"
+          />
+        </div>
+      }
     </div>
   </div>
 </section>

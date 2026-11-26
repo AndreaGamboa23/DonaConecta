@@ -4,6 +4,7 @@
   background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(18, 48, 74, 0.08);
+  z-index: 1040;
 }
 
 .dc-navbar::before {
@@ -22,8 +23,18 @@
 
 .dc-navbar .nav-link {
   color: inherit;
-  font-size: 0.94rem;
+  font-size: 0.9rem;
   padding-block: 0.85rem;
+}
+
+.dc-nav-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.dc-navbar .nav-link.active {
+  color: var(--dc-blue);
+  font-weight: 600;
 }
 
 .dc-navbar .btn-sm {
@@ -32,10 +43,21 @@
   min-height: 2.75rem;
 }
 
-.dc-navbar .nav-link.active {
-  color: var(--dc-blue);
+.dc-nav-more {
+  position: relative;
 }
 
-.dc-navbar-note {
-  color: rgba(18, 48, 74, 0.62);
+.dc-nav-more summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.dc-nav-more summary::-webkit-details-marker {
+  display: none;
+}
+
+.dc-nav-more .dropdown-menu {
+  top: 100%;
+  right: 0;
+  min-width: 12rem;
 }

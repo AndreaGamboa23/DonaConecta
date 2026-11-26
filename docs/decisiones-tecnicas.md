@@ -76,6 +76,28 @@ Registro de decisiones nuevas tomadas a partir de la Fase 04, según `AGENTS.md`
 | Eliminar la tabla de fases y el lenguaje de implementación de FAQ/Nosotros | La interfaz debe hablar al visitante, no al equipo de desarrollo; las fases siguen documentadas en `AGENTS.md` y `docs/`. |
 | Documentar la futura navegación pública y la barra inferior autenticada sin implementarla | Evita enlaces falsos y deja una integración clara para la PWA y las rutas privadas con backend. |
 
+## Fase 07.A — SPA de servicios con contratos pendientes
+
+| Decisión | Justificación |
+|---|---|
+| Preparar el frontend antes del backend sin adelantar la Fase 07 | El usuario autorizó una fase de interfaz y contratos. FastAPI, dependencias Python, DDL y DML siguen pendientes y no se han ejecutado. |
+| `BackendEstadoService.integracionHabilitada = false` como única fuente de verdad | Todas las operaciones devuelven `ServicioPendienteError` con el endpoint previsto. Ningún formulario finge registro, sesión, envío de mensaje ni confirmación. |
+| Servicios `HttpClient` ya tipados pero bloqueados | Los servicios usan los DTO de `docs/contrato-api.md` y resuelven `HttpClient` desde `Injector` solo cuando el flag esté activo. Así no se registra un proveedor global innecesario ni se eleva el bundle inicial; la Fase 07 deberá añadir `provideHttpClient()` al activar el backend. |
+| Interfaces TypeScript derivadas del modelo de Fase 05.1 | Evita inventar contratos paralelos. Los catálogos locales replican únicamente roles, tipos, unidades, categorías y distritos ya sembrados en SQL Server; no son datos de negocio. |
+| Reactive Forms con validadores compartidos en `core/utils/formularios.ts` | Centraliza correo, celular peruano, coincidencia de contraseñas e indicador de fuerza. `password_confirmation` solo existe en el navegador y nunca se envía. |
+| Asistente de tres pasos para el registro institucional | Separa acceso, representante e institución sin perder contexto. La solicitud queda pendiente de verificación y no crea cuentas de administrador. |
+| No solicitar documentos privados en este registro | No existe aún almacenamiento seguro ni validación de contenido real. El formulario declara que se indicará qué archivos harán falta cuando el servicio esté disponible. |
+| Componentes compartidos `PageHero`, `ServiceCard`, `EmptyState`, `PendingNotice`, `ServicePage` y `MobileTabbar` | Dan un sistema visual coherente a todas las rutas nuevas sin reimplementar Bootstrap ni duplicar estados vacíos o pendientes. |
+| Omitir endpoints y nombres de tecnología en los avisos visibles | La interfaz habla al visitante: «sin conexión» y «servicio oficial». Los endpoints quedan en `docs/contrato-api.md` y en el error controlado, no en la pantalla. |
+| Buscador local solo sobre cinco categorías informativas | La base de datos no se consulta desde el navegador. La búsqueda no simula necesidades: invita a `/como-donar#bienes` y al catálogo real futuro. |
+| Navbar con accesos públicos y menú «Más»; barra inferior con cinco destinos reales | Mantiene la sensación de aplicación sin pestañas inactivas ni contadores falsos. La barra usa `env(safe-area-inset-bottom)` y se oculta desde `lg`. |
+| Sin guards ni interceptor todavía | No hay autenticación real. Crearlos ahora daría una falsa sensación de sesión; se introducirán con el backend en la Fase 09. |
+| Indicador de fuerza sin dependencias | Las cuatro reglas son comprensibles en sustentación y se presentan como orientativas. El color bajo usa `bg-secondary`, no rojo, reservado para errores críticos. |
+| Pruebas de rutas, estado pendiente, barra móvil y formularios | Verifican que las rutas existan con título/meta, que el envío no se simule y que los consents y contraseñas se validen antes de habilitar el botón. |
+| Ajustar la advertencia de presupuesto inicial de 500 a 600 kB | La SPA incorpora el layout compartido, el navbar con iconos y el enrutador con dieciséis rutas; el build real queda en ~545 kB sin comprimir y ~105 kB transferidos. El límite de error se mantiene en 1 MB y todas las páginas siguen siendo `loadComponent`. |
+| Imagen LCP de `/registro/donante` con `loading="eager"` y `fetchpriority="high"` | Angular 22 emitió `NG0913` porque esa imagen visible era el elemento LCP y estaba diferida. La imagen del catálogo, que queda fuera del primer viewport, conserva `loading="lazy"`. Verificado sin avisos `NG0913` a 390 y 1440 px. |
+| Sin dependencias npm nuevas | Bootstrap 5 y los SVG propios cubren la interfaz; el SCSS propio se limita a conectores, identidad y foco visible. |
+
 ## Requisitos permanentes de arquitectura, API REST y base de datos (registro)
 
 | Decisión | Justificación |

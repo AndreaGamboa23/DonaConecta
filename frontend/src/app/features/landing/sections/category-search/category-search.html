@@ -1,0 +1,73 @@
+<section id="buscar-categorias" class="dc-section-space bg-white">
+  <div class="container">
+    <div class="row g-4 g-lg-5 align-items-start">
+      <div class="col-12 col-lg-5">
+        <span class="dc-eyebrow mb-3">Primer paso</span>
+        <h2 class="display-6 fw-bold mb-3">¿Qué quieres donar?</h2>
+        <p class="lead text-secondary mb-4">
+          Busca entre las cinco categorías informativas. Esta búsqueda no consulta solicitudes
+          reales: te ayuda a preparar tu donación antes de explorar el catálogo.
+        </p>
+
+        <label for="buscador-categorias" class="form-label small fw-semibold">
+          Busca por categoría o ejemplo
+        </label>
+        <div class="input-group input-group-lg">
+          <span class="input-group-text"><app-icon name="search" /></span>
+          <input
+            id="buscador-categorias"
+            type="search"
+            class="form-control"
+            placeholder="Ej. frazadas, jabón, cuadernos"
+            autocomplete="off"
+            [value]="termino()"
+            (input)="cambiarTermino($event)"
+          />
+          @if (termino()) {
+            <button class="btn btn-outline-secondary" type="button" (click)="limpiar()">Limpiar</button>
+          }
+        </div>
+
+        <p class="small text-secondary mt-3 mb-0">
+          <strong>{{ resultados().length }}</strong>
+          {{ resultados().length === 1 ? 'categoría encontrada' : 'categorías encontradas' }}
+        </p>
+      </div>
+
+      <div class="col-12 col-lg-7">
+        <div class="list-group rounded-4 shadow-sm overflow-hidden">
+          @for (categoria of resultados(); track categoria.codigo) {
+            <a
+              class="list-group-item list-group-item-action d-flex gap-3 align-items-start py-3"
+              routerLink="/como-donar"
+              fragment="bienes"
+            >
+              <span class="dc-search-icon d-flex align-items-center justify-content-center rounded-3 flex-shrink-0">
+                <app-icon [name]="categoria.icono" />
+              </span>
+              <span class="flex-grow-1">
+                <strong class="d-block small">{{ categoria.nombre }}</strong>
+                <span class="small text-secondary d-block">{{ categoria.descripcion }}</span>
+                <span class="small text-secondary d-block mt-1">Ejemplos: {{ categoria.ejemplos }}</span>
+              </span>
+              <app-icon name="arrow-right" class="dc-search-arrow" />
+            </a>
+          } @empty {
+            <div class="list-group-item py-5 text-center text-secondary small">
+              No encontramos esa categoría. Prueba con «alimentos», «ropa», «higiene»,
+              «animales» o «escolares».
+            </div>
+          }
+        </div>
+
+        <div class="alert alert-light border d-flex gap-3 align-items-start mt-3 mb-0" role="note">
+          <app-icon name="alert" />
+          <p class="small mb-0">
+            Las solicitudes concretas se publicarán en
+            <a routerLink="/necesidades">Explorar necesidades</a> cuando existan registros reales.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

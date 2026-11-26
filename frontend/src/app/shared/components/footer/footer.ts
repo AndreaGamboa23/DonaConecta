@@ -12,7 +12,13 @@ import { Brand } from '../brand/brand';
 export class Footer {
   readonly links = [
     { label: 'Inicio', route: '/', fragment: '' },
+    { label: 'Explorar necesidades', route: '/necesidades', fragment: '' },
+    { label: 'Instituciones', route: '/instituciones', fragment: '' },
+    { label: 'Puntos de acopio', route: '/puntos-de-acopio', fragment: '' },
     { label: 'Cómo donar', route: '/como-donar', fragment: '' },
+    { label: 'Mis donaciones', route: '/mis-donaciones', fragment: '' },
+    { label: 'Mensajes', route: '/mensajes', fragment: '' },
+    { label: 'Mi perfil', route: '/perfil', fragment: '' },
     { label: 'Nosotros', route: '/nosotros', fragment: '' },
     { label: 'Preguntas frecuentes', route: '/preguntas-frecuentes', fragment: '' },
     { label: 'Créditos visuales', route: '/nosotros', fragment: 'creditos-visuales' },

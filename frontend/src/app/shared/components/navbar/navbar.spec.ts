@@ -25,6 +25,12 @@ describe('Navbar', () => {
     const fixture = TestBed.createComponent(Navbar);
     const rutas = fixture.componentInstance.links.map((link) => link.route);
 
-    expect(rutas).toEqual(['/', '/como-donar', '/nosotros', '/preguntas-frecuentes']);
+    expect(rutas).toEqual([
+      '/',
+      '/necesidades',
+      '/instituciones',
+      '/como-donar',
+      '/mensajes',
+    ]);
   });
 });

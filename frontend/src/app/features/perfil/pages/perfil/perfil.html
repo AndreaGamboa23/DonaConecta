@@ -1,0 +1,29 @@
+<app-service-page
+  operacion="perfil"
+  eyebrow="Mi espacio"
+  titulo="Mi perfil"
+  descripcion="Gestiona tus datos personales, preferencias de notificación y el estado de tu cuenta."
+  icono="user"
+  tono="green"
+  tituloVacio="Aún no hay una sesión activa"
+  mensajeVacio="Tu perfil aparecerá cuando inicies sesión con una cuenta real. No guardamos contraseñas ni datos en este navegador."
+  accionPrincipal="Iniciar sesión"
+  rutaPrincipal="/iniciar-sesion"
+  accionSecundaria="Crear cuenta"
+  rutaSecundaria="/registro"
+>
+  <div class="list-group rounded-4">
+    <div class="list-group-item d-flex gap-3 align-items-center">
+      <span class="badge rounded-pill text-bg-primary">Datos</span>
+      <span class="small">Nombres, apellidos, correo y distrito verificados en el registro.</span>
+    </div>
+    <div class="list-group-item d-flex gap-3 align-items-center">
+      <span class="badge rounded-pill text-bg-success">Roles</span>
+      <span class="small">Donante o representante, según el tipo de registro.</span>
+    </div>
+    <div class="list-group-item d-flex gap-3 align-items-center">
+      <span class="badge rounded-pill text-bg-warning">Privacidad</span>
+      <span class="small">Preferencias de notificación y consentimiento de datos.</span>
+    </div>
+  </div>
+</app-service-page>

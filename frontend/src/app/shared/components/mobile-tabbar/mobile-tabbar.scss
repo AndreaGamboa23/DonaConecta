@@ -1,0 +1,35 @@
+.dc-tabbar {
+  background: rgba(255, 255, 255, 0.97);
+  border-top: 1px solid rgba(18, 48, 74, 0.12);
+  box-shadow: 0 -0.5rem 1.8rem rgba(18, 48, 74, 0.08);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  z-index: 1030;
+}
+
+.grid-template-columns {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.dc-tabbar-item {
+  min-height: 3.5rem;
+  color: rgba(18, 48, 74, 0.62);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.dc-tabbar-item app-icon {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+.dc-tabbar-item.active {
+  color: #3679a8;
+}
+
+.dc-tabbar-item.active app-icon {
+  transform: translateY(-1px);
+}
+
+.dc-tabbar-label {
+  line-height: 1;
+}

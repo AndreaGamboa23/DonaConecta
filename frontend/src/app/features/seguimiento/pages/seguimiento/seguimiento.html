@@ -1,0 +1,77 @@
+<app-page-hero
+  eyebrow="Seguimiento de entrega"
+  titulo="Seguimiento autorizado"
+  descripcion="Un seguimiento de ubicación solo puede iniciarse de forma manual y con tu consentimiento explícito."
+  icono="route"
+  tono="amber"
+/>
+
+<section class="dc-section-space">
+  <div class="container">
+    <div class="row g-4 g-lg-5">
+      <div class="col-12 col-lg-7">
+        <div class="card shadow-sm rounded-4 p-3 p-md-4 mb-4">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+            <div>
+              <span class="text-secondary small d-block">Identificador de la sesión</span>
+              <strong class="fs-5">#{{ sesionId }}</strong>
+            </div>
+            <span class="badge rounded-pill text-bg-warning">Sin iniciar</span>
+          </div>
+
+          <div class="list-group rounded-4 mb-4">
+            <div class="list-group-item d-flex gap-3 align-items-start">
+              <span class="badge rounded-pill text-bg-primary mt-1">1</span>
+              <span class="small">Solicitas el seguimiento desde una entrega coordinada.</span>
+            </div>
+            <div class="list-group-item d-flex gap-3 align-items-start">
+              <span class="badge rounded-pill text-bg-success mt-1">2</span>
+              <span class="small">Activas la ubicación manualmente y ves un indicador visible.</span>
+            </div>
+            <div class="list-group-item d-flex gap-3 align-items-start">
+              <span class="badge rounded-pill text-bg-warning mt-1">3</span>
+              <span class="small">La sesión caduca y puedes detenerla en cualquier momento.</span>
+            </div>
+          </div>
+
+          <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn btn-primary" (click)="intentarIniciar()">
+              <app-icon name="pin" /> Iniciar seguimiento
+            </button>
+            <button type="button" class="btn btn-outline-secondary" disabled aria-label="Detener seguimiento">
+              <app-icon name="stop" /> Detener
+            </button>
+          </div>
+
+          @if (aviso()) {
+            <div class="alert alert-warning d-flex gap-2 align-items-start mt-4 mb-0" role="status">
+              <app-icon name="alert" />
+              <span>{{ aviso() }}</span>
+            </div>
+          }
+        </div>
+
+        <div class="alert alert-light border d-flex gap-3 align-items-start" role="note">
+          <app-icon name="shield" />
+          <p class="small mb-0">
+            GPS no sustituye la confirmación de recepción. Las coordenadas serían privadas, no se
+            publicarían en el directorio y no se rastrearía a nadie de forma permanente.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-5">
+        <app-pending-notice [estado]="estado" titulo="Seguimiento GPS no disponible" />
+
+        <div class="card rounded-4 border-0 bg-light p-3 p-md-4 mt-4">
+          <h2 class="h6 fw-bold mb-3">Mientras tanto</h2>
+          <div class="d-grid gap-2">
+            <a routerLink="/mis-donaciones" class="btn btn-outline-primary">Ver mis donaciones</a>
+            <a routerLink="/mensajes" class="btn btn-outline-primary">Ir a mensajes</a>
+            <a routerLink="/preguntas-frecuentes" class="btn btn-outline-primary">Consultar privacidad</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -17,34 +17,48 @@
     </button>
 
     <div class="collapse navbar-collapse" id="menuPublico" [class.show]="menuOpen()">
-      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center gap-lg-3">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center gap-lg-2">
         @for (link of links; track link.route) {
           <li class="nav-item">
             <a
               #rla="routerLinkActive"
-              class="nav-link px-lg-2"
+              class="nav-link px-lg-2 d-inline-flex align-items-center gap-1"
               [routerLink]="link.route"
               routerLinkActive="active"
               [routerLinkActiveOptions]="{ exact: link.exact }"
               [attr.aria-current]="rla.isActive ? 'page' : null"
               (click)="closeMenu()"
             >
+              <app-icon [name]="link.icon" class="dc-nav-icon" />
               {{ link.label }}
             </a>
           </li>
         }
-        <li class="nav-item mt-3 mt-lg-0 ms-lg-2">
-          <a
-            routerLink="/"
-            fragment="donar"
-            class="btn btn-primary btn-sm px-3"
-            (click)="closeMenu()"
-          >
-            Ver categorías
+
+        <li class="nav-item dc-nav-more">
+          <details>
+            <summary class="nav-link px-lg-2">Más</summary>
+            <ul class="dropdown-menu dropdown-menu-end shadow show">
+              @for (link of secondaryLinks; track link.route) {
+                <li>
+                  <a class="dropdown-item small" [routerLink]="link.route" (click)="closeMenu()">
+                    {{ link.label }}
+                  </a>
+                </li>
+              }
+            </ul>
+          </details>
+        </li>
+
+        <li class="nav-item ms-lg-2">
+          <a class="nav-link px-lg-2 small" routerLink="/iniciar-sesion" (click)="closeMenu()">
+            Iniciar sesión
           </a>
         </li>
-        <li class="nav-item d-none d-xl-block ms-3">
-          <span class="navbar-text small dc-navbar-note">Bienes materiales · Huancayo</span>
+        <li class="nav-item ms-lg-1">
+          <a class="btn btn-primary btn-sm px-3" routerLink="/registro" (click)="closeMenu()">
+            Regístrate
+          </a>
         </li>
       </ul>
     </div>

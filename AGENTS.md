@@ -438,7 +438,7 @@ La seguridad se implementa progresivamente en todas las fases, no solo al final.
 | 05 | Modelo entidad-relación y normalización 3FN. | Ejecutada (propuesta revisada en 05.1) |
 | 05.1 | Revisión, corrección y documentación técnica del modelo. | Ejecutada |
 | 06 | Implementación de Microsoft SQL Server. | Ejecutada |
-| 07 | Backend FastAPI, conexión y arquitectura de servicios. | Pendiente |
+| 07 | Backend FastAPI, conexión y arquitectura de servicios. | Pendiente (Fase 07.A frontend ejecutada) |
 | 08 | Landing definitiva y navegación pública integrada. | Pendiente |
 | 09 | Autenticación segura, registro, sesiones y roles. | Pendiente |
 | 10 | Registro, verificación y directorio de instituciones. | Pendiente |
@@ -533,6 +533,27 @@ de recepción y `fecha_real_inicio` obligatoria) y las contradicciones documenta
 coordinación (`docs/arquitectura.md` §15, `backend/README.md`, `README.md` y RF-12). No se afirma
 TDE, Always Encrypted, cifrado de respaldo ni cifrado de aplicación: la instancia es Express y la
 estrategia Argon2id/AES-256-GCM queda para Fase 07. No comenzar Fase 07 sin autorización explícita.
+
+**Alcance autorizado de la Fase 07.A:** preparar en `frontend/` la SPA de servicios con rutas
+independientes, formularios reactivos de registro y acceso, pantallas preparadas de exploración,
+mensajería, donaciones, perfil y seguimiento, navbar y barra inferior móvil; actualizar
+`docs/mapa-navegacion.md`, `docs/decisiones-tecnicas.md`, `docs/seguridad-privacidad.md`,
+`docs/plan-desarrollo.md` y este archivo. No implementar FastAPI, dependencias Python, SQL,
+autenticación, tokens, GPS, chat real, documentos privados ni almacenamiento local de datos;
+no modificar el trabajo del compañero ni ejecutar commits o push.
+
+**Resultado de la Fase 07.A:** dieciséis rutas `loadComponent` con título y metadescripción propios;
+layout público con navbar, pie y barra móvil de cinco destinos reales; formularios con
+`FormGroupDirective` verificado en ejecución (10 controles de donante, 12 de institución, 2 de
+acceso y 1 de recuperación) y validadores compartidos. `BackendEstadoService` mantiene la
+integración en `false`: los servicios devuelven `ServicioPendienteError` y `HttpClient` se resuelve
+solo al activar el flag. Build: 545.17 kB iniciales y 105.02 kB transferidos, sin exceder el
+presupuesto ajustado a 600 kB; pruebas: 14/14. Verificación CDP: 52 combinaciones de 16 rutas y
+siete anchos (360–1920 px), 0 errores de consola, 0 desbordamientos, 0 imágenes o anclas rotas, un
+solo `h1` por ruta y menú móvil `false → true → false`. Sin avisos `NG0913` tras marcar como
+`eager` la imagen LCP visible de `/registro/donante`. No se crearon datos, sesiones ni
+estadísticas simuladas. La valoración estética final sigue pendiente de revisión humana. La Fase 07
+de backend continúa pendiente y no se inicia sin autorización explícita.
 
 ---
 

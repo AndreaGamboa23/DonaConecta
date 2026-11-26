@@ -1,0 +1,22 @@
+<aside class="card rounded-4 shadow-sm h-100">
+  <div class="card-header bg-transparent border-0 pt-3 px-3 px-md-4">
+    <div class="d-flex align-items-center justify-content-between gap-2">
+      <h2 class="h6 fw-bold mb-0">Conversaciones</h2>
+      <span class="badge rounded-pill text-bg-warning">Sin conexión</span>
+    </div>
+  </div>
+  <div class="card-body px-3 px-md-4 pt-0">
+    <div class="list-group list-group-flush rounded-3 border">
+      <div class="list-group-item py-4 text-center text-secondary small">
+        <app-icon name="chat" class="mb-2" />
+        <p class="mb-0">
+          Tus conversaciones aparecerán aquí cuando inicies sesión y exista el servicio real.
+        </p>
+      </div>
+    </div>
+
+    <div class="mt-3">
+      <app-pending-notice [estado]="estado" titulo="Bandeja no conectada" />
+    </div>
+  </div>
+</aside>

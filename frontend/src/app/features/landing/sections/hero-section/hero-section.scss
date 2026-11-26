@@ -95,6 +95,36 @@
   box-shadow: 0 0 0 0.25rem rgba(128, 182, 154, 0.18);
 }
 
+.dc-hero-text-link {
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: rgba(244, 230, 205, 0.62);
+  text-underline-offset: 0.25rem;
+}
+
+.dc-hero-text-link:hover {
+  color: #f4e6cd;
+}
+
+.dc-hero-separator {
+  width: 0.3rem;
+  height: 0.3rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.badge app-icon {
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
+.btn-warning app-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
 .dc-hero-orbit {
   position: absolute;
   right: -8rem;

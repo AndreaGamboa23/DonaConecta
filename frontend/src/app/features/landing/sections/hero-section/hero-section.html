@@ -22,30 +22,40 @@
   <span class="dc-hero-dot d-none d-md-block" aria-hidden="true"></span>
 
   <div class="container position-relative dc-hero-inner">
-    <div class="row">
+    <div class="row align-items-center g-4">
       <div class="col-12 col-xl-9 dc-hero-content">
-        <p class="dc-hero-kicker mb-4">Una comunidad · Huancayo, Junín</p>
-        <h1 class="dc-hero-title fw-bold mb-4">
-          Juntos podemos hacer que la
-          <span class="dc-hero-highlight">solidaridad</span>
-          llegue más lejos.
-        </h1>
-        <p class="dc-hero-copy mb-0">
-          Porque cuando una comunidad se une, cada pequeño aporte puede transformar una vida.
-        </p>
-      </div>
-    </div>
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-4">
+          <p class="dc-hero-kicker mb-0">Una comunidad, muchas manos, un mismo propósito</p>
+          <span class="badge rounded-pill text-bg-light text-dark">
+            <app-icon name="pin" /> Huancayo, Junín
+          </span>
+        </div>
 
-    <div class="row align-items-end gy-4 mt-4 mt-lg-5">
-      <div class="col-12 col-lg-8">
-        <div class="d-flex flex-column flex-sm-row flex-wrap gap-3">
-          <a routerLink="/como-donar" class="btn btn-warning btn-lg px-4">
-            Descubre cómo donar
+        <h1 class="dc-hero-title fw-bold mb-4">
+          Conexiones que <span class="dc-hero-highlight">transforman</span> tu barrio.
+        </h1>
+        <p class="dc-hero-copy mb-4">
+          Explora qué necesitan las organizaciones de Huancayo, prepara tus bienes materiales y
+          coordina una entrega real. Aquí no hay pagos ni donaciones monetarias.
+        </p>
+
+        <div class="d-flex flex-column flex-sm-row flex-wrap gap-3 mb-4">
+          <a routerLink="/necesidades" class="btn btn-warning btn-lg px-4">
+            <app-icon name="compass" /> Explorar necesidades
           </a>
-          <a routerLink="/nosotros" class="btn btn-outline-light btn-lg px-4">
-            Conoce nuestra comunidad
+          <a routerLink="/como-donar" class="btn btn-outline-light btn-lg px-4">
+            Cómo donar
           </a>
         </div>
+
+        <div class="d-flex flex-wrap align-items-center gap-3">
+          <a routerLink="/registro" class="dc-hero-text-link">Crear mi cuenta</a>
+          <span class="dc-hero-separator" aria-hidden="true"></span>
+          <a routerLink="/iniciar-sesion" class="dc-hero-text-link">Ya tengo cuenta</a>
+          <span class="dc-hero-separator" aria-hidden="true"></span>
+          <a routerLink="/nosotros" class="dc-hero-text-link">Conocer el proyecto</a>
+        </div>
+
         <p class="dc-hero-note mt-4 mb-0">
           <span class="dc-hero-note-mark" aria-hidden="true"></span>
           Solo bienes materiales · Sin pagos ni transferencias
