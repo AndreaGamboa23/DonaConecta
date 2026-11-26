@@ -14,7 +14,7 @@ explícita; no se adelanta una fase sin esa autorización.
 | 04.4 | Contraste legible del hero, imagen principal confirmada y portada como acceso a servicios. | Ejecutada |
 | 05 | Modelo entidad-relación y normalización 3FN. | Ejecutada (propuesta revisada en 05.1) |
 | 05.1 | Revisión, corrección y documentación técnica del modelo. | Ejecutada |
-| 06 | Implementación de Microsoft SQL Server. | Pendiente, requiere autorización |
+| 06 | Implementación de Microsoft SQL Server. | Ejecutada |
 | 07 | Backend FastAPI, conexión y arquitectura de servicios. | Pendiente |
 | 08 | Landing definitiva y navegación pública integrada. | Pendiente |
 | 09 | Autenticación segura, registro, sesiones y roles. | Pendiente |
@@ -78,11 +78,12 @@ doble conteo, contrato REST con los cinco métodos y eventos WebSocket.
 
 **No ejecutado:** DDL, DML, creación de `DonaConectaDB`, instalación de dependencias,
 implementación de FastAPI, modificación del frontend, formularios simulados ni datos inventados.
-La validación fue documental; las pruebas reales de SQL Server y concurrencia quedan pendientes.
+La validación fue documental en ese momento; las pruebas reales se ejecutaron posteriormente en la
+Fase 06 y se resumen en la sección 6 de este documento.
 
 ## 5. Prioridad funcional posterior a la base y la API
 
-Una vez implementados SQL Server (Fase 06) y FastAPI (Fase 07), se prioriza:
+Con SQL Server (Fase 06) ya implementado y FastAPI (Fase 07) aún pendiente, se prioriza:
 
 1. Registro voluntario con selección “Quiero donar” / “Represento una institución”.
 2. Inicio de sesión y perfil.
@@ -97,23 +98,52 @@ El chat de consultas se implementa antes del GPS porque solo requiere usuarios, 
 verificadas y necesidades reales. La aplicación sigue siendo una plataforma de servicios: no se
 sustituye por una página institucional ni se rellena con pantallas falsas.
 
-## 6. Plan exacto para la Fase 06 (solo con autorización)
+## 6. Resultado real de la Fase 06
 
-1. Verificar permisos de creación de base de datos en `.\SQLEXPRESS` y crear `DonaConectaDB`.
-2. Verificar en la instancia real las capacidades de cifrado nativo antes de elegirlas.
-3. Crear esquema `dbo`, catálogos base y sembrar **solo** valores administrativos reales:
-   roles, permisos, distritos de Huancayo, tipos de institución, categorías de bienes y
-   unidades de medida. Sin instituciones, usuarios, donaciones ni ubicaciones inventadas.
-4. Crear las 42 tablas en orden de dependencia con PK, FK `NO ACTION`, `UNIQUE`, `CHECK`,
-   `DEFAULT` y `ROWVERSION` según `docs/modelo-fisico.md`.
-5. Crear los índices justificados, las nueve vistas y los dos procedimientos almacenados.
-6. Crear cuenta de aplicación con mínimo privilegio (DML, sin DDL en producción) y probar
-   conexión parametrizada con `ODBC Driver 18`.
-7. Ejecutar consultas de comprobación etiquetadas como prueba y retirarlas antes de avanzar.
-8. Probar concurrencia: dos compromisos simultáneos, vencimiento sin limpieza, recepción parcial
-   y confirmaciones duplicadas. Registrar resultados reales; no afirmar éxito sin evidencia.
-9. Configurar respaldo inicial y prueba de restauración fuera del repositorio.
-10. Actualizar documentación con evidencias y proponer commit descriptivo sin ejecutarlo.
+Entorno comprobado antes de escribir: rama `Andrea`, SQL Server 2025 Express
+(`EngineEdition = 4`), colación `SQL_Latin1_General_CP1_CI_AS`, `ODBC Driver 18 for SQL Server`,
+Python 3.13.17 y `uv` 0.12.17. No se instalaron dependencias.
+
+1. `DonaConectaDB` creada con recuperación `SIMPLE` y compatibilidad 170, sin `DROP` ni
+   sobrescritura. Script: `database/scripts/001_crear_base_datos.sql`.
+2. Capacidades nativas verificadas: `EncryptionState = NULL`, 0 column master keys, 0 symmetric
+   keys. No se afirma TDE ni Always Encrypted. Ver `docs/seguridad-privacidad.md` §11.3.
+3. Creadas las **42 tablas** del modelo con PK, `UNIQUE`, `CHECK`, `DEFAULT` y `ROWVERSION`.
+   Script: `002_crear_tablas.sql`. Salida real: `TablasCreadas 42`.
+4. Creadas las **79 foreign keys**, todas `ON DELETE/UPDATE NO ACTION`, sin cascadas. Incluye las
+   FK compuestas anti asociaciones cruzadas y la marca de lectura del chat. Script: `003`.
+5. Creados los **11 índices** propios: 4 únicos filtrados y 7 de consulta. `sqlcmd` inicia con
+   `QUOTED_IDENTIFIER OFF`, por lo que `004` fija `ON` para índices filtrados.
+6. Sembrados solo catálogos autorizados: 3 roles, 37 permisos, 83 `rol_permisos`, 5 tipos de
+   institución, 5 categorías, 6 unidades y 28 distritos de Huancayo. No se sembraron productos,
+   parámetros, usuarios, instituciones, necesidades, donaciones ni ubicaciones. Script: `005`.
+7. Creadas las **9 vistas** documentadas. La disponibilidad y el progreso se calculan desde
+   registros reales; no se almacenan totales derivados. Script: `006`.
+8. Creados los **2 procedimientos** transaccionales con `TRY/CATCH`, `XACT_ABORT ON`,
+   `UPDLOCK/HOLDLOCK` y errores `52001`–`52011`. Script: `007`. Ajustes reales documentados: sin
+   historial en la creación, `@observaciones`/`@evidenciasJson` opcionales y
+   `fecha_real_inicio` junto con `fecha_real_fin` para cumplir `CK_entregas_fechas`.
+9. Creados `dc_app` y `dc_admin`, más `dc_app_usuario` sin login para verificar permisos.
+   `dc_app` lee catálogos, escribe operaciones, ejecuta los dos procedimientos y no puede borrar
+   auditoría ni insertar catálogos. `dc_admin` no tiene DDL. Sin contraseñas en el repositorio.
+   Script: `008`.
+10. Pruebas reales en `DonaConectaDB_Pruebas`: **11/11** de estructura, vistas, `CHECK`, FK
+    compuestas, vencimientos, `ROWVERSION` y borrado protegido; **15/15** de errores de negocio,
+    reserva real, recepción parcial, recepción total, evidencia, notificación y auditoría; y
+    concurrencia con **dos conexiones independientes**: un compromiso válido y otro rechazado con
+    `52001`, una recepción válida y otra rechazada con `52006`, sin interbloqueos `1205`. Un
+    observador consultó `sys.dm_tran_locks` y detectó bloqueos en la escena A; en la B la muestra
+    fue 0 por la brevedad de la transacción, limitación documentada.
+11. Respaldo fuera del repositorio con `CHECKSUM` y `RESTORE VERIFYONLY`. Restauración real en
+    `DonaConectaDB_Pruebas` (42/79/9/2, 0 usuarios) y verificación final en
+    `DonaConectaDB_Verificacion` (42/79/9/2, 0 filas de negocio, procedimiento corregido). No se
+    usó `REPLACE` ni `DROP DATABASE`.
+12. La base real quedó con 0 filas en todas las tablas de negocio. El cambio preexistente del
+    usuario en `frontend/src/app/features/nosotros/nosotros.html` se conservó sin modificar.
+    No se implementó FastAPI, no se instalaron dependencias Python y no se hicieron commits.
+
+La ejecución completa está en `database/README.md`; los scripts de prueba están en
+`database/tests/` y los de respaldo en `database/mantenimiento/`.
 
 ## 7. Reparto de trabajo
 

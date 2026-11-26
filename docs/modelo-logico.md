@@ -49,7 +49,7 @@ No contiene nombre, correo ni contraseña: esos datos viven solo en `usuarios`.
 
 **`distritos`**
 `distrito_id` PK; `nombre` UQ; `provincia`; `departamento`; `activo`. Catálogo administrativo
-real; se cargará en Fase 06 sin coordenadas inventadas.
+real; cargado en Fase 06 con 28 distritos de Huancayo y sin coordenadas inventadas.
 
 **`parametros_sistema`**
 `parametro_id` PK; `clave` UQ; `valor`; `descripcion?`; `actualizado_en`;

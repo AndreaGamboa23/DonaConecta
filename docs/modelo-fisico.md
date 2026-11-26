@@ -1,8 +1,9 @@
 # Modelo físico propuesto para SQL Server
 
-Documento validado en la Fase 05.1. Especifica tipos, restricciones, índices, vistas y
-procedimientos **propuestos**. No se ha creado `DonaConectaDB`, no se han ejecutado `CREATE`,
-`ALTER`, `INSERT`, `UPDATE` ni `DELETE`, y no hay scripts T-SQL versionados todavía.
+Documento validado en la Fase 05.1 y **implementado físicamente en la Fase 06**. Especifica tipos,
+restricciones, índices, vistas y procedimientos, ahora desplegados en `DonaConectaDB` mediante los
+scripts versionados en `database/scripts/`. La sección 7.1 registra los ajustes reales respecto del
+diseño documental.
 
 ## 1. Reglas físicas generales
 
@@ -238,8 +239,25 @@ Secuencia:
 - Orden de bloqueo siempre: `necesidades` → `necesidad_productos` → `compromisos` →
   `compromiso_productos` → `entregas` → `entrega_productos` → `recepciones` →
   `recepcion_productos` → notificaciones/auditoría.
-- Si aparecen interbloqueos en pruebas reales, se evaluará `sp_getapplock` con clave
-  `compromiso:{necesidad_id}`. **No se afirma que funciona hasta probarlo.**
+- En las pruebas reales de la Fase 06 **no aparecieron interbloqueos `1205`** con dos conexiones,
+  por lo que no se implementó `sp_getapplock`. La alternativa sigue documentada para carga futura.
+
+### 7.1 Ajustes de la implementación Fase 06
+
+| Ajuste | Motivo |
+|---|---|
+| `usp_RegistrarCompromiso` y `usp_ConfirmarRecepcion` devuelven el id creado con `OUTPUT`. | El backend necesita el id para responder `201` sin una consulta adicional. |
+| `usp_RegistrarCompromiso` no inserta `compromiso_historial` en la creación. | `estado_anterior` es `NOT NULL` y distinto de `estado_nuevo`; no existe estado previo válido. El historial comienza con la primera transición real. |
+| `usp_ConfirmarRecepcion` añade `@observaciones NVARCHAR(500)` y `@evidenciasJson NVARCHAR(MAX)` opcionales. | Cumple `CK_recepciones_observacion` para `OBSERVADA` y permite persistir evidencias reales. |
+| `usp_ConfirmarRecepcion` escribe `fecha_real_inicio = COALESCE(fecha_real_inicio, @ahora)` junto con `fecha_real_fin`. | `CK_entregas_fechas` exige inicio cuando existe fin. Detectado al preparar las pruebas y corregido antes de ejecutarlas. |
+| Los conteos usados para adquirir bloqueos se asignan a `@bloqueo` en vez de devolverse con `SELECT`. | Evita resultsets innecesarios hacia PyODBC sin perder `UPDLOCK, HOLDLOCK`. |
+| `parametros_sistema.actualizado_por_usuario_id` admite `NULL` en la FK. | La configuración puede existir antes de que se cree el primer usuario administrador. |
+
+Los códigos `THROW` reales son `52001` disponibilidad, `52002` necesidad no publicada, `52003`
+donante no autorizado, `52004` líneas inválidas, `52005` expiración inválida, `52006` recepción
+duplicada, `52007` representante no autorizado, `52008` cantidad recibida inválida, `52009` entrega
+no válida, `52010` estado de recepción inválido y `52011` evidencia inválida. FastAPI debe
+traducirlos a un cuerpo de error homogéneo sin mensajes de SQL Server en Fase 07/09.
 
 ## 8. Borrado físico permitido
 
@@ -249,12 +267,17 @@ Se ejecuta en una transacción de PyODBC (`autocommit=False`) con este orden:
 cualquier hijo protegido, se revierte y se responde `409`. No se usa este mecanismo para
 donaciones, entregas confirmadas, recepciones, mensajes ni auditoría.
 
-## 9. Respaldo y verificación pendiente
+## 9. Respaldo y verificación ejecutados en Fase 06
 
-- Respaldo local inicial y prueba de restauración en Fase 06, con archivos fuera del
-  repositorio.
-- Verificar en la instancia real si TDE, Always Encrypted u otras funciones nativas están
-  disponibles antes de elegirlas. La estrategia de cifrado por aplicación es la que se puede
-  afirmar hoy.
+- Respaldo FULL local fuera del repositorio con `CHECKSUM`; `RESTORE VERIFYONLY` devolvió
+  “The backup set on file 1 is valid.”
+- Restauración real en `DonaConectaDB_Pruebas` para ejecutar pruebas sintéticas: 42 tablas,
+  79 FK, 9 vistas, 2 procedimientos y 0 usuarios reales.
+- Verificación final del respaldo regenerado en `DonaConectaDB_Verificacion`: 42 tablas, 79 FK,
+  9 vistas, 2 procedimientos, 0 filas de negocio y procedimiento corregido presente. No se usó
+  `DROP DATABASE` ni `RESTORE ... REPLACE`.
+- Capacidades nativas verificadas: `EngineEdition = 4`, `EncryptionState = NULL`, 0 column master
+  keys y 0 symmetric keys. No se activó TDE ni Always Encrypted; ver
+  `docs/seguridad-privacidad.md` §11.3.
 - Driver ODBC 18 y Python 3.13.17 ya verificados en modo lectura; `uv` 0.12.17 disponible para
-  evaluar en Fase 07.
+  evaluar en Fase 07. El cifrado del archivo de respaldo sigue pendiente de evaluación.

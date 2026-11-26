@@ -128,9 +128,49 @@ Access token de corta duración firmado; refresh token opaco cuyo hash se guarda
 `tokens_seguridad`. La renovación rota el token y revoca el anterior. `logout` revoca la
 sesión. Rate limiting en login, recuperación, registro, envío de mensajes e inicio de GPS.
 
-### 11.3 Verificación en Fase 06/07
+### 11.3 Verificación en Fase 06
 
-Antes de elegir TDE, Always Encrypted u otra función nativa se debe comprobar qué ofrece
-realmente SQL Server 2025 Express en la instancia `.\SQLEXPRESS`. Mientras tanto, la única
-estrategia afirmable es la de aplicación descrita arriba. Toda afirmación de funcionamiento
-queda sujeta a pruebas reales.
+La comprobación prevista se ejecutó en la instancia real `.\SQLEXPRESS`:
+
+| Comprobación | Resultado real |
+|---|---|
+| `SERVERPROPERTY('EngineEdition')` | `4` (Express) |
+| `SERVERPROPERTY('Edition')` | `Express Edition (64-bit)` |
+| `DATABASEPROPERTYEX('DonaConectaDB','EncryptionState')` | `NULL` |
+| `sys.column_master_keys` | 0 filas |
+| `sys.symmetric_keys` | 0 filas |
+| `IsIntegratedSecurityOnly` | `1` (autenticación Windows) |
+
+**No se afirma** TDE, Always Encrypted, cifrado nativo de columnas, cifrado de respaldo ni
+cifrado de extremo a extremo. Ninguno fue activado. La única estrategia afirmable sigue siendo la
+de aplicación descrita en la matriz §11, pendiente de implementación en Fase 07 con Argon2id para
+contraseñas y AES-256-GCM para los datos recuperables que se justifiquen (correo, teléfono y
+coordenada GPS autorizada).
+
+### 11.4 Aislamiento de privilegios verificado en Fase 06
+
+`008_seguridad_permisos.sql` creó `dc_app` y `dc_admin` sin contraseñas versionadas, además del
+usuario `dc_app_usuario WITHOUT LOGIN` exclusivamente para comprobar permisos con `EXECUTE AS`.
+Resultado real con `HAS_PERMS_BY_NAME`:
+
+| Permiso | Resultado |
+|---|---|
+| `SELECT` en `dbo.roles` | 1 |
+| `INSERT` en `dbo.roles` | 0 |
+| `INSERT` en `dbo.compromisos` | 1 |
+| `DELETE` en `dbo.auditoria_eventos` | 0 |
+| `EXECUTE` en `dbo.usp_RegistrarCompromiso` | 1 |
+
+`dc_admin` puede mantener catálogos, pero no tiene permisos DDL. La cuenta Windows de aplicación
+debe crearse manualmente fuera del repositorio; la plantilla está documentada en el encabezado del
+script. Los secretos no se versionaron y los errores de negocio de los procedimientos no exponen
+SQL, trazas ni credenciales: FastAPI deberá traducirlos a un cuerpo homogéneo en fases posteriores.
+
+### 11.5 Pendiente de Fase 07 en adelante
+
+- Implementar hashing Argon2id y cifrado autenticado AES-256-GCM en `security/`, con gestión de
+  claves fuera del repositorio y rotación documentada antes de usar datos personales reales.
+- Evaluar cifrado del archivo de respaldo y, en producción, `TrustServerCertificate=no`, HTTPS/WSS
+  y certificados válidos. Nada de esto se declara realizado en Fase 06.
+- Repetir la revisión de OWASP y la evaluación formal de la normativa peruana antes de afirmar
+  conformidad legal.

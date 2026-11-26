@@ -177,6 +177,27 @@ alternativa documentada.
 6. Revisión de `sys.dm_tran_locks` y de interbloqueos durante las pruebas.
 7. Intento de borrar una necesidad con compromisos: `409` y sin cambios.
 
+### Resultado real de la Fase 06
+
+Las siete comprobaciones se ejecutaron en `DonaConectaDB_Pruebas` con resultado positivo:
+
+1. Dos conexiones simultáneas sobre la misma línea: una persistió y la otra recibió `52001`;
+   el disponible final fue 0 y no se excedió la cantidad requerida.
+2. El compromiso `PENDIENTE` vencido quedó excluido por la vista sin limpieza física: reserva
+   vigente 0 y disponible 5.
+3. Recepción parcial de 6 de 10 unidades: entrega en `INCIDENCIA`, compromiso `ACEPTADO` y
+   disponible 10; la recepción total posterior de 4 unidades marcó el compromiso `COMPLETADO` y
+   mantuvo el disponible en 10. No hubo doble conteo.
+4. Dos confirmaciones concurrentes de la misma entrega: una persistió y la otra recibió `52006`.
+5. `PATCH` con `fila_version` obsoleto: 0 filas afectadas.
+6. `sys.dm_tran_locks` registró bloqueos durante la escena de compromisos; en la escena de
+   recepciones la muestra fue 0 por la brevedad de la transacción. No hubo errores `1205` ni se
+   requirió `sp_getapplock`.
+7. El intento de borrar una necesidad con compromisos fue rechazado por FK `NO ACTION`.
+
+Además se probaron los errores `52002`–`52005`, `52007`–`52011`, la unicidad de sesión GPS activa,
+el `CHECK` de latitud y el `CHECK` de tipo de notificación. Detalles en `database/tests/`.
+
 ## 5. Validación por capa
 
 | Validación | SQL Server | FastAPI |

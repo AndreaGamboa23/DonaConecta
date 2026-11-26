@@ -120,18 +120,45 @@ precompilados disponibles.
 | `DECIMAL(9,6)` frente a `geography` | Suficiente para el alcance actual; más simple de serializar y explicar. `geography` no se usa sin consultas espaciales reales. |
 | Backend sin cambios en esta fase | Se documenta `backend/src/backend/` y se registra la contradicción de `backend/README.md` para corregirla coordinadamente en Fase 07. |
 
+## Fase 06 — Implementación física de SQL Server
+
+| Decisión | Justificación |
+|---|---|
+| Scripts numerados del `001` al `008` con `sqlcmd -b` | Orden determinista, ejecución reproducible y detención ante el primer error. No se usó `DROP DATABASE`, `DROP TABLE` ni `REPLACE`. |
+| `SET QUOTED_IDENTIFIER ON` en índices filtrados y en inserciones sobre esas tablas | `sqlcmd` inicia con `OFF` y SQL Server exige `ON`; el primer intento falló con el error 1934 y se corrigió sin cambiar el modelo. |
+| Catálogos sembrados con `WHERE NOT EXISTS` y `CREATE OR ALTER` | Permite repetir los scripts sin duplicar catálogos ni perder permisos de procedimientos. |
+| 37 permisos derivados del contrato API, no un CRUD genérico | Cada código corresponde a una operación documentada; evita permisos decorativos y facilita la autorización en Fase 09. |
+| Categorías e unidades tomadas de la interfaz y del dominio de bienes | Las cinco categorías coinciden con `/como-donar`; las seis unidades son suficientes para bienes materiales. No se inventaron productos. |
+| 28 distritos de Huancayo con fuente verificable | `005_catalogos_iniciales.sql` documenta la fuente con referencia INEI. No se sembraron coordenadas porque la fuente no las contiene. |
+| No sembrar `parametros_sistema` ni `productos` | No estaban en la lista autorizada; hacerlo habría introducido datos de negocio inventados. |
+| Alias antes de la pista de bloqueo | SQL Server rechaza `FROM tabla WITH (...) alias`; se corrigió a `FROM tabla AS alias WITH (...)`. |
+| Procedimientos dueños de su transacción y `OUTPUT` del id creado | Coincide con Fase 05.1 y evita transacciones anidadas desde PyODBC. Los códigos `52001`–`52011` son estables para traducirlos a `409`/`403`/`422`. |
+| Sin `compromiso_historial` en la creación | `estado_anterior` es `NOT NULL` y debe diferir de `estado_nuevo`; no existe estado previo válido. El historial inicia con la primera transición. |
+| `@observaciones` y `@evidenciasJson` opcionales en `usp_ConfirmarRecepcion` | Necesarios para cumplir `CK_recepciones_observacion` y para persistir evidencias sin inventar archivos. |
+| `fecha_real_inicio` se escribe con `fecha_real_fin` | `CK_entregas_fechas` exige inicio cuando existe fin. El fallo se detectó al preparar las pruebas y se corrigió antes de ejecutarlas. |
+| Conteos de bloqueo por asignación, sin `SELECT` al cliente | Los `SELECT COUNT(*)` usados para adquirir bloqueos devolvían resultsets innecesarios al backend; se sustituyeron por asignaciones que conservan `UPDLOCK/HOLDLOCK`. |
+| Roles `dc_app`/`dc_admin` y usuario `WITHOUT LOGIN` | Permite verificar mínimo privilegio sin versionar contraseñas ni crear un login SQL con credenciales en Git. La cuenta Windows real se crea manualmente fuera del repositorio. |
+| Pruebas sintéticas solo en base separada | `DonaConectaDB_Pruebas` se restauró desde el respaldo; la base real quedó sin usuarios, instituciones, donaciones ni mensajes. |
+| Concurrencia con dos conexiones reales y observador de `sys.dm_tran_locks` | Confirma serialización por `UPDLOCK/HOLDLOCK`: una operación persiste y la otra recibe `52001`/`52006`, sin `1205`. No se necesitó `sp_getapplock`. |
+| Respaldo y restauración verificados con `CHECKSUM` | Evita afirmar disponibilidad sin evidencia. La restauración final se hizo en `DonaConectaDB_Verificacion`, sin sobrescribir la base de trabajo. |
+
 ### Decisiones pendientes o condicionadas
 
-1. **Cifrado nativo de SQL Server Express:** verificar en Fase 06 si TDE/Always Encrypted están
-   disponibles antes de seleccionarlos. La estrategia de aplicación es la afirmable hoy.
-2. **`sp_getapplock`:** solo si las pruebas de concurrencia reales muestran interbloqueos con
-   `UPDLOCK/HOLDLOCK`.
+1. **Cifrado nativo de SQL Server Express:** verificado en Fase 06. La instancia es Express
+   (`EngineEdition = 4`), `EncryptionState = NULL` y no hay column master keys ni symmetric keys.
+   No se activó TDE ni Always Encrypted. La estrategia de aplicación sigue pendiente de Fase 07.
+2. **`sp_getapplock`:** no se implementó. Las pruebas con dos conexiones no mostraron interbloqueos
+   `1205`; `UPDLOCK/HOLDLOCK` serializó correctamente. Se reevaluaría solo si apareciera evidencia
+   contraria con carga real.
 3. **Cifrado de coordenadas GPS:** diseño previsto con AES-256-GCM; si se decide diferir, la
    alternativa es `DECIMAL(9,6)` con control de acceso estricto. Requiere aprobación antes de
    implementar.
-4. **Correcciones documentales coordinadas:** `backend/README.md` (estructura anterior),
-   `README.md` (afirmación desactualizada sobre fotografías) y RF-12 en requisitos funcionales.
-   No se modificaron en esta fase por no pertenecer al alcance del modelo.
+4. **Correcciones documentales coordinadas:** `docs/arquitectura.md` §15 (sigue diciendo que la
+   Fase 05 está pendiente), `backend/README.md` (estructura anterior y afirma que no existe la
+   base de datos), `README.md` (afirma que no hay fotografías integradas y que no se creó
+   `DonaConectaDB`) y RF-12 en requisitos funcionales. No se modificaron en esta fase por no
+   pertenecer al alcance de la implementación de la base de datos; se proponen para una fase de
+   documentación coordinada.
 
 ### Contradicciones detectadas y resueltas en el modelo
 

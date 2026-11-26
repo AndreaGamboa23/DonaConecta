@@ -1,8 +1,9 @@
 # Modelo conceptual de DonaConecta
 
-Documento aprobado en la Fase 05.1. Describe **qué datos existen y por qué**, sin DDL, sin
-tablas creadas y sin datos de prueba. La implementación física se realizará solo en la Fase 06
-con autorización explícita.
+Documento aprobado en la Fase 05.1. Describe **qué datos existen y por qué**, sin DDL. La
+implementación física se realizó en la Fase 06 con autorización explícita: las 42 tablas están en
+`DonaConectaDB` y los scripts versionados en `database/scripts/`. La base real no contiene datos
+de negocio; las pruebas sintéticas se ejecutaron solo en `DonaConectaDB_Pruebas`.
 
 ## 1. Alcance del modelo
 

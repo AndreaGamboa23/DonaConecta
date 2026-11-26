@@ -437,7 +437,7 @@ La seguridad se implementa progresivamente en todas las fases, no solo al final.
 | 04.4 | Contraste legible del hero, imagen principal confirmada, limpieza de mensajes técnicos y portada como acceso a servicios. | Ejecutada |
 | 05 | Modelo entidad-relación y normalización 3FN. | Ejecutada (propuesta revisada en 05.1) |
 | 05.1 | Revisión, corrección y documentación técnica del modelo. | Ejecutada |
-| 06 | Implementación de Microsoft SQL Server. | Pendiente, requiere autorización |
+| 06 | Implementación de Microsoft SQL Server. | Ejecutada |
 | 07 | Backend FastAPI, conexión y arquitectura de servicios. | Pendiente |
 | 08 | Landing definitiva y navegación pública integrada. | Pendiente |
 | 09 | Autenticación segura, registro, sesiones y roles. | Pendiente |
@@ -508,7 +508,31 @@ activación institucional por rol, vínculo y estado; disponibilidad calculada c
 `requerida − (reserva vigente restante + recibido)` sin doble conteo; FK compuestos contra
 asociaciones cruzadas; GPS con una sola posición privada cifrada; notificaciones con recurso
 opcional; dos procedimientos dueños de su transacción; borrado físico limitado a borradores.
-La validación fue documental: las pruebas reales de SQL Server y concurrencia siguen pendientes.
+La validación fue documental en ese momento; las pruebas reales de SQL Server y concurrencia se
+ejecutaron después en la Fase 06 y se resumen más abajo.
+
+**Alcance autorizado de la Fase 06:** crear físicamente `DonaConectaDB` en `.\SQLEXPRESS` desde el
+modelo de Fase 05.1; versionar scripts numerados para base, tablas, FK, índices, catálogos,
+vistas, procedimientos y permisos; sembrar solo roles, permisos, tipos de institución, unidades,
+categorías y distritos verificables; crear cuenta/rol de aplicación sin contraseñas versionadas;
+probar integridad, reglas, concurrencia con dos conexiones, respaldo y restauración en bases
+separadas; actualizar documentación. No modificar `frontend/`, no implementar FastAPI, no instalar
+dependencias Python, no crear datos de negocio inventados, no ejecutar commits ni push.
+
+**Resultado de la Fase 06:** `DonaConectaDB` existe con **42 tablas**, **79 FK** `NO ACTION`,
+**11 índices propios**, **9 vistas** y **2 procedimientos** transaccionales. Catálogos reales:
+3 roles, 37 permisos, 83 asignaciones, 5 tipos de institución, 5 categorías, 6 unidades y 28
+distritos de Huancayo. La base real permanece con **0 filas** en todas las tablas de negocio.
+`dc_app` puede leer catálogos y escribir operaciones, pero no insertar catálogos ni borrar
+auditoría; `dc_admin` no tiene DDL. Pruebas ejecutadas: 11/11 de integridad, 15/15 de
+procedimientos y concurrencia con dos conexiones (una operación válida y una `409` lógica
+`52001`/`52006`, sin interbloqueos `1205`). Respaldo final verificado con `CHECKSUM` y
+`RESTORE VERIFYONLY`, y restaurado en `DonaConectaDB_Verificacion` sin datos de negocio.
+Se documentaron los ajustes de implementación (sin historial de creación, parámetros opcionales
+de recepción y `fecha_real_inicio` obligatoria) y las contradicciones documentales pendientes de
+coordinación (`docs/arquitectura.md` §15, `backend/README.md`, `README.md` y RF-12). No se afirma
+TDE, Always Encrypted, cifrado de respaldo ni cifrado de aplicación: la instancia es Express y la
+estrategia Argon2id/AES-256-GCM queda para Fase 07. No comenzar Fase 07 sin autorización explícita.
 
 ---
 
@@ -575,8 +599,9 @@ Esta sección complementa las secciones 3, 6 a 9 y 16. Toda fase posterior debe 
   No modificar ramas ni archivos de otro integrante sin coordinación.
 - Acordar antes de implementar: modelo de datos, nombres de campos, rutas, métodos HTTP,
   esquemas JSON, estados, reglas de negocio, contratos de integración y seguridad.
-- **Alcance actual:** la Fase 05.1 dejó documentado y corregido el modelo único compartido en
+- **Alcance actual:** la Fase 06 implementó físicamente el modelo único compartido en
   `docs/modelo-*.md`, `docs/diccionario-datos.md`, `docs/normalizacion.md`,
-  `docs/reglas-negocio.md` y `docs/contrato-api.md`. No crear backend, dependencias, tablas
-  definitivas ni scripts SQL sin autorización de fase. No reorganizar el frontend existente ni
-  interrumpir o reemplazar Fase 04.4. El único modelo válido para el equipo es el de Fase 05.1.
+  `docs/reglas-negocio.md` y `docs/contrato-api.md`, con scripts en `database/scripts/`. No crear
+  backend, dependencias Python ni nuevas tablas sin autorización de fase. No reorganizar el
+  frontend existente ni interrumpir o reemplazar Fase 04.4. El único modelo válido para el equipo
+  sigue siendo el de Fase 05.1, ahora desplegado en `DonaConectaDB`.
