@@ -15,9 +15,11 @@ explícita; no se adelanta una fase sin esa autorización.
 | 05 | Modelo entidad-relación y normalización 3FN. | Ejecutada (propuesta revisada en 05.1) |
 | 05.1 | Revisión, corrección y documentación técnica del modelo. | Ejecutada |
 | 06 | Implementación de Microsoft SQL Server. | Ejecutada |
-| 07 | Backend FastAPI, conexión y arquitectura de servicios. | Pendiente (Fases 07.A, 07.B, 07.B.1 y 07.B.2 frontend ejecutadas) |
-| 08 | Landing definitiva y navegación pública integrada. | Pendiente |
-| 09 | Autenticación segura, registro, sesiones y roles. | Pendiente |
+| 07 | Backend FastAPI, conexión y arquitectura de servicios. | Avance parcial integrado en Avance 01 (ver Fase 08.2); pendiente de cierre formal |
+| 08 | Landing definitiva y navegación pública integrada. | Ejecutada en avances previos |
+| 08.2 | CRUD real de usuarios, perfil personal, sesiones revocables y celular cifrado. | Ejecutada e integrada en Avance 01 |
+| 09 | Paneles administrativo e institucional, verificación real, catálogo SQL y necesidades (Avance 02). | Ejecutada |
+| 09.1 | Experiencia pública real: detalle de necesidades, directorio y perfiles SQL, accesos por rol y correcciones de contrato. | Ejecutada |
 | 10 | Registro, verificación y directorio de instituciones. | Pendiente |
 | 11 | Catálogo y gestión de necesidades. | Pendiente |
 | 12 | Compromisos, donaciones y entregas. | Pendiente |
@@ -371,3 +373,87 @@ La Fase 07 de backend sigue pendiente y no se inicia sin autorización explícit
 8. Se creó `docs/informe-crud-perfil-fase-08.2.md`; el informe de Fase 08 conserva su diagnóstico
    histórico con una nota que señala las limitaciones ya resueltas. No se ejecutaron commit, push,
    merge ni cambio de rama. La valoración estética final sigue pendiente de revisión humana.
+
+## 13. Resultado de la Fase 09 (Avance 02)
+
+1. Backend: 14 operaciones nuevas de panel y catálogo con DTO explícitos, reglas puras de
+   transición, repositorios parametrizados, auditoría transaccional y autorización por rol y
+   propiedad. OpenAPI expone 28 rutas, 36 operaciones y 45 esquemas; las 14 operaciones de panel
+   tienen resumen, respuestas y seguridad declarada.
+2. Frontend: rutas `/admin` e `/institucional` con `rolGuard`, layout de panel, carga diferida,
+   ocho páginas, acceso por rol desde el navbar y catálogo SQL real en Explorar/Necesidades.
+   Se conservan el buscador determinista, las guías editoriales y los estados honestos.
+3. SQL: DML idempotente de 41 bienes en `DonaConectaDB_Pruebas` (42 productos totales), sin DDL;
+   `DonaConectaDB` sigue con 0 filas de negocio y `ALLOW_MAIN_DB_WRITES=no`.
+4. Integración real: institución `DEMO-INST-FASE09` verificada con historial y auditoría;
+   necesidad `DEMO-NEC-FASE09-Arroz` publicada y compromiso del donante persistidos. Dos defectos
+   detectados en ejecución se corrigieron: correo `.invalid` rechazado por `EmailStr` y
+   reactivación sin roles de una cuenta bloqueada.
+5. Evidencias: **21/21 + 21/21** comprobaciones de API, **1789/1789** comprobaciones de navegador
+   en 28 rutas y 404 × siete anchos (360–1920 px), **69/69** pruebas Angular en 25 archivos y
+   **24/24** pruebas Python. Build: **583,23 kB** iniciales y **112,73 kB** transferidos.
+6. Seguridad: cuenta administrativa sintética aprovisionada con contraseña fuera del repositorio,
+   Argon2id y rol `ADMINISTRADOR` real; DTO sin secretos; bloqueo y baja revocan sesiones; la
+   reactivación restaura solo roles vigentes en el modelo.
+7. Detalle completo en `docs/informe-paneles-fase-09.md`, `docs/contrato-api.md` §9,
+   `docs/seguridad-privacidad.md` §11.7 y `docs/decisiones-tecnicas.md`. No se ejecutaron commit,
+   push, merge ni cambio de rama; la valoración estética final sigue pendiente de revisión humana.
+
+## 14. Resultado de la Fase 09.1 (experiencia pública y directorio real)
+
+1. Backend: tres operaciones públicas nuevas con DTO Pydantic explícito
+   (`GET /necesidades/{id}`, `GET /instituciones/tipos` y `GET /instituciones/{id}`), filtros
+   reales en listados, determinismo en `TOP 1`, escape de comodines `LIKE`, fechas ISO UTC,
+   filtro de punto de acopio activo y de la institución dueña, y `response_model` en los dos
+   listings que antes no lo tenían. OpenAPI: **31 rutas, 39 operaciones y 54 esquemas**.
+2. Frontend: detalle público con líneas por producto/unidad y compromiso restringido a donantes,
+   directorio por `tipo_codigo` SQL, perfil público sin contactos inventados, tarjeta reutilizable
+   de necesidad, accesos de Inicio por rol y estados honestos de error/vacío/sin servicio.
+3. Correcciones derivadas de auditoría: se retiró la unidad global de totales agregados, se
+   agrupó la disponibilidad por `unidad_id`, se aceptaron cantidades decimales, se corrigió el
+   mapeo ISO de `dia_semana`, el `aria-current` del tipo activo, el movimiento reducido del foco,
+   el texto de estados y la URL real de verificación administrativa.
+4. Datos: solo lecturas reales en `DonaConectaDB_Pruebas`; 6 necesidades publicadas, 2
+   instituciones verificadas, 42 productos activos y 0 puntos/horarios de acopio. No se ejecutó
+   DDL ni DML; `DonaConectaDB` permanece intacta. La propuesta reversible de codificación
+   `database/scripts/011_correcion_codificacion_fase091.sql` quedó validada con `NOEXEC`, sin
+   ejecutar.
+5. Evidencias: **34/34** pruebas Python, **70/70** pruebas Angular en 25 archivos,
+   **2179/2179** comprobaciones CDP en 34 rutas y siete anchos (360–1920 px), 10 respuestas API
+   verificadas, build de **585,95 kB** iniciales y **113,51 kB** transferidos, y
+   `git diff --check` sin errores de whitespace. Capturas guardadas fuera del repositorio en
+   `C:\Users\ANDREA\AppData\Local\Temp\opencode\dc-f091-capturas`.
+6. Límites declarados: la regla de compromiso duplicado es secuencial porque el SP actual no la
+   aplica por donante; la corrección de mojibake y la normalización de unidades requieren DML
+   autorizado; la valoración estética final sigue pendiente de revisión humana. Detalle en
+   `docs/informe-experiencia-directorio-fase-09.1.md`. No se ejecutaron commit, push, merge ni
+   cambio de rama.
+
+## 15. Resultado del cierre funcional de la entrega (26 de noviembre de 2026)
+
+1. Alcance: integrar en la rama `Andrea` la operación real de donación de bienes materiales,
+   puntos y horarios de acopio, recepción institucional, chat persistente, notificaciones y GPS
+   autorizado, además de la corrección de codificación y los ajustes visuales necesarios. Sólo se
+   escribió en `DonaConectaDB_Pruebas`; `ALLOW_MAIN_DB_WRITES=no`, sin DDL y sin tocar
+   `main`, `Jhon` ni `respaldo-avance-01`. Tampoco se ejecutaron commit, push, merge ni cambio
+   de rama.
+2. Backend: cuatro routers y sus repositorios/esquemas nuevos registrados en
+   `backend/app/main.py`, con `donaciones` antes que `entregas` para preservar
+   `/compromisos/mis-compromisos`. OpenAPI: **47 rutas, 59 operaciones y 89 esquemas**.
+   Se corrigió el mapeo de columnas de compromisos y se sustituyó `SCOPE_IDENTITY()` por
+   `OUTPUT INSERTED.*` en mensajes, conversaciones y sesiones GPS.
+3. Frontend: `/mis-donaciones`, `/donaciones/:id`, bandeja y conversación en `/mensajes`,
+   bandejas de `/institucional/compromisos` y `/institucional/puntos-acopio`, marcadores del
+   mapa sólo con coordenadas autorizadas y `/seguimiento/:id` con consentimiento y detención
+   explícitos. `BackendEstadoService` declara las operaciones con API real sin simular datos.
+4. Datos: scripts `011` y `012` ejecutados en la base de pruebas; **0** restos de mojibake,
+   instituciones `DEMO-FINAL-` verificadas y flujo real persistido con compromiso `ACEPTADO`,
+   entrega `INCIDENCIA` por recepción parcial, disponibilidad coherente y mensajes cifrados.
+5. Evidencias: flujo API **12/12**, autorización **4/4**, Python **75/75**, Angular **88/88**
+   en 33 archivos, build de **590,83 kB** iniciales y **114,74 kB** transferidos, y
+   `git diff --check` sin errores de whitespace. No se repitieron las 2179 comprobaciones CDP
+   de Fase 09.1. Detalle en `docs/informe-implementacion-final.md` y
+   `docs/contrato-integracion-final.md`.
+6. Límites: WebSocket de chat/GPS, concurrencia verdadera de compromisos duplicados y
+   valoración estética final quedan pendientes. La mensajería usa polling HTTP; GPS guarda
+   una sola posición cifrada y no sustituye la confirmación de recepción.

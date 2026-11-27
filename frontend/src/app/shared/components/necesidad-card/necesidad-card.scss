@@ -1,0 +1,39 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.dc-necesidad-card {
+  border: 1px solid rgba(18, 48, 74, 0.07);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.dc-necesidad-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0.9rem 2.4rem rgba(18, 48, 74, 0.11);
+}
+
+.dc-necesidad-card:focus-visible {
+  outline: 3px solid #d5a451;
+  outline-offset: 3px;
+}
+
+.dc-necesidad-card:active {
+  transform: translateY(0);
+}
+
+app-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dc-necesidad-card {
+    transition: none;
+  }
+
+  .dc-necesidad-card:hover,
+  .dc-necesidad-card:active {
+    transform: none;
+  }
+}

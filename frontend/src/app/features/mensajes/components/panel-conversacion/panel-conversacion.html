@@ -1,45 +1,93 @@
-<section class="card rounded-4 shadow-sm h-100 d-flex flex-column dc-chat" aria-label="Conversación">
-  <div class="card-header bg-white border-0 pt-3 px-3 px-md-4">
-    <div class="d-flex align-items-center gap-2">
-      @if (conversacionId() !== null) {
-        <button type="button" class="btn btn-light btn-sm" (click)="volver.emit()" aria-label="Volver a la bandeja">
+<section class="card border-0 shadow-sm rounded-4 p-3 p-md-4 h-100" aria-labelledby="tituloConversacion">
+  @if (conversacion(); as conversacion) {
+    <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
+      <div class="d-flex align-items-center gap-2 min-w-0">
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-secondary d-lg-none flex-shrink-0"
+          (click)="volver.emit()"
+          aria-label="Volver a la bandeja"
+        >
           <app-icon name="arrow-left" aria-hidden="true" />
         </button>
-      }
-      <span class="dc-chat-avatar d-flex align-items-center justify-content-center rounded-circle">
-        <app-icon name="chat" />
-      </span>
-      <div class="overflow-hidden">
-        <h2 class="h6 fw-bold mb-0">Selecciona una conversación</h2>
-        <small class="text-secondary">Solo participantes autorizados podrán leerla</small>
+        <div class="min-w-0">
+          <h2 id="tituloConversacion" class="h5 fw-bold mb-0 text-truncate">{{ titulo() }}</h2>
+          <span class="small text-secondary">Solo participantes autorizados</span>
+        </div>
       </div>
-    </div>
-  </div>
-
-  <div class="card-body dc-chat-body px-3 px-md-4 text-center d-flex flex-column justify-content-center">
-    <span class="dc-chat-empty d-inline-flex align-items-center justify-content-center rounded-circle mx-auto mb-3">
-      <app-icon name="mail" />
-    </span>
-    <p class="fw-semibold mb-1">No hay mensajes cargados.</p>
-    <p class="text-secondary mb-3">
-      Inicia sesión para consultar tus conversaciones cuando el servicio esté disponible.
-    </p>
-    <a routerLink="/mis-donaciones" class="fw-semibold link-primary">Ver donaciones relacionadas</a>
-  </div>
-
-  <div class="card-footer bg-white border-0 px-3 px-md-4 pb-3 pb-md-4">
-    <label class="form-label small fw-semibold visually-hidden" for="mensajeNuevo">Escribir mensaje</label>
-    <textarea id="mensajeNuevo" class="form-control" rows="2" disabled
-      placeholder="La escritura se habilitará con una sesión autorizada"></textarea>
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-2">
-      <button type="button" class="btn btn-outline-secondary btn-sm" disabled aria-label="Adjuntar archivo">
-        <app-icon name="paperclip" aria-hidden="true" />
-        Adjuntar
+      <button type="button" class="btn btn-sm btn-outline-primary" (click)="marcarComoLeido()">
+        Marcar como leída
       </button>
-      <button type="button" class="btn btn-primary btn-sm" disabled>Enviar mensaje</button>
     </div>
-    <p class="small text-secondary mt-2 mb-0">
-      Los mensajes se persistirán en el servidor; no se guardan en este navegador.
-    </p>
-  </div>
+
+    <div class="dc-chat-mensajes border rounded-4 p-3 mb-3" aria-live="polite">
+      @if (cargando()) {
+        <div class="d-flex align-items-center gap-2 small text-secondary" role="status">
+          <span class="spinner-border spinner-border-sm text-primary" aria-hidden="true"></span>
+          Cargando mensajes…
+        </div>
+      } @else if (mensajes().length === 0) {
+        <p class="small text-secondary mb-0">
+          Esta conversación aún no tiene mensajes. Escribe el primero para coordinar la entrega.
+        </p>
+      } @else {
+        @for (mensaje of mensajes(); track claveMensaje(mensaje, $index)) {
+          <div class="d-flex align-items-end gap-2 mb-3" [class.flex-row-reverse]="esMio(mensaje)">
+            <span
+              class="dc-chat-avatar rounded-circle d-inline-flex align-items-center justify-content-center flex-shrink-0 fw-bold"
+              [class.dc-chat-avatar-propio]="esMio(mensaje)"
+              aria-hidden="true"
+            >{{ iniciales(mensaje) }}</span>
+            <article
+              class="dc-chat-burbuja rounded-4 p-3"
+              [class.dc-chat-propio]="esMio(mensaje)"
+            >
+              <div class="d-flex flex-wrap justify-content-between gap-2 small">
+                <strong>{{ remitente(mensaje) }}</strong>
+                <span class="text-secondary">{{ fechaTexto(mensaje.creado_en ?? mensaje.creadoEn) }}</span>
+              </div>
+              <p class="mb-2 fs-6 text-break">{{ mensaje.contenido }}</p>
+              <span class="small text-secondary">{{ estadoLectura(mensaje) }}</span>
+            </article>
+          </div>
+        }
+      }
+    </div>
+
+    <form novalidate (submit)="enviar($event)">
+      <label class="form-label small fw-semibold" for="contenidoMensaje">Escribe tu mensaje</label>
+      <div class="input-group input-group-lg">
+        <input
+          id="contenidoMensaje"
+          class="form-control"
+          type="text"
+          maxlength="2000"
+          autocomplete="off"
+          placeholder="Escribe tu mensaje de coordinación…"
+          [formControl]="contenido"
+        />
+        <button class="btn btn-primary px-4" type="submit" [disabled]="enviando() || contenido.invalid">
+          @if (enviando()) {
+            <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+          } @else {
+            <app-icon name="send" aria-hidden="true" />
+          }
+          Enviar
+        </button>
+      </div>
+      @if (contenido.touched && contenido.invalid) {
+        <span class="small text-danger d-block mt-1">Escribe un mensaje antes de enviarlo.</span>
+      }
+    </form>
+  } @else {
+    <div class="text-center py-5">
+      <span class="dc-chat-vacio d-inline-flex align-items-center justify-content-center rounded-circle mb-3">
+        <app-icon name="chat" aria-hidden="true" />
+      </span>
+      <h2 id="tituloConversacion" class="h5 fw-bold mb-2">Selecciona una conversación</h2>
+      <p class="small text-secondary mb-0">
+        Aquí se mostrarán los mensajes persistidos de la conversación seleccionada.
+      </p>
+    </div>
+  }
 </section>

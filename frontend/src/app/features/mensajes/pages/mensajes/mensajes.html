@@ -1,46 +1,119 @@
 <app-page-hero
-  eyebrow="Comunicación segura"
+  eyebrow="Comunicación privada"
   titulo="Mensajes"
-  descripcion="Coordina entregas de bienes materiales con las instituciones en un espacio privado y autorizado."
+  descripcion="Coordina la entrega de bienes materiales con donantes e instituciones participantes. Los mensajes se guardan en el servicio, nunca en el navegador."
   icono="chat"
 />
 
 <section class="dc-section-space">
   <div class="container">
-    <app-pending-notice
-      [estado]="estado"
-      titulo="La mensajería aún no está conectada"
-      class="d-block mb-4"
-    />
+    @if (mensajeAccion()) {
+      <div class="alert alert-warning border-0 rounded-4" role="status">{{ mensajeAccion() }}</div>
+    }
 
-    <div class="row g-3 g-lg-4 align-items-stretch dc-chat-layout">
-      <div
-        class="col-12 col-lg-4"
-        [class.d-none]="conversacionId() !== null"
-        [class.d-lg-block]="conversacionId() !== null"
-      >
-        <app-bandeja-conversaciones (abrir)="abrirConversacion($event)" />
-      </div>
-      <div
-        class="col-12 col-lg-8"
-        [class.d-none]="conversacionId() === null"
-        [class.d-lg-block]="conversacionId() === null"
-      >
-        <app-panel-conversacion
-          [conversacionId]="conversacionId()"
-          (volver)="volverABandeja()"
-        />
-      </div>
-    </div>
-
-    <div class="d-flex flex-wrap gap-2 mt-4">
-      @if (sesion.autenticado()) {
-        <a routerLink="/necesidades" class="btn btn-primary">Explorar necesidades</a>
-      } @else {
-        <a routerLink="/iniciar-sesion" class="btn btn-primary">Iniciar sesión</a>
+    @switch (estado()) {
+      @case ('sin-sesion') {
+        <div class="card border-0 bg-light rounded-4 p-4 p-md-5 text-center mx-auto dc-mensajes-estado">
+          <span class="dc-mensajes-icon d-inline-flex align-items-center justify-content-center rounded-3 mb-3">
+            <app-icon name="lock" aria-hidden="true" />
+          </span>
+          <h2 class="h4 fw-bold mb-2">Acceso requerido</h2>
+          <p class="text-secondary mb-4">
+            Inicia sesión para consultar y escribir mensajes. Solo participantes autorizados pueden leer una conversación.
+          </p>
+          <div class="d-flex flex-wrap justify-content-center gap-2">
+            <a routerLink="/iniciar-sesion" class="btn btn-primary">Iniciar sesión</a>
+            <a routerLink="/necesidades" class="btn btn-outline-primary">Ver solicitudes</a>
+          </div>
+        </div>
       }
-      <a routerLink="/mis-donaciones" class="btn btn-outline-secondary">Ver mis donaciones</a>
-      <a routerLink="/como-donar" class="btn btn-outline-secondary">Cómo donar</a>
-    </div>
+      @case ('error') {
+        <div class="alert alert-warning rounded-4" role="alert">
+          <p class="fw-semibold mb-2">{{ error() }}</p>
+          <button type="button" class="btn btn-outline-primary btn-sm" (click)="cargarBandeja()">Reintentar</button>
+        </div>
+      }
+      @case ('cargando') {
+        <div class="card border-0 shadow-sm rounded-4 p-4 text-center" role="status">
+          <div class="d-flex align-items-center justify-content-center gap-2">
+            <span class="spinner-border spinner-border-sm text-primary" aria-hidden="true"></span>
+            <span class="text-secondary mb-0">Cargando tus conversaciones…</span>
+          </div>
+        </div>
+      }
+      @case ('datos') {
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+          <div class="input-group dc-mensajes-buscar">
+            <span class="input-group-text"><app-icon name="search" aria-hidden="true" /></span>
+            <input
+              class="form-control"
+              type="search"
+              placeholder="Buscar conversaciones"
+              aria-label="Buscar conversaciones"
+              (input)="cambiarFiltro($event)"
+            />
+          </div>
+          @if (noLeidos) {
+            <span class="badge rounded-pill text-bg-primary">{{ noLeidos }} notificaciones nuevas</span>
+          }
+        </div>
+
+        <div class="row g-4">
+          <div
+            class="col-12 col-lg-4 d-lg-block"
+            [class.d-none]="mobileConversacionAbierta()"
+          >
+            <app-bandeja-conversaciones
+              [conversaciones]="conversacionesFiltradas"
+              [seleccionada]="activaId()"
+              (seleccionar)="seleccionar($event)"
+            />
+          </div>
+          <div
+            class="col-12 col-lg-8 d-lg-block"
+            [class.d-none]="!mobileConversacionAbierta()"
+          >
+            <app-panel-conversacion
+              [conversacion]="activa"
+              [mensajes]="mensajes()"
+              [cargando]="cargandoMensajes()"
+              [enviando]="enviando()"
+              [usuarioId]="sesion.usuario()?.id_usuario ?? null"
+              [ultimoLeidoId]="ultimoLeidoId()"
+              (volver)="volver()"
+              (enviarMensaje)="enviar($event)"
+              (marcarLeido)="marcarLeido()"
+            />
+          </div>
+        </div>
+
+        @if (notificaciones().length) {
+          <section class="card border-0 bg-light rounded-4 p-3 p-md-4 mt-4" aria-labelledby="notificacionesTitulo">
+            <h2 id="notificacionesTitulo" class="h5 fw-bold mb-3">Notificaciones</h2>
+            <ul class="list-unstyled mb-0 d-grid gap-2">
+              @for (notificacion of notificaciones(); track $index) {
+                <li class="d-flex flex-wrap justify-content-between align-items-center gap-2 border-bottom py-2">
+                  <div>
+                    <strong class="d-block">{{ notificacion.titulo }}</strong>
+                    <span class="small text-secondary">{{ textoNotificacion(notificacion) }}</span>
+                  </div>
+                  @if (!notificacionLeida(notificacion)) {
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-primary"
+                      (click)="marcarNotificacionComoLeida(notificacion)"
+                    >
+                      Marcar como leída
+                    </button>
+                  } @else {
+                    <span class="small text-secondary">Leída</span>
+                  }
+                </li>
+              }
+            </ul>
+          </section>
+        }
+      }
+    }
   </div>
 </section>

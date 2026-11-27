@@ -1,0 +1,17 @@
+.dc-panel-seccion {
+  color: var(--dc-blue, #3679a8);
+  letter-spacing: 0.14em;
+}
+
+.dc-panel-sello {
+  width: 5rem;
+  height: 5rem;
+  color: var(--dc-blue-soft, #dcebf5);
+  background: var(--dc-navy, #12304a);
+}
+
+.dc-panel-sello app-icon {
+  display: block;
+  width: 2.5rem;
+  height: 2.5rem;
+}

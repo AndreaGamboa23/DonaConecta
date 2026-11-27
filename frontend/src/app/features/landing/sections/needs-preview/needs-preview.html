@@ -1,32 +1,56 @@
 <section id="solicitudes" class="dc-section-space bg-light">
   <div class="container">
-    <div class="row g-4 g-lg-5 align-items-center">
-      <div class="col-12 col-lg-5">
-        <span class="dc-eyebrow mb-3">Solicitudes reales</span>
-        <h2 class="display-6 fw-bold mb-3">Pronto, cada necesidad será visible</h2>
-        <p class="lead text-secondary mb-4">
-          Queremos que sepas exactamente qué bienes faltan y cuánto se ha recibido. No publicamos
-          cifras de ejemplo mientras no haya registros verificados.
-        </p>
-        <div class="d-flex flex-wrap gap-2">
-          <a routerLink="/necesidades" class="btn btn-primary px-4">Ver catálogo</a>
-          <a routerLink="/registro/institucion" class="btn btn-outline-secondary px-4">
-            Registrar institución
-          </a>
-        </div>
-      </div>
-
+    <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
       <div class="col-12 col-lg-7">
+        <span class="dc-eyebrow mb-3">Solicitudes reales</span>
+        <h2 class="display-6 fw-bold mb-3">Necesidades que la comunidad está esperando</h2>
+        <p class="lead text-secondary mb-0">
+          Prioridad alta primero. Cada cifra se calcula desde compromisos y recepciones registrados;
+          abre una solicitud para ver los bienes, las unidades y cómo coordinar la entrega.
+        </p>
+      </div>
+      <a routerLink="/explorar" fragment="solicitudes" class="btn btn-primary px-4">
+        Ver todas las solicitudes
+      </a>
+    </div>
+
+    @switch (estado()) {
+      @case ('cargando') {
+        <div class="d-flex align-items-center gap-2" role="status" aria-live="polite">
+          <span class="spinner-border spinner-border-sm text-primary" aria-hidden="true"></span>
+          <span>Cargando solicitudes publicadas…</span>
+        </div>
+      }
+      @case ('error') {
+        <div class="alert alert-warning border-0 rounded-4 mb-0" role="alert">
+          No pudimos consultar las solicitudes en este momento. Puedes seguir explorando la guía de
+          bienes materiales o intentarlo más tarde.
+        </div>
+      }
+      @case ('vacio') {
         <app-empty-state
           icono="box"
-          titulo="Aún no hay solicitudes publicadas"
-          mensaje="Cuando una institución verificada registre una necesidad, aparecerá aquí con su progreso calculado a partir de compromisos reales."
-          accionPrincipal="Cómo donar"
-          rutaPrincipal="/como-donar"
-          accionSecundaria="Conocer el proyecto"
-          rutaSecundaria="/nosotros"
+          titulo="No hay solicitudes publicadas en este momento"
+          mensaje="Cuando una institución verificada publique una necesidad, aparecerá aquí con su progreso calculado a partir de datos reales."
+          accionPrincipal="Explorar bienes"
+          rutaPrincipal="/explorar"
+          accionSecundaria="Cómo donar"
+          rutaSecundaria="/como-donar"
         />
-      </div>
-    </div>
+      }
+      @case ('datos') {
+        <div class="row g-3 g-lg-4 row-cols-1 row-cols-md-2 row-cols-xl-3">
+          @for (necesidad of necesidades(); track necesidad.id_necesidad) {
+            <div class="col">
+              <app-necesidad-card [necesidad]="necesidad" />
+            </div>
+          }
+        </div>
+        <div class="d-flex flex-wrap gap-2 mt-4">
+          <a routerLink="/necesidades" class="btn btn-outline-primary">Ver catálogo de solicitudes</a>
+          <a routerLink="/instituciones" class="btn btn-outline-secondary">Conocer instituciones</a>
+        </div>
+      }
+    }
   </div>
 </section>

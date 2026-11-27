@@ -271,3 +271,74 @@ configura y registra routers. Python 3.13 y `uv` se evaluarán en Fase 07.
 `backend/README.md` aún describe `routers/`, `models/` y `main.py` en la raíz. Pertenece al
 módulo del compañero: **no se modifica unilateralmente**. Debe corregirse de forma coordinada
 al preparar el backend en Fase 07, adoptando la estructura de esta sección.
+
+## 9. Operaciones implementadas en la Fase 09 (Avance 02)
+
+Estas operaciones **sí están implementadas** en `backend/app`; el listado efectivo se publica en
+`/openapi.json`. La autorización se verifica en backend con roles activos leídos de SQL Server y,
+en el panel institucional, con la institución resuelta desde el vínculo del representante.
+
+| Método y ruta | Rol | Función |
+|---|---|---|
+| `GET /api/v1/productos?categoriaId=` | Público | Catálogo SQL de bienes con sus unidades reales. |
+| `GET /api/v1/admin/resumen` | `ADMINISTRADOR` | Indicadores reales para el panel. |
+| `GET /api/v1/admin/instituciones` | `ADMINISTRADOR` | Todas las instituciones con estado y representante. |
+| `PATCH /api/v1/admin/instituciones/{id}/verificar` | `ADMINISTRADOR` | Transición de estado con historial y auditoría transaccionales. |
+| `GET /api/v1/admin/usuarios?limit=&offset=&q=&rol=` | `ADMINISTRADOR` | Usuarios paginados, sin secretos. |
+| `PATCH /api/v1/admin/usuarios/{id}/estado` | `ADMINISTRADOR` | Activar, bloquear o dar de baja; revoca sesiones. |
+| `GET /api/v1/admin/auditoria?limit=&offset=&modulo=&resultado=` | `ADMINISTRADOR` | Eventos de auditoría paginados. |
+| `GET /api/v1/institucional/resumen` | `REPRESENTANTE` | Resumen de la institución propia. |
+| `GET` y `PATCH /api/v1/institucional/perfil` | `REPRESENTANTE` | Consulta y edición de datos públicos propios. |
+| `GET` y `POST /api/v1/institucional/necesidades` | `REPRESENTANTE` | Consulta y creación sin aceptar `id_institucion` del cliente. |
+| `PATCH` y `DELETE /api/v1/institucional/necesidades/{id}` | `REPRESENTANTE` | Cambio de estado con transiciones válidas y borrado de borradores. |
+
+Las tres listas paginadas de administrador usan `limit` (1–100) y `offset`, no la convención
+`page/pageSize` de la sección 1; se documenta así porque es el contrato real expuesto. Los DTO
+de respuesta omiten `password_hash`, hashes de token, nonces, claves y teléfonos cifrados.
+`RECHAZADA` y `SUSPENDIDA` exigen `motivo`; los saltos de estado no permitidos responden `409`.
+Los WebSockets, el GPS real y el chat siguen **pendientes** y no forman parte de este contrato
+implementado.
+
+## 10. Operaciones y decisiones de la Fase 09.1
+
+El backend expone tres operaciones públicas nuevas, con DTO Pydantic explícito y sin
+coordenadas, correos de representantes, hashes, nonces ni auditoría:
+
+| Método y ruta | Respuesta | Función |
+|---|---|---|
+| `GET /api/v1/necesidades/{id}` | `NecesidadDetallePublica` | Detalle de una necesidad `PUBLICADA` de institución `VERIFICADA`, con líneas por producto y unidad. |
+| `GET /api/v1/instituciones/tipos` | `list[TipoInstitucionPublico]` | Tipos SQL reales con total de verificadas. |
+| `GET /api/v1/instituciones/{id}` | `InstitucionDetallePublica` | Perfil público de institución verificada, puntos activos y necesidades publicadas. |
+
+`GET /api/v1/necesidades` admite `categoriaId`, `distritoId`, `institucionId`, `prioridad`,
+`limit` (1–100) y `offset`. `GET /api/v1/instituciones` admite `tipoCodigo`, `distritoId` y `q`.
+Ambos devuelven arreglos planos: se amplía la excepción documentada en la sección 9 a estos
+dos listados públicos, porque ese es el contrato implementado y consumido por Angular. No se
+expone `total`; la interfaz no ofrece paginación numérica y el botón «cargar más» usa `limit`
+y `offset` sobre la respuesta real. Las búsquedas `LIKE` escapan `%`, `_`, `[` y `\` en el
+repositorio y mantienen parámetros `?`.
+
+La disponibilidad y el avance se leen de `vw_disponibilidad_necesidad` y
+`vw_progreso_necesidad`. La regla es `requerida − reserva vigente restante − recibido`, sin
+doble conteo. El detalle expone cantidades **por línea y por unidad**; los totales agregados
+del DTO se conservan por compatibilidad, pero la interfaz no muestra una única unidad para
+sumas de bienes distintos.
+
+`POST /api/v1/compromisos` devuelve `409 / COMPROMISO_VIGENTE` cuando el mismo donante ya
+tiene un compromiso vigente para la necesidad. Esa comprobación es secuencial y el frontend
+bloquea nuevos envíos mientras la petición está en curso. El procedimiento almacenado actual
+solo serializa disponibilidad por necesidad, no duplicados por donante; la simultaneidad
+real queda pendiente de una modificación autorizada del SP y de su índice.
+
+Estado real del contrato histórico:
+
+- `GET /api/v1/necesidades/{id}/disponibilidad` no existe; la disponibilidad se integró en
+  el detalle de la necesidad.
+- La ruta efectiva de compromisos del donante es `GET /api/v1/compromisos/mis-compromisos`;
+  `/compromisos/mios` sigue sin implementarse.
+- El alias oculto `GET /api/v1/donaciones/mias` es heredado de Fase 09, no nuevo en 09.1.
+  Si se conserva, debe marcarse como `deprecated` en una fase posterior.
+
+La introspección actual de `app.openapi()` registra **31 rutas, 39 operaciones y 54 esquemas**;
+las tres operaciones adicionales respecto de Fase 09 son las listadas arriba. No se agregaron
+alias ocultos nuevos.

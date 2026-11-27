@@ -1,7 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { IniciarSesion } from './iniciar-sesion';
 
 describe('IniciarSesion', () => {
@@ -46,6 +46,33 @@ describe('IniciarSesion', () => {
     peticion.flush({ detail: 'Correo o contraseña incorrectos.' }, { status: 401, statusText: 'Unauthorized' });
     expect(componente.respuesta()).toContain('Correo o contraseña incorrectos.');
     http.verify();
+  });
+
+  it('dirige al panel que corresponde al rol devuelto por el backend', () => {
+    const fixture = TestBed.createComponent(IniciarSesion);
+    const componente = fixture.componentInstance;
+    const router = TestBed.inject(Router);
+    const navegar = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+
+    componente.form.patchValue({ email: 'admin@ejemplo.com', password: 'ClaveSegura123' });
+    componente.entrar();
+
+    const http = TestBed.inject(HttpTestingController);
+    http.expectOne('/api/v1/auth/login').flush({
+      access_token: 'token-de-prueba',
+      token_type: 'bearer',
+      usuario: {
+        id_usuario: 1,
+        nombres: 'Admin',
+        apellidos: 'Sintético',
+        correo: 'admin@ejemplo.com',
+        roles: ['ADMINISTRADOR'],
+      },
+    });
+    http.verify();
+
+    expect(navegar).toHaveBeenCalledWith('/admin');
+    sessionStorage.clear();
   });
 
   it('guarda la sesión real cuando el backend responde con un token', () => {

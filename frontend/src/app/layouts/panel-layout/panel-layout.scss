@@ -1,0 +1,9 @@
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.dc-panel-fondo {
+  min-height: calc(100vh - 11rem);
+  background: var(--dc-cream, #f7f5ef);
+}

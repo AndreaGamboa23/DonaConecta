@@ -1,0 +1,56 @@
+<app-panel-encabezado
+  seccion="Administración"
+  titulo="Una comunidad en cifras"
+  descripcion="Consulta el estado real de cuentas, instituciones y solicitudes registradas en DonaConecta."
+  icono="spark"
+/>
+
+@if (estado() === 'cargando') {
+  <div class="card border-0 shadow-sm rounded-4 p-3 p-md-4">
+    <app-panel-estado estado="cargando" />
+  </div>
+} @else if (estado() === 'error') {
+  <div class="card border-0 shadow-sm rounded-4 p-3 p-md-4">
+    <app-panel-estado estado="error" [mensaje]="error()" (reintentar)="cargar()" />
+  </div>
+} @else if (metricas().length === 0) {
+  <div class="alert alert-info border-0 rounded-4" role="status">
+    Todavía no hay cifras para mostrar. Las cifras aparecerán cuando se registren operaciones reales.
+  </div>
+} @else {
+  <section class="row g-3 g-lg-4" aria-label="Indicadores de la plataforma">
+    @for (metrica of metricas(); track metrica.etiqueta) {
+      <div class="col-12 col-sm-6 col-xl-4">
+        <article class="card border-0 shadow-sm rounded-4 h-100 p-3 p-md-4">
+          <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+            <div>
+              <p class="small text-secondary fw-semibold mb-1">{{ metrica.etiqueta }}</p>
+              <p class="display-6 fw-bold mb-0">{{ metrica.valor }}</p>
+            </div>
+            <span class="dc-metrica-icono d-inline-flex align-items-center justify-content-center rounded-3 flex-shrink-0">
+              <app-icon [name]="metrica.icono" aria-hidden="true" />
+            </span>
+          </div>
+          <a [routerLink]="metrica.ruta" class="btn btn-sm btn-outline-primary">
+            {{ metrica.accion }}
+          </a>
+        </article>
+      </div>
+    }
+  </section>
+}
+
+<section class="card border-0 bg-white shadow-sm rounded-4 p-3 p-md-4 mt-4">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+    <div>
+      <h2 class="h5 fw-bold mb-1">Siguiente paso</h2>
+      <p class="small text-secondary mb-0">
+        Revisa las instituciones pendientes y mantén actualizado el registro de acciones.
+      </p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      <a routerLink="/admin/instituciones" class="btn btn-primary btn-sm">Ver instituciones</a>
+      <a routerLink="/admin/auditoria" class="btn btn-outline-secondary btn-sm">Ver auditoría</a>
+    </div>
+  </div>
+</section>

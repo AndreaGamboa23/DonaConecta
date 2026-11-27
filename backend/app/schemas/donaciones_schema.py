@@ -57,6 +57,7 @@ class CrearNecesidadRequest(BaseModel):
     titulo: str = Field(..., min_length=4, max_length=200)
     descripcion: str = Field(..., min_length=5, max_length=600)
     prioridad: Literal["ALTA", "MEDIA", "BAJA"] = "MEDIA"
+    estado: Literal["BORRADOR", "PUBLICADA"] = "PUBLICADA"
     fecha_limite: Optional[datetime] = Field(
         default=None, validation_alias=AliasChoices("fecha_limite", "fechaLimite")
     )

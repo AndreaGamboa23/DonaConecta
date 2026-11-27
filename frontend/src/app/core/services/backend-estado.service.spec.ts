@@ -1,9 +1,8 @@
 import { TestBed } from '@angular/core/testing';
-import { firstValueFrom } from 'rxjs';
 import { BackendEstadoService } from './backend-estado.service';
 
 describe('BackendEstadoService', () => {
-  it('declara disponibles solo las operaciones con API REST integrada', () => {
+  it('declara disponibles las operaciones con API REST integrada', () => {
     const servicio = TestBed.inject(BackendEstadoService);
 
     expect(servicio.estado('registroDonante').disponible).toBe(true);
@@ -15,20 +14,40 @@ describe('BackendEstadoService', () => {
     expect(servicio.estado('donaciones').disponible).toBe(true);
   });
 
-  it('mantiene pendientes chat, GPS, recuperación y puntos de acopio', async () => {
+  it('habilita las operaciones del contrato de integración final', () => {
     const servicio = TestBed.inject(BackendEstadoService);
-    const estado = servicio.estado('mensajes');
+    const operaciones = [
+      'conversaciones',
+      'mensajes',
+      'conversacionCrear',
+      'conversacionLeido',
+      'notificaciones',
+      'notificacionLeido',
+      'detalleCompromiso',
+      'compromisosInstitucion',
+      'entregas',
+      'entregaEstado',
+      'recepciones',
+      'gpsSesion',
+      'gpsUbicacion',
+      'gpsUltima',
+      'gpsDetener',
+      'puntosAcopio',
+      'puntosAcopioDetalle',
+      'puntosAcopioEstado',
+    ] as const;
 
-    expect(estado.disponible).toBe(false);
-    expect(estado.mensaje).not.toContain('/api/v1');
-    expect(estado.mensaje).not.toContain('FastAPI');
-    expect(servicio.disponible('seguimiento')).toBe(false);
-    expect(servicio.disponible('puntosAcopio')).toBe(false);
+    for (const operacion of operaciones) {
+      expect(servicio.disponible(operacion), operacion).toBe(true);
+      expect(servicio.estado(operacion).endpoint).toContain('/api/v1/');
+    }
+  });
+
+  it('mantiene pendiente sólo la recuperación todavía no integrada', () => {
+    const servicio = TestBed.inject(BackendEstadoService);
+
     expect(servicio.disponible('recuperacion')).toBe(false);
-
-    await expect(firstValueFrom(servicio.pendiente('mensajes'))).rejects.toMatchObject({
-      codigo: 'SERVICIO_PENDIENTE',
-      operacion: 'mensajes',
-    });
+    expect(servicio.estado('recuperacion').mensaje).not.toContain('/api/v1');
+    expect(servicio.estado('recuperacion').mensaje).not.toContain('FastAPI');
   });
 });

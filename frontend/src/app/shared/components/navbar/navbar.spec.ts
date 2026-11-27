@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { SesionService } from '../../../core/services/sesion.service';
 import { Navbar } from './navbar';
 
 describe('Navbar', () => {
@@ -39,6 +40,30 @@ describe('Navbar', () => {
       '/nosotros',
       '/preguntas-frecuentes',
     ]);
+  });
+
+  it('ofrece el enlace al panel según el rol real de la sesión', () => {
+    sessionStorage.clear();
+    const fixture = TestBed.createComponent(Navbar);
+    fixture.detectChanges();
+    expect(fixture.componentInstance.panelRuta()).toBe('');
+
+    const sesion = TestBed.inject(SesionService);
+    const base = {
+      id_usuario: 1,
+      nombres: 'Prueba',
+      apellidos: 'Sintética',
+      correo: 'prueba@ejemplo.com',
+    };
+    sesion.iniciar('token', { ...base, roles: ['REPRESENTANTE'] });
+    fixture.detectChanges();
+    expect(fixture.componentInstance.panelRuta()).toBe('/institucional');
+
+    sesion.iniciar('token', { ...base, roles: ['ADMINISTRADOR'] });
+    fixture.detectChanges();
+    expect(fixture.componentInstance.panelRuta()).toBe('/admin');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Panel');
+    sessionStorage.clear();
   });
 
   it('abre y cierra el menú Más por interacción, Escape y selección', () => {

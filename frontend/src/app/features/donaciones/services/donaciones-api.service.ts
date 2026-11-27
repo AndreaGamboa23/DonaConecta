@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, Injector, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { BackendEstadoService } from '../../../core/services/backend-estado.service';
+import { CompromisoDetalle } from '../../../core/interfaces/integracion-final';
 
 export interface DonacionResumen {
   readonly id_compromiso: number;
@@ -17,9 +18,18 @@ export interface DonacionResumen {
   readonly creado_en: string;
 }
 
+export interface LineaCompromisoPayload {
+  readonly producto_id: number;
+  readonly unidad_id: number;
+  readonly cantidad: number;
+}
+
 export interface CrearCompromisoPayload {
   readonly id_necesidad: number;
-  readonly cantidad_comprometida: number;
+  /** Una línea por bien solicitado; el backend valida disponibilidad por línea. */
+  readonly lineas?: readonly LineaCompromisoPayload[];
+  /** Atajo heredado para necesidades de una sola línea. */
+  readonly cantidad_comprometida?: number;
   readonly comentario?: string;
 }
 
@@ -35,6 +45,16 @@ export class DonacionesApiService {
     return this.injector
       .get(HttpClient)
       .get<readonly DonacionResumen[]>('/api/v1/compromisos/mis-compromisos');
+  }
+
+  /** Detalle autorizado del contrato: donante dueño o representante de la institución. */
+  obtenerCompromiso(id: number): Observable<CompromisoDetalle> {
+    if (!this.estado.disponible('detalleCompromiso')) {
+      return this.estado.pendiente<CompromisoDetalle>('detalleCompromiso');
+    }
+    return this.injector
+      .get(HttpClient)
+      .get<CompromisoDetalle>(`/api/v1/compromisos/${encodeURIComponent(String(id))}`);
   }
 
   crearCompromiso(payload: CrearCompromisoPayload): Observable<unknown> {

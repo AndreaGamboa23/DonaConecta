@@ -10,7 +10,9 @@ import uuid
 from typing import Optional
 
 from app.core.errores import ErrorNegocio, error_catalogo
+from app.core.reglas_paneles import validar_transicion_institucion
 from app.database.connection import get_connection
+from app.repositories.paneles_repo import registrar_evento_en_cursor
 
 
 def _slug_base(nombre: str) -> str:
@@ -213,6 +215,12 @@ def actualizar_verificacion_institucion(
     id_admin: int,
     motivo: Optional[str] = None,
 ) -> Optional[dict]:
+    """Cambia el estado con transición válida, vínculo principal y auditoría atómica.
+
+    No todos los vínculos se ven afectados: sólo el contacto principal y su rol
+    ``REPRESENTANTE``, que es lo que exige ``vw_representante_autorizado``.
+    """
+
     with get_connection(escritura=True) as conn:
         cursor = conn.cursor()
         fila = cursor.execute(
@@ -221,12 +229,9 @@ def actualizar_verificacion_institucion(
         ).fetchone()
         if not fila:
             return None
-        if fila.estado_verificacion == estado_verificacion:
-            raise ErrorNegocio(
-                409,
-                "ESTADO_SIN_CAMBIO",
-                "La institución ya se encuentra en el estado indicado.",
-            )
+
+        estado_anterior = fila.estado_verificacion
+        validar_transicion_institucion(estado_anterior, estado_verificacion, motivo)
 
         cursor.execute(
             """
@@ -239,14 +244,12 @@ def actualizar_verificacion_institucion(
             (estado_verificacion, estado_verificacion, estado_verificacion, id_admin, id_institucion),
         )
 
-        # La vista vw_representante_autorizado exige vínculo y rol ACTIVO. Sin este
-        # ajuste, verificar la institución no habilitaría la operación real.
         estado_vinculo = "ACTIVO" if estado_verificacion == "VERIFICADA" else "INACTIVO"
         cursor.execute(
             """
             UPDATE dbo.institucion_representantes
             SET estado = ?
-            WHERE institucion_id = ?;
+            WHERE institucion_id = ? AND es_contacto_principal = 1;
             """,
             (estado_vinculo, id_institucion),
         )
@@ -255,10 +258,12 @@ def actualizar_verificacion_institucion(
             UPDATE ur
             SET estado = ?
             FROM dbo.usuario_roles ur
-            INNER JOIN dbo.institucion_representantes ir ON ir.usuario_id = ur.usuario_id
             INNER JOIN dbo.roles r ON r.rol_id = ur.rol_id AND r.codigo = N'REPRESENTANTE'
-            WHERE ir.institucion_id = ?
-              AND ir.es_contacto_principal = 1;
+            WHERE ur.usuario_id = (
+                SELECT TOP 1 ir.usuario_id
+                FROM dbo.institucion_representantes ir
+                WHERE ir.institucion_id = ? AND ir.es_contacto_principal = 1
+            );
             """,
             (estado_vinculo, id_institucion),
         )
@@ -269,7 +274,16 @@ def actualizar_verificacion_institucion(
             )
             VALUES (?, ?, ?, ?, ?);
             """,
-            (id_institucion, id_admin, fila.estado_verificacion, estado_verificacion, motivo),
+            (id_institucion, id_admin, estado_anterior, estado_verificacion, motivo),
+        )
+        registrar_evento_en_cursor(
+            cursor,
+            usuario_id=id_admin,
+            tipo_evento="INSTITUCION_ESTADO",
+            modulo="INSTITUCIONES",
+            recurso_tipo="INSTITUCION",
+            recurso_id=id_institucion,
+            descripcion=f"Verificación de institución: {estado_anterior} -> {estado_verificacion}.",
         )
         return {
             "id_institucion": id_institucion,

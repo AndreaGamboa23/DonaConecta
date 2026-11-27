@@ -1,0 +1,101 @@
+<app-panel-encabezado
+  seccion="Administración"
+  titulo="Registro de acciones"
+  descripcion="Consulta las acciones realizadas y su resultado, sin exponer datos sensibles."
+  icono="shield"
+/>
+
+<section class="card border-0 shadow-sm rounded-4 mb-4">
+  <div class="card-body p-3 p-md-4">
+    <form class="row g-3 align-items-end" [formGroup]="filtros" (ngSubmit)="aplicarFiltros()">
+      <div class="col-12 col-md-4">
+        <label class="form-label small fw-semibold" for="moduloAuditoria">Módulo</label>
+        <select id="moduloAuditoria" class="form-select" formControlName="modulo">
+          <option value="">Todos los módulos</option>
+          <option value="USUARIOS">Cuentas</option>
+          <option value="INSTITUCIONES">Instituciones</option>
+          <option value="NECESIDADES">Solicitudes</option>
+          <option value="DONACIONES">Donaciones</option>
+        </select>
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label small fw-semibold" for="resultadoAuditoria">Resultado</label>
+        <select id="resultadoAuditoria" class="form-select" formControlName="resultado">
+          <option value="">Todos los resultados</option>
+          <option value="OK">Correcto</option>
+          <option value="DENEGADO">Denegado</option>
+          <option value="ERROR">Con incidencias</option>
+        </select>
+      </div>
+      <div class="col-12 col-md-4 d-flex flex-wrap gap-2">
+        <button type="submit" class="btn btn-primary">Aplicar</button>
+        <button type="button" class="btn btn-outline-secondary" (click)="limpiarFiltros()">Limpiar</button>
+      </div>
+    </form>
+  </div>
+</section>
+
+@if (estado() === 'cargando') {
+  <div class="card border-0 shadow-sm rounded-4 p-3 p-md-4">
+    <app-panel-estado estado="cargando" />
+  </div>
+} @else if (estado() === 'error') {
+  <div class="card border-0 shadow-sm rounded-4 p-3 p-md-4">
+    <app-panel-estado estado="error" [mensaje]="error()" (reintentar)="cargar()" />
+  </div>
+} @else if (estado() === 'vacio') {
+  <div class="card border-0 shadow-sm rounded-4 p-3 p-md-4">
+    <app-panel-estado estado="vacio" mensaje="No hay acciones registradas con estos filtros." />
+  </div>
+} @else {
+  <section class="card border-0 shadow-sm rounded-4">
+    <div class="card-body p-3 p-md-4">
+      <div class="d-flex justify-content-between align-items-center gap-2 mb-3">
+        <h2 class="h5 fw-bold mb-0">Historial de acciones</h2>
+        <span class="badge rounded-pill text-bg-light">{{ total() }} registros</span>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <caption class="visually-hidden">Registro paginado de acciones</caption>
+          <thead class="table-light">
+            <tr>
+              <th scope="col">Fecha</th>
+              <th scope="col">Acción</th>
+              <th scope="col">Módulo</th>
+              <th scope="col">Responsable</th>
+              <th scope="col">Resultado</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (registro of registros(); track $index) {
+              <tr>
+                <td class="small">{{ fecha(registro) }}</td>
+                <td>
+                  <span class="fw-semibold">{{ registro.tipo_evento }}</span>
+                  <span class="small text-secondary d-block">{{ registro.descripcion }}</span>
+                </td>
+                <td>{{ registro.modulo || 'General' }}</td>
+                <td>{{ registro.origen || 'Sistema' }}</td>
+                <td><span [class]="claseResultado(registro.resultado)">{{ registro.resultado || '—' }}</span></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <nav class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mt-3" aria-label="Paginación de auditoría">
+        <span class="small text-secondary">Página {{ paginaActual() }} de {{ totalPaginas() }}</span>
+        <ul class="pagination pagination-sm mb-0">
+          <li class="page-item" [class.disabled]="paginaActual() === 1">
+            <button type="button" class="page-link" (click)="irPagina(paginaActual() - 1)">Anterior</button>
+          </li>
+          <li class="page-item active" aria-current="page">
+            <span class="page-link">{{ paginaActual() }}</span>
+          </li>
+          <li class="page-item" [class.disabled]="paginaActual() >= totalPaginas()">
+            <button type="button" class="page-link" (click)="irPagina(paginaActual() + 1)">Siguiente</button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </section>
+}

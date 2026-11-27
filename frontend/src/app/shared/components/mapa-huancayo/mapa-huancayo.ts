@@ -4,12 +4,54 @@ import {
   ElementRef,
   OnDestroy,
   computed,
+  effect,
   input,
   signal,
   viewChild,
 } from '@angular/core';
 import type * as Leaflet from 'leaflet';
 import { Icon } from '../icon/icon';
+
+/** Marcador opcional: se crea sólo si el DTO trae coordenadas autorizadas reales. */
+export interface MarcadorMapa {
+  readonly id: number;
+  readonly nombre: string;
+  readonly latitud: number;
+  readonly longitud: number;
+}
+
+/** Destino privado autorizado que llega desde el detalle de una donación. */
+export interface DestinoMapa {
+  readonly latitud?: number | string | null;
+  readonly longitud?: number | string | null;
+  readonly nombre?: string;
+}
+
+/**
+ * Valida coordenadas antes de convertirlas. `Number(null)` es 0, por lo que una
+ * conversión directa inventaría un punto en el océano; aquí se rechazan nulos,
+ * vacíos y valores fuera de rango.
+ */
+export function coordenadasValidas(
+  fuente: {
+    readonly latitud?: number | string | null;
+    readonly longitud?: number | string | null;
+  } | null | undefined,
+): readonly [number, number] | null {
+  if (!fuente) return null;
+  const { latitud, longitud } = fuente;
+  if (latitud === null || latitud === undefined || longitud === null || longitud === undefined) {
+    return null;
+  }
+  if (typeof latitud === 'string' && !latitud.trim()) return null;
+  if (typeof longitud === 'string' && !longitud.trim()) return null;
+
+  const lat = Number(latitud);
+  const lng = Number(longitud);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
+  return [lat, lng];
+}
 
 type EstadoUbicacion =
   | 'idle'
@@ -35,6 +77,12 @@ type EstadoUbicacion =
 export class MapaHuancayo implements AfterViewInit, OnDestroy {
   readonly titulo = input('Mapa de referencia de Huancayo');
   readonly mostrarBotonUbicacion = input(true);
+  readonly marcadores = input<readonly MarcadorMapa[]>([]);
+  readonly marcadorResaltado = input<number | null>(null);
+  readonly destino = input<DestinoMapa | null>(null);
+
+  /** Centro validado del destino; nunca usa el centro de Huancayo como sustituto. */
+  readonly centroDestino = computed(() => coordenadasValidas(this.destino()));
 
   private readonly lienzo = viewChild.required<ElementRef<HTMLDivElement>>('lienzoMapa');
 
@@ -43,7 +91,18 @@ export class MapaHuancayo implements AfterViewInit, OnDestroy {
   private leaflet?: typeof Leaflet;
   private mapa?: Leaflet.Map;
   private ubicacion?: Leaflet.CircleMarker;
+  private marcadoresDibujados: Leaflet.Marker[] = [];
   private observador?: ResizeObserver;
+  private readonly sincronizarMarcadores = effect(() => {
+    const marcadores = this.marcadores();
+    const resaltado = this.marcadorResaltado();
+    // centroDestino lee el input `destino`; así el efecto también reacciona a él.
+    const centroDestino = this.centroDestino();
+    if (this.mapa && this.leaflet) {
+      this.dibujarMarcadores(marcadores, resaltado);
+      if (centroDestino) this.centrarEnVista(centroDestino, 15);
+    }
+  });
   private ultimoAncho = 0;
   private ultimoAlto = 0;
   private erroresTeselas = 0;
@@ -84,9 +143,13 @@ export class MapaHuancayo implements AfterViewInit, OnDestroy {
       this.leaflet = leaflet;
 
       const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const centroInicial = this.centroDestino();
+      const centroMapa: Leaflet.LatLngTuple = centroInicial
+        ? [centroInicial[0], centroInicial[1]]
+        : this.centro;
       const mapa = leaflet.map(this.lienzo().nativeElement, {
-        center: this.centro,
-        zoom: 13,
+        center: centroMapa,
+        zoom: centroInicial ? 15 : 13,
         minZoom: 10,
         maxZoom: 18,
         zoomControl: true,
@@ -143,6 +206,8 @@ export class MapaHuancayo implements AfterViewInit, OnDestroy {
       }
 
       this.mapa = mapa;
+      this.dibujarMarcadores(this.marcadores(), this.marcadorResaltado());
+      if (centroInicial) this.centrarEnVista(centroInicial, 15);
     } catch {
       this.cargandoMapa.set(false);
       this.estadoUbicacion.set('mapa-error');
@@ -152,17 +217,85 @@ export class MapaHuancayo implements AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.destruido = true;
     this.observador?.disconnect();
+    this.marcadoresDibujados.forEach((marcador) => marcador.remove());
+    this.marcadoresDibujados = [];
     this.mapa?.remove();
+  }
+
+  /**
+   * Dibuja únicamente puntos con coordenadas numéricas válidas. El contenido del
+   * popup se crea como texto para no interpretar HTML procedente del backend.
+   */
+  private dibujarMarcadores(
+    marcadores: readonly MarcadorMapa[],
+    resaltado: number | null,
+  ): void {
+    if (!this.mapa || !this.leaflet) return;
+    this.marcadoresDibujados.forEach((marcador) => marcador.remove());
+    this.marcadoresDibujados = [];
+
+    const centroDestino = this.centroDestino();
+    const puntos = [...marcadores] as MarcadorMapa[];
+    if (centroDestino) {
+      const yaDibujado = puntos.some(
+        (punto) =>
+          Math.abs(Number(punto.latitud) - centroDestino[0]) < 1e-7 &&
+          Math.abs(Number(punto.longitud) - centroDestino[1]) < 1e-7,
+      );
+      if (!yaDibujado) {
+        puntos.push({
+          id: -1,
+          nombre: this.destino()?.nombre?.trim() || 'Punto de entrega',
+          latitud: centroDestino[0],
+          longitud: centroDestino[1],
+        });
+      }
+    }
+
+    for (const punto of puntos) {
+      const latitud = Number(punto.latitud);
+      const longitud = Number(punto.longitud);
+      if (
+        !Number.isFinite(latitud) ||
+        !Number.isFinite(longitud) ||
+        latitud < -90 ||
+        latitud > 90 ||
+        longitud < -180 ||
+        longitud > 180
+      ) {
+        continue;
+      }
+
+      const etiqueta = document.createElement('div');
+      etiqueta.textContent = punto.nombre;
+      const marcador = this.leaflet
+        .marker([latitud, longitud])
+        .bindPopup(etiqueta)
+        .addTo(this.mapa);
+      this.marcadoresDibujados.push(marcador);
+
+      if (resaltado !== null && punto.id === resaltado) {
+        this.mapa.setView([latitud, longitud], 15);
+      }
+    }
+  }
+
+  private centrarEnVista(coordenadas: readonly [number, number], zoom: number): void {
+    if (!this.mapa) return;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const vista: Leaflet.LatLngTuple = [coordenadas[0], coordenadas[1]];
+    if (reduceMotion) {
+      this.mapa.setView(vista, zoom);
+      return;
+    }
+    this.mapa.flyTo(vista, zoom, { duration: 0.7 });
   }
 
   restablecerVista(): void {
     if (!this.mapa) return;
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduceMotion) {
-      this.mapa.setView(this.centro, 13);
-      return;
-    }
-    this.mapa.flyTo(this.centro, 13, { duration: 0.7 });
+    const destino = this.centroDestino();
+    const referencia: readonly [number, number] = [this.centro[0], this.centro[1]];
+    this.centrarEnVista(destino ?? referencia, destino ? 15 : 13);
   }
 
   consultarUbicacion(): void {

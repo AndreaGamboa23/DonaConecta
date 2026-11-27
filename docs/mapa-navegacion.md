@@ -2,7 +2,9 @@
 
 SPA pública con Angular Router. La portada es la entrada a servicios y no exige registro.
 Solo se enlazan las páginas cuya ruta existe y compila; las operaciones sin backend muestran su
-estado real, sin datos ni acciones de ejemplo.
+estado real, sin datos ni acciones de ejemplo. La sección 10 registra las rutas y servicios
+activados en el cierre funcional de la entrega; las secciones 1–9 conservan el estado histórico
+de las fases 07.A–07.B.2.
 
 ## 1. Rutas implementadas (Fases 07.A y 07.B)
 
@@ -163,3 +165,24 @@ añadieron pestañas inactivas ni acciones simuladas.
   `docs/propuesta-experiencias-valoraciones-favoritos.md`.
 - **Enlaces verificados:** las 20 rutas de la aplicación tienen título y metadescripción propios;
   la comprobación CDP no encontró anclas vacías ni enlaces internos a rutas inexistentes.
+
+## 10. Cierre funcional de la entrega (26 de noviembre de 2026)
+
+| Ruta | Estado real | Acceso |
+|---|---|---|
+| `/necesidades/:id` | Líneas por producto/unidad, disponibilidad SQL y compromiso restringido a donantes. | Público; acción de donación sólo con sesión de donante. |
+| `/instituciones/tipo/:tipo` y `/instituciones/:id` | Directorio y perfiles desde `DonaConectaDB_Pruebas`, sin contactos inventados. | Público. |
+| `/mis-donaciones` | Compromisos reales, cantidades recibidas/pendientes, punto, horarios, historial y enlaces de gestión. | Donante autenticado. |
+| `/donaciones/:id` | Detalle autorizado de un compromiso con entregas, recepciones y línea de tiempo. | Donante dueño o representante autorizado. |
+| `/mensajes` | Bandeja y conversación persistidas en SQL Server, cifrado AES-256-GCM e idempotencia por `client_message_id`. | Participantes de la conversación. |
+| `/puntos-de-acopio` | Listado real con marcadores sólo cuando las coordenadas fueron autorizadas. | Público. |
+| `/institucional/compromisos` | Programación de entregas y recepciones parciales/totales. | Representante autorizado. |
+| `/institucional/puntos-acopio` | Alta, reemplazo, estado y baja de puntos con horarios. | Representante autorizado. |
+| `/seguimiento/:id` | Sesión GPS voluntaria, duración máxima, indicador visible, detención y alternativa manual. | Donante participante. |
+
+`BackendEstadoService` ya no mantiene un interruptor global: declara una lista explícita de
+operaciones con API REST real y devuelve `ServicioPendienteError` para las que no existen. Las
+secciones 4 y 5 de este documento corresponden al estado anterior de Fase 07.B.1 y no describen
+el cierre actual. La mensajería usa polling HTTP; no se implementó WebSocket. No se repitieron
+las comprobaciones CDP de Fase 09.1 y la valoración estética final sigue pendiente de revisión
+humana.

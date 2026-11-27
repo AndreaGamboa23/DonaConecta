@@ -1,0 +1,282 @@
+<app-page-hero
+  eyebrow="Solicitud publicada"
+  [titulo]="necesidad()?.titulo ?? 'Solicitud no disponible'"
+  [descripcion]="
+    necesidad()
+      ? 'Bienes solicitados, disponibilidad real y orientación para coordinar la entrega.'
+      : 'Consulta las solicitudes publicadas por instituciones verificadas.'
+  "
+  icono="box"
+/>
+
+<section class="dc-section-space">
+  <div class="container">
+    @switch (estado()) {
+      @case ('cargando') {
+        <div class="d-flex align-items-center gap-2" role="status" aria-live="polite">
+          <span class="spinner-border spinner-border-sm text-primary" aria-hidden="true"></span>
+          <span>Cargando la solicitud…</span>
+        </div>
+      }
+      @case ('error') {
+        <div class="alert alert-warning rounded-4" role="alert">
+          No pudimos consultar esta solicitud. Vuelve a intentarlo más tarde.
+          <a routerLink="/explorar" fragment="solicitudes" class="alert-link">Ver otras solicitudes</a>.
+        </div>
+      }
+      @case ('no-encontrada') {
+        <app-empty-state
+          icono="search"
+          titulo="Esta solicitud no está disponible"
+          mensaje="Puede que haya cambiado de estado o que no pertenezca a una institución verificada."
+          accionPrincipal="Ver solicitudes"
+          rutaPrincipal="/explorar"
+          accionSecundaria="Cómo donar"
+          rutaSecundaria="/como-donar"
+        />
+      }
+      @case ('datos') {
+        @if (necesidad(); as necesidad) {
+          <nav aria-label="Ruta de navegación" class="mb-3">
+            <a routerLink="/explorar" fragment="solicitudes" class="small text-decoration-none">
+              Solicitudes publicadas
+            </a>
+            <span class="small text-secondary mx-2">/</span>
+            <span class="small text-secondary">{{ necesidad.titulo }}</span>
+          </nav>
+
+          <div class="row g-4 g-lg-5">
+            <div class="col-12 col-lg-8">
+              <div class="card border-0 shadow-sm rounded-4 p-3 p-md-4 mb-4">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                  <span class="badge rounded-pill text-bg-warning">{{ necesidad.prioridad }}</span>
+                  <span class="small text-secondary">Fecha límite: {{ fechaTexto(necesidad.fecha_limite) }}</span>
+                </div>
+                <p class="lead mb-4">{{ necesidad.descripcion }}</p>
+
+                <div class="row g-3 mb-4">
+                  <div class="col-6 col-md-4">
+                    <span class="d-block small text-secondary">Líneas solicitadas</span>
+                    <strong class="h5 mb-0">{{ necesidad.lineas_totales }}</strong>
+                  </div>
+                  <div class="col-6 col-md-4">
+                    <span class="d-block small text-secondary">Líneas completas</span>
+                    <strong class="h5 mb-0">{{ necesidad.lineas_cubiertas }}</strong>
+                  </div>
+                  <div class="col-6 col-md-4">
+                    <span class="d-block small text-secondary">Avance</span>
+                    <strong class="h5 mb-0 text-primary">{{ avance() }}%</strong>
+                  </div>
+                </div>
+
+                <p class="small text-secondary mb-2">
+                  Disponibilidad calculada por SQL Server para cada bien y unidad:
+                </p>
+                <div class="d-flex flex-wrap gap-2 mb-4">
+                  @for (grupo of disponibilidadPorUnidad(); track grupo.unidadId) {
+                    <span class="badge rounded-pill text-bg-light fw-normal">
+                      {{ grupo.cantidad }} {{ grupo.simbolo }}
+                    </span>
+                  } @empty {
+                    <span class="small text-secondary mb-0">
+                      No hay bienes disponibles en este momento.
+                    </span>
+                  }
+                </div>
+
+                <div
+                  class="progress"
+                  role="progressbar"
+                  [attr.aria-valuenow]="avance()"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  aria-label="Avance de la solicitud"
+                  style="height: 0.65rem"
+                >
+                  <div class="progress-bar" [class.bg-success]="avance() >= 100" [style.width.%]="avance()"></div>
+                </div>
+                <p class="small text-secondary mt-2 mb-0">
+                  {{ avance() }}% cubierto · {{ necesidad.lineas_cubiertas }} de
+                  {{ necesidad.lineas_totales }} líneas completas
+                </p>
+              </div>
+
+              <section class="card border-0 shadow-sm rounded-4 p-3 p-md-4 mb-4" aria-labelledby="bienesSolicitados">
+                <h2 id="bienesSolicitados" class="h4 fw-bold mb-3">Bienes solicitados</h2>
+                <div class="table-responsive">
+                  <table class="table align-middle mb-0">
+                    <thead>
+                      <tr>
+                        <th scope="col">Bien</th>
+                        <th scope="col">Categoría</th>
+                        <th scope="col">Unidad</th>
+                        <th scope="col" class="text-end">Requerido</th>
+                        <th scope="col" class="text-end">Reservado</th>
+                        <th scope="col" class="text-end">Recibido</th>
+                        <th scope="col" class="text-end">Disponible</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (linea of necesidad.lineas; track linea.producto_id + '-' + linea.unidad_id) {
+                        <tr>
+                          <td class="fw-semibold">
+                            {{ linea.producto }}
+                            @if (linea.producto_id === 1) {
+                              <span class="badge rounded-pill text-bg-secondary">Dato de prueba</span>
+                            }
+                          </td>
+                          <td class="small text-secondary">{{ linea.categoria || 'Sin categoría' }}</td>
+                          <td><span class="badge rounded-pill text-bg-light">{{ linea.simbolo }}</span></td>
+                          <td class="text-end">{{ linea.cantidad_requerida }}</td>
+                          <td class="text-end">{{ linea.cantidad_reservada_vigente }}</td>
+                          <td class="text-end">{{ linea.cantidad_recibida }}</td>
+                          <td class="text-end fw-bold text-primary">{{ linea.cantidad_disponible }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+                <p class="small text-secondary mt-3 mb-0">
+                  Cada línea usa su propia unidad. La barra de avance es el promedio real calculado
+                  por SQL Server sobre esas líneas.
+                </p>
+              </section>
+
+              <section class="card border-0 bg-light rounded-4 p-3 p-md-4" aria-labelledby="entrega">
+                <h2 id="entrega" class="h5 fw-bold mb-3 d-flex align-items-center gap-2">
+                  <app-icon name="pin" aria-hidden="true" />
+                  Cómo coordinar la entrega
+                </h2>
+                @if (necesidad.punto_acopio) {
+                  <p class="mb-1"><strong>{{ necesidad.punto_acopio }}</strong></p>
+                  @if (necesidad.direccion_acopio) {
+                    <p class="small text-secondary mb-1">{{ necesidad.direccion_acopio }}</p>
+                  }
+                  @if (necesidad.referencias_entrega) {
+                    <p class="small mb-0">{{ necesidad.referencias_entrega }}</p>
+                  }
+                } @else {
+                  <p class="small text-secondary mb-0">
+                    Esta solicitud no tiene un punto de acopio registrado. La entrega se coordena al
+                    registrar el compromiso; no publicamos contactos ni direcciones inventadas.
+                  </p>
+                }
+              </section>
+            </div>
+
+            <div class="col-12 col-lg-4">
+              <section class="card border-0 shadow-sm rounded-4 p-3 p-md-4 mb-4" aria-labelledby="institucionSolicitante">
+                <h2 id="institucionSolicitante" class="h5 fw-bold mb-3">Institución solicitante</h2>
+                <p class="h6 fw-bold mb-1">{{ necesidad.institucion }}</p>
+                <p class="small text-secondary mb-3">
+                  <app-icon name="pin" aria-hidden="true" /> {{ necesidad.distrito }}
+                </p>
+                <div class="d-grid gap-2">
+                  <a [routerLink]="['/instituciones', necesidad.id_institucion]" class="btn btn-outline-primary">
+                    Ver perfil público
+                  </a>
+                  <a
+                    [routerLink]="'/mensajes'"
+                    [queryParams]="{ necesidad: necesidad.id_necesidad }"
+                    class="btn btn-outline-secondary"
+                  >
+                    <app-icon name="chat" aria-hidden="true" />
+                    Contactar por mensajes
+                  </a>
+                </div>
+              </section>
+
+              <section class="card border-0 bg-light rounded-4 p-3 p-md-4" aria-labelledby="compromiso">
+                <h2 id="compromiso" class="h5 fw-bold mb-3">Comprometerme con esta solicitud</h2>
+
+                @if (mensaje()) {
+                  <div class="alert alert-info small" role="status">{{ mensaje() }}</div>
+                }
+
+                @if (!puedeComprometer()) {
+                  <p class="small text-secondary">
+                    @if (sesion.autenticado()) {
+                      Tu cuenta no tiene un perfil de donante habilitado.
+                    } @else {
+                      Inicia sesión con una cuenta de donante para registrar un compromiso.
+                    }
+                  </p>
+                  <a
+                    [routerLink]="sesion.autenticado() ? '/perfil' : '/iniciar-sesion'"
+                    class="btn btn-primary w-100"
+                  >
+                    {{ sesion.autenticado() ? 'Revisar mi perfil' : 'Iniciar sesión' }}
+                  </a>
+                } @else if (lineasDisponibles().length === 0) {
+                  <p class="small text-secondary mb-0">
+                    Todas las líneas están cubiertas en este momento. Puedes revisar otras
+                    solicitudes publicadas.
+                  </p>
+                } @else {
+                  <p class="small text-secondary">
+                    Indica cuánto puedes comprometer de cada bien. El sistema valida la
+                    disponibilidad antes de guardar.
+                  </p>
+                  <div class="d-grid gap-3 mb-3">
+                    @for (linea of lineasDisponibles(); track linea.producto_id + '-' + linea.unidad_id) {
+                      @let clave = claveLinea(linea.producto_id, linea.unidad_id);
+                      <div>
+                        <label class="form-label small fw-semibold" [for]="'linea-' + clave">
+                          {{ linea.producto }} · {{ linea.cantidad_disponible }} {{ linea.simbolo }} disponibles
+                        </label>
+                        <div class="input-group">
+                          <input
+                            [id]="'linea-' + clave"
+                            class="form-control"
+                            type="number"
+                            min="0"
+                            step="any"
+                            [attr.max]="linea.cantidad_disponible"
+                            placeholder="0"
+                            [value]="cantidades()[clave] ?? ''"
+                            (input)="fijarCantidad(clave, $event)"
+                          />
+                          <span class="input-group-text">{{ linea.simbolo }}</span>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label small fw-semibold" for="comentarioCompromiso">
+                      Comentario para la institución (opcional)
+                    </label>
+                    <textarea
+                      id="comentarioCompromiso"
+                      class="form-control"
+                      rows="3"
+                      maxlength="500"
+                      [value]="comentario()"
+                      (input)="comentario.set($any($event.target).value)"
+                    ></textarea>
+                  </div>
+                  <button
+                    type="button"
+                    class="btn btn-primary w-100"
+                    (click)="comprometer()"
+                    [disabled]="enviando()"
+                  >
+                    @if (enviando()) {
+                      <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                      Registrando…
+                    } @else {
+                      Registrar compromiso
+                    }
+                  </button>
+                  <p class="small text-secondary mt-3 mb-0">
+                    Líneas seleccionadas: {{ lineasSeleccionadas() }}. Cada bien conserva su unidad.
+                    El registro no sustituye la confirmación de recepción.
+                  </p>
+                }
+              </section>
+            </div>
+          </div>
+        }
+      }
+    }
+  </div>
+</section>

@@ -1,0 +1,174 @@
+<app-panel-encabezado
+  seccion="Administración"
+  titulo="Cuentas de DonaConecta"
+  descripcion="Consulta las cuentas registradas y gestiona su estado cuando sea necesario."
+  icono="people"
+/>
+
+@if (mensaje()) {
+  <div
+    [class]="mensajeEsError() ? 'alert alert-danger border-0 rounded-4' : 'alert alert-success border-0 rounded-4'"
+    [attr.role]="mensajeEsError() ? 'alert' : 'status'"
+    aria-live="polite"
+  >
+    {{ mensaje() }}
+  </div>
+}
+
+<section class="card border-0 shadow-sm rounded-4 mb-4">
+  <div class="card-body p-3 p-md-4">
+    <form class="row g-3 align-items-end" [formGroup]="filtros" (ngSubmit)="aplicarFiltros()">
+      <div class="col-12 col-md-6 col-xl-5">
+        <label class="form-label small fw-semibold" for="buscarUsuario">Buscar cuenta</label>
+        <input
+          id="buscarUsuario"
+          type="search"
+          class="form-control"
+          placeholder="Nombre o correo electrónico"
+          formControlName="q"
+        />
+      </div>
+      <div class="col-12 col-md-4 col-xl-3">
+        <label class="form-label small fw-semibold" for="filtrarRol">Rol</label>
+        <select id="filtrarRol" class="form-select" formControlName="rol">
+          <option value="">Todos los roles</option>
+          <option value="ADMINISTRADOR">Administración</option>
+          <option value="REPRESENTANTE">Representación</option>
+          <option value="DONANTE">Donantes</option>
+        </select>
+      </div>
+      <div class="col-12 col-md-2 col-xl-4 d-flex flex-wrap gap-2">
+        <button type="submit" class="btn btn-primary">Aplicar</button>
+        <button type="button" class="btn btn-outline-secondary" (click)="limpiarFiltros()">Limpiar</button>
+      </div>
+    </form>
+  </div>
+</section>
+
+@if (estado() === 'cargando') {
+  <div class="card border-0 shadow-sm rounded-4 p-3 p-md-4">
+    <app-panel-estado estado="cargando" />
+  </div>
+} @else if (estado() === 'error') {
+  <div class="card border-0 shadow-sm rounded-4 p-3 p-md-4">
+    <app-panel-estado estado="error" [mensaje]="error()" (reintentar)="cargar()" />
+  </div>
+} @else if (estado() === 'vacio') {
+  <div class="card border-0 shadow-sm rounded-4 p-3 p-md-4">
+    <app-panel-estado estado="vacio" mensaje="No hay cuentas que coincidan con los filtros." />
+  </div>
+} @else {
+  <div class="row g-3 g-lg-4">
+    <div class="col-12 col-xl-8">
+      <section class="card border-0 shadow-sm rounded-4 h-100">
+        <div class="card-body p-3 p-md-4">
+          <div class="d-flex justify-content-between align-items-center gap-2 mb-3">
+            <h2 class="h5 fw-bold mb-0">Cuentas registradas</h2>
+            <span class="badge rounded-pill text-bg-light">{{ total() }} en total</span>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <caption class="visually-hidden">Listado paginado de cuentas</caption>
+              <thead class="table-light">
+                <tr>
+                  <th scope="col">Persona</th>
+                  <th scope="col">Rol</th>
+                  <th scope="col">Estado</th>
+                  <th scope="col" class="text-end">Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (usuario of usuarios(); track usuario.id_usuario) {
+                  <tr>
+                    <td>
+                      <span class="fw-semibold d-block">{{ usuario.nombres }} {{ usuario.apellidos }}</span>
+                      <span class="small text-secondary">{{ usuario.correo }}</span>
+                    </td>
+                    <td>{{ usuario.roles.join(', ') || 'Sin rol' }}</td>
+                    <td><span [class]="claseEstado(usuario.estado_cuenta)">{{ usuario.estado_cuenta }}</span></td>
+                    <td class="text-end">
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-secondary"
+                        (click)="seleccionar(usuario)"
+                        [attr.aria-label]="'Cambiar estado de ' + usuario.nombres"
+                      >
+                        Cambiar estado
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <nav class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mt-3" aria-label="Paginación de cuentas">
+            <span class="small text-secondary">Página {{ paginaActual() }} de {{ totalPaginas() }}</span>
+            <ul class="pagination pagination-sm mb-0">
+              <li class="page-item" [class.disabled]="paginaActual() === 1">
+                <button type="button" class="page-link" (click)="irPagina(paginaActual() - 1)">Anterior</button>
+              </li>
+              <li class="page-item active" aria-current="page">
+                <span class="page-link">{{ paginaActual() }}</span>
+              </li>
+              <li class="page-item" [class.disabled]="paginaActual() >= totalPaginas()">
+                <button type="button" class="page-link" (click)="irPagina(paginaActual() + 1)">Siguiente</button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </section>
+    </div>
+
+    <div class="col-12 col-xl-4">
+      @if (seleccionado(); as usuario) {
+        <section class="card border-0 shadow-sm rounded-4">
+          <div class="card-body p-3 p-md-4">
+            <h2 class="h6 fw-bold mb-1">Cambiar estado</h2>
+            <p class="small text-secondary mb-3">{{ usuario.nombres }} {{ usuario.apellidos }}</p>
+            <form [formGroup]="formEstado" (ngSubmit)="cambiarEstado()">
+              <fieldset [disabled]="guardando()">
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold" for="nuevoEstado">Nuevo estado</label>
+                  <select id="nuevoEstado" class="form-select" formControlName="estado">
+                    <option value="ACTIVO">Activo</option>
+                    <option value="BLOQUEADO">Bloqueado</option>
+                    <option value="BAJA">De baja</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold" for="motivoEstado">Motivo</label>
+                  <textarea
+                    id="motivoEstado"
+                    class="form-control"
+                    rows="3"
+                    maxlength="500"
+                    placeholder="Explica brevemente el cambio"
+                    formControlName="motivo"
+                  ></textarea>
+                  @if (formEstado.controls.motivo.touched && formEstado.controls.motivo.invalid) {
+                    <span class="small text-danger d-block mt-1">Escribe un motivo de al menos 4 caracteres.</span>
+                  }
+                </div>
+                <div class="d-grid d-flex gap-2">
+                  <button type="submit" class="btn btn-primary flex-grow-1">
+                    {{ guardando() ? 'Guardando…' : 'Guardar' }}
+                  </button>
+                  <button type="button" class="btn btn-outline-secondary" (click)="seleccionado.set(null)">
+                    Cancelar
+                  </button>
+                </div>
+              </fieldset>
+            </form>
+          </div>
+        </section>
+      } @else {
+        <section class="card border-0 bg-white shadow-sm rounded-4 p-3 p-md-4">
+          <p class="small text-secondary mb-0">
+            Selecciona una cuenta para cambiar su estado. Cada cambio queda registrado.
+          </p>
+        </section>
+      }
+    </div>
+  </div>
+}

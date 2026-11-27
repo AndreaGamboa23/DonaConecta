@@ -4,7 +4,21 @@ from fastapi.responses import JSONResponse
 
 from app.core.config import settings
 from app.core.errores import ErrorNegocio
-from app.routers import auth, catalogos, donaciones, instituciones, usuarios
+from app.routers import (
+    admin_panel,
+    auth,
+    catalogos,
+    directorio,
+    donaciones,
+    entregas,
+    gps,
+    instituciones,
+    institucional_panel,
+    mensajeria,
+    puntos_acopio,
+    productos_panel,
+    usuarios,
+)
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -38,4 +52,13 @@ app.include_router(catalogos.router)
 app.include_router(auth.router)
 app.include_router(usuarios.router)
 app.include_router(instituciones.router)
+app.include_router(directorio.router)
 app.include_router(donaciones.router)
+# `/compromisos/{id}` se registra después de las rutas fijas de `donaciones`.
+app.include_router(entregas.router)
+app.include_router(puntos_acopio.router)
+app.include_router(mensajeria.router)
+app.include_router(gps.router)
+app.include_router(productos_panel.router)
+app.include_router(admin_panel.router)
+app.include_router(institucional_panel.router)

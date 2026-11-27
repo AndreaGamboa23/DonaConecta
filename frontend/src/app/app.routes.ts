@@ -1,4 +1,6 @@
 import { Routes } from '@angular/router';
+import { rolGuard } from './core/guards/rol.guard';
+import { PanelLayout } from './layouts/panel-layout/panel-layout';
 import { PublicLayout } from './layouts/public-layout/public-layout';
 
 export const routes: Routes = [
@@ -69,6 +71,18 @@ export const routes: Routes = [
         },
       },
       {
+        path: 'necesidades/:id',
+        loadComponent: () =>
+          import('./features/exploracion/pages/necesidad-detalle/necesidad-detalle').then(
+            (modulo) => modulo.NecesidadDetallePage,
+          ),
+        title: 'Detalle de una necesidad | DonaConecta',
+        data: {
+          description:
+            'Bienes solicitados, disponibilidad calculada con datos reales y orientación para coordinar la entrega.',
+        },
+      },
+      {
         path: 'instituciones',
         loadComponent: () =>
           import('./features/exploracion/pages/instituciones/instituciones').then(
@@ -78,6 +92,30 @@ export const routes: Routes = [
         data: {
           description:
             'Directorio público de comedores, albergues, refugios y organizaciones sociales verificadas de Huancayo.',
+        },
+      },
+      {
+        path: 'instituciones/tipo/:tipo',
+        loadComponent: () =>
+          import(
+            './features/exploracion/pages/institucion-tipo/institucion-tipo'
+          ).then((modulo) => modulo.InstitucionTipo),
+        title: 'Instituciones por tipo | DonaConecta',
+        data: {
+          description:
+            'Directorio filtrado por tipo de institución con organizaciones verificadas de Huancayo.',
+        },
+      },
+      {
+        path: 'instituciones/:id',
+        loadComponent: () =>
+          import('./features/exploracion/pages/institucion-perfil/institucion-perfil').then(
+            (modulo) => modulo.InstitucionPerfil,
+          ),
+        title: 'Perfil de institución | DonaConecta',
+        data: {
+          description:
+            'Perfil público con datos autorizados, necesidades activas y puntos de acopio registrados.',
         },
       },
       {
@@ -161,6 +199,18 @@ export const routes: Routes = [
         },
       },
       {
+        path: 'donaciones/:id',
+        loadComponent: () =>
+          import('./features/donaciones/pages/donacion-detalle/donacion-detalle').then(
+            (modulo) => modulo.DonacionDetalle,
+          ),
+        title: 'Detalle de una donación | DonaConecta',
+        data: {
+          description:
+            'Consulta el detalle autorizado de un compromiso: bienes, entregas, recepciones e historial real.',
+        },
+      },
+      {
         path: 'seguimiento/:id',
         loadComponent: () =>
           import('./features/seguimiento/pages/seguimiento/seguimiento').then(
@@ -223,16 +273,147 @@ export const routes: Routes = [
             'Respuestas claras sobre donaciones materiales, registro, privacidad, seguimiento GPS y mensajería en DonaConecta.',
         },
       },
+    ],
+  },
+  {
+    path: 'admin',
+    component: PanelLayout,
+    canActivate: [rolGuard('ADMINISTRADOR')],
+    data: { rol: 'ADMINISTRADOR' },
+    children: [
       {
-        path: '**',
+        path: '',
         loadComponent: () =>
-          import('./features/not-found/not-found').then((modulo) => modulo.NotFoundPage),
-        title: 'Página no encontrada | DonaConecta',
+          import('./features/paneles/admin-resumen/admin-resumen').then(
+            (modulo) => modulo.AdminResumen,
+          ),
+        title: 'Panel de administración | DonaConecta',
         data: {
           description:
-            'La página solicitada no existe. Regresa al inicio de DonaConecta o consulta la guía para donar.',
+            'Resumen real de cuentas, instituciones, solicitudes y entregas de DonaConecta.',
+        },
+      },
+      {
+        path: 'instituciones',
+        loadComponent: () =>
+          import('./features/paneles/admin-instituciones/admin-instituciones').then(
+            (modulo) => modulo.AdminInstituciones,
+          ),
+        title: 'Verificación de instituciones | DonaConecta',
+        data: {
+          description:
+            'Revisa las instituciones registradas y registra su verificación con sustento.',
+        },
+      },
+      {
+        path: 'usuarios',
+        loadComponent: () =>
+          import('./features/paneles/admin-usuarios/admin-usuarios').then(
+            (modulo) => modulo.AdminUsuarios,
+          ),
+        title: 'Gestión de usuarios | DonaConecta',
+        data: {
+          description: 'Consulta cuentas registradas y gestiona su estado con trazabilidad.',
+        },
+      },
+      {
+        path: 'auditoria',
+        loadComponent: () =>
+          import('./features/paneles/admin-auditoria/admin-auditoria').then(
+            (modulo) => modulo.AdminAuditoria,
+          ),
+        title: 'Auditoría de acciones | DonaConecta',
+        data: {
+          description: 'Consulta el registro de acciones realizadas en DonaConecta.',
         },
       },
     ],
+  },
+  {
+    path: 'institucional',
+    component: PanelLayout,
+    canActivate: [rolGuard('REPRESENTANTE')],
+    data: { rol: 'REPRESENTANTE' },
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./features/paneles/institucional-resumen/institucional-resumen').then(
+            (modulo) => modulo.InstitucionalResumen,
+          ),
+        title: 'Panel institucional | DonaConecta',
+        data: {
+          description: 'Resumen real de la institución, sus solicitudes y las entregas recibidas.',
+        },
+      },
+      {
+        path: 'perfil',
+        loadComponent: () =>
+          import('./features/paneles/institucional-perfil/institucional-perfil').then(
+            (modulo) => modulo.InstitucionalPerfil,
+          ),
+        title: 'Datos de mi institución | DonaConecta',
+        data: {
+          description: 'Actualiza los datos de contacto y presentación de tu institución.',
+        },
+      },
+      {
+        path: 'verificacion',
+        loadComponent: () =>
+          import('./features/paneles/institucional-verificacion/institucional-verificacion').then(
+            (modulo) => modulo.InstitucionalVerificacion,
+          ),
+        title: 'Estado de verificación | DonaConecta',
+        data: {
+          description: 'Consulta el estado real de verificación de tu institución y su vínculo.',
+        },
+      },
+      {
+        path: 'necesidades',
+        loadComponent: () =>
+          import('./features/paneles/institucional-necesidades/institucional-necesidades').then(
+            (modulo) => modulo.InstitucionalNecesidades,
+          ),
+        title: 'Mis necesidades | DonaConecta',
+        data: {
+          description:
+            'Publica y gestiona solicitudes de bienes materiales con productos y unidades reales.',
+        },
+      },
+      {
+        path: 'compromisos',
+        loadComponent: () =>
+          import(
+            './features/paneles/pages/institucional-compromisos/institucional-compromisos'
+          ).then((modulo) => modulo.InstitucionalCompromisos),
+        title: 'Compromisos y entregas | DonaConecta',
+        data: {
+          description:
+            'Gestiona entregas, recepciones y seguimiento de los compromisos reales de tu institución.',
+        },
+      },
+      {
+        path: 'puntos-de-acopio',
+        loadComponent: () =>
+          import(
+            './features/paneles/pages/institucional-puntos-acopio/institucional-puntos-acopio'
+          ).then((modulo) => modulo.InstitucionalPuntosAcopio),
+        title: 'Puntos de acopio institucionales | DonaConecta',
+        data: {
+          description:
+            'Registra y actualiza puntos de acopio con horarios y coordenadas autorizadas.',
+        },
+      },
+    ],
+  },
+  {
+    path: '**',
+    loadComponent: () =>
+      import('./features/not-found/not-found').then((modulo) => modulo.NotFoundPage),
+    title: 'Página no encontrada | DonaConecta',
+    data: {
+      description:
+        'La página solicitada no existe. Regresa al inicio de DonaConecta o consulta la guía para donar.',
+    },
   },
 ];

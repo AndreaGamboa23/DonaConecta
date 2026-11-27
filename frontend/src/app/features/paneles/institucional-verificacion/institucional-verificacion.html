@@ -1,0 +1,96 @@
+<app-panel-encabezado
+  seccion="Institución"
+  titulo="Estado de verificación"
+  descripcion="Consulta en qué etapa se encuentra tu institución y qué falta para seguir publicando solicitudes."
+  icono="shield"
+/>
+
+@if (estado() === 'cargando') {
+  <div class="card border-0 shadow-sm rounded-4 p-3 p-md-4">
+    <app-panel-estado estado="cargando" />
+  </div>
+} @else if (estado() === 'error') {
+  <div class="card border-0 shadow-sm rounded-4 p-3 p-md-4">
+    <app-panel-estado estado="error" [mensaje]="error()" (reintentar)="cargar()" />
+  </div>
+} @else if (perfil(); as institucion) {
+  @if (!verificada()) {
+    <div class="alert alert-warning border-0 rounded-4 mb-3" role="status">
+      <strong class="d-block">Cómo obtener la aprobación</strong>
+      Tu registro ya fue recibido. Revisa que los datos públicos de contacto estén completos y
+      espera a que el administrador revise la solicitud en el panel de verificación. Mientras
+      tanto puedes editar tu información y guardar solicitudes como borrador; la publicación se
+      habilita automáticamente cuando el estado cambie a <span class="fw-semibold">VERIFICADA</span>.
+    </div>
+  }
+
+  <div class="row g-3 g-lg-4">
+    <div class="col-12 col-lg-7">
+      <section class="card border-0 shadow-sm rounded-4 h-100">
+        <div class="card-body p-3 p-md-4">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+            <div>
+              <h2 class="h5 fw-bold mb-0">{{ institucion.nombre }}</h2>
+              <p class="small text-secondary mb-0">{{ institucion.tipo }} · {{ institucion.distrito }}</p>
+            </div>
+            <span [class]="clase(institucion.estado_verificacion)">
+              {{ institucion.estado_verificacion || 'Pendiente' }}
+            </span>
+          </div>
+
+          <ol class="list-group list-group-numbered">
+            <li class="list-group-item d-flex justify-content-between align-items-start gap-3">
+              <div>
+                <div class="fw-semibold">Registro de la institución</div>
+                <div class="small text-secondary">
+                  {{ institucion.fecha_registro ? 'Desde ' + institucion.fecha_registro : 'Fecha no registrada' }}
+                </div>
+              </div>
+              <span class="badge rounded-pill text-bg-success">Completado</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-start gap-3">
+              <div>
+                <div class="fw-semibold">Datos públicos de contacto</div>
+                <div class="small text-secondary">
+                  {{ institucion.email_publico || institucion.telefono_publico || 'Sin datos públicos registrados' }}
+                </div>
+              </div>
+              <a routerLink="/institucional/perfil" class="btn btn-sm btn-outline-primary">Revisar</a>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-start gap-3">
+              <div>
+                <div class="fw-semibold">Verificación final</div>
+                <div class="small text-secondary">Revisión realizada por el equipo de DonaConecta.</div>
+              </div>
+              <span [class]="clase(institucion.estado_verificacion)">
+                {{ institucion.estado_verificacion || 'Pendiente' }}
+              </span>
+            </li>
+          </ol>
+        </div>
+      </section>
+    </div>
+
+    <div class="col-12 col-lg-5">
+      <aside class="card border-0 bg-white shadow-sm rounded-4 h-100">
+        <div class="card-body p-3 p-md-4">
+          <h2 class="h5 fw-bold mb-2">Publicar solicitudes</h2>
+          @if (verificada()) {
+            <p class="small text-secondary mb-3">
+              Tu institución puede publicar necesidades de bienes materiales.
+            </p>
+            <a routerLink="/institucional/necesidades" class="btn btn-primary">Ir a mis necesidades</a>
+          } @else {
+            <p class="small text-secondary mb-3">
+              Mientras la verificación está pendiente puedes revisar tus datos y preparar solicitudes como borrador.
+            </p>
+            <div class="d-grid gap-2">
+              <a routerLink="/institucional/necesidades" class="btn btn-outline-primary">Preparar un borrador</a>
+              <a routerLink="/institucional/perfil" class="btn btn-link btn-sm">Revisar mis datos</a>
+            </div>
+          }
+        </div>
+      </aside>
+    </div>
+  </div>
+}

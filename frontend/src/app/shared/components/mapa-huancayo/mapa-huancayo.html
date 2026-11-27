@@ -2,14 +2,18 @@
   <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
     <div>
       <h2 class="h5 fw-bold mb-1">{{ titulo() }}</h2>
-      <p class="small text-secondary mb-0">
-        Referencia: Huancayo, Junín. Explora el mapa sin compartir tu ubicación.
+      <p class="fs-6 text-secondary mb-0">
+        @if (centroDestino()) {
+          Destino autorizado de tu donación. Explora el mapa sin compartir tu ubicación.
+        } @else {
+          Referencia: Huancayo, Junín. Explora el mapa sin compartir tu ubicación.
+        }
       </p>
     </div>
     <div class="d-flex flex-wrap gap-2">
       <button type="button" class="btn btn-outline-primary" (click)="restablecerVista()">
         <app-icon name="compass" aria-hidden="true" />
-        Volver a Huancayo
+        {{ centroDestino() ? 'Volver al destino' : 'Volver a Huancayo' }}
       </button>
       @if (mostrarBotonUbicacion()) {
         <button
@@ -33,14 +37,21 @@
   @if (cargandoMapa()) {
     <div class="dc-mapa-estado d-flex align-items-center justify-content-center gap-2 mb-2" role="status">
       <span class="spinner-border spinner-border-sm text-primary" aria-hidden="true"></span>
-      <span class="small fw-semibold">Cargando mapa…</span>
+      <span class="fs-6 fw-semibold">Cargando mapa…</span>
     </div>
   }
 
   @if (mensajeEstado() && !cargandoMapa()) {
-    <div class="alert py-2 px-3 small" [class]="alertaEstado()" role="status">
+    <div class="alert py-2 px-3 fs-6" [class]="alertaEstado()" role="status">
       {{ mensajeEstado() }}
     </div>
+  }
+
+  @if (marcadores().length) {
+    <p class="fs-6 text-secondary mb-2" role="status">
+      Se muestran {{ marcadores().length }}
+      {{ marcadores().length === 1 ? 'punto con coordenadas autorizadas' : 'puntos con coordenadas autorizadas' }}.
+    </p>
   }
 
   <div
@@ -50,7 +61,7 @@
     aria-label="Mapa interactivo de la ciudad de Huancayo"
   ></div>
 
-  <p class="small text-secondary mt-2 mb-0">
+  <p class="fs-6 text-secondary mt-2 mb-0">
     Datos cartográficos ©
     <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer"
       >OpenStreetMap contributors</a

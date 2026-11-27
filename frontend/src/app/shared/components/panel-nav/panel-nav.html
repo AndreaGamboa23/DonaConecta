@@ -1,0 +1,77 @@
+<nav class="dc-panel-nav" aria-label="Navegación del panel">
+  <div class="container-fluid px-3 px-lg-4 py-2">
+    <div class="d-flex align-items-center justify-content-between gap-3">
+      <div class="d-flex align-items-center gap-3 min-w-0">
+        <app-brand />
+        <span class="badge rounded-pill text-bg-light border border-light border-opacity-25">
+          {{ rol() }}
+        </span>
+      </div>
+
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-light d-lg-none"
+        [attr.aria-expanded]="menuAbierto()"
+        aria-controls="menu-panel"
+        (click)="alternarMenu()"
+      >
+        <app-icon name="compass" class="dc-panel-icon" />
+        <span class="ms-1">Menú</span>
+      </button>
+
+      <div class="d-none d-lg-flex align-items-center gap-3">
+        <div class="text-end lh-sm">
+          <span class="d-block fw-semibold small">{{ sesion.nombreCompleto() }}</span>
+          <span class="d-block opacity-75 small">{{ sesion.usuario()?.correo }}</span>
+        </div>
+        <button type="button" class="btn btn-sm btn-light" (click)="cerrarSesion()">
+          Cerrar sesión
+        </button>
+      </div>
+    </div>
+
+    <ul class="nav d-none d-lg-flex flex-wrap gap-1 pt-2 pb-1" aria-label="Secciones del panel">
+      @for (enlace of enlaces(); track enlace.ruta) {
+        <li class="nav-item">
+          <a
+            #enlaceActivo="routerLinkActive"
+            class="nav-link d-inline-flex align-items-center gap-2 rounded px-3"
+            [routerLink]="enlace.ruta"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: enlace.exacto ?? false }"
+            [attr.aria-current]="enlaceActivo.isActive ? 'page' : null"
+          >
+            <app-icon [name]="enlace.icono" class="dc-panel-icon" aria-hidden="true" />
+            {{ enlace.etiqueta }}
+          </a>
+        </li>
+      }
+    </ul>
+
+    @if (menuAbierto()) {
+      <div id="menu-panel" class="d-lg-none mt-3">
+        <ul class="nav flex-column gap-1">
+          @for (enlace of enlaces(); track enlace.ruta) {
+            <li class="nav-item">
+              <a
+                class="nav-link text-white rounded"
+                [routerLink]="enlace.ruta"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: enlace.exacto ?? false }"
+                (click)="cerrarMenu()"
+              >
+                {{ enlace.etiqueta }}
+              </a>
+            </li>
+          }
+        </ul>
+        <div class="d-flex align-items-center justify-content-between gap-2 mt-3 pt-3 border-top border-light border-opacity-25">
+          <span class="small">{{ sesion.nombreCompleto() }}</span>
+          <button type="button" class="btn btn-sm btn-light" (click)="cerrarSesion()">
+            Cerrar sesión
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</nav>

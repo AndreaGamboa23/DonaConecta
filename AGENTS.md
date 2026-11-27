@@ -28,6 +28,8 @@ animales de Huancayo, Junín, Perú.
 - **No modificar `main`**.
 - **No cambiar de rama**, hacer `merge` ni `rebase` sin autorización explícita.
 - **No realizar commits ni push automáticamente**.
+- El **Avance 01** quedó publicado en `main` con el commit `1d5bc00`. El **Avance 02** se
+  desarrolla exclusivamente en `Andrea`; `main` y `Jhon` no se modifican.
 - Al finalizar cada fase se propone un mensaje de commit descriptivo, sin ejecutarlo,
   con el formato: `tipo(alcance): descripción breve en español`.
   Ejemplo: `docs: agregar AGENTS.md con reglas permanentes del proyecto`.
@@ -438,17 +440,19 @@ La seguridad se implementa progresivamente en todas las fases, no solo al final.
 | 05 | Modelo entidad-relación y normalización 3FN. | Ejecutada (propuesta revisada en 05.1) |
 | 05.1 | Revisión, corrección y documentación técnica del modelo. | Ejecutada |
 | 06 | Implementación de Microsoft SQL Server. | Ejecutada |
-| 07 | Backend FastAPI, conexión y arquitectura de servicios. | Avance parcial en `integracion-avance-02` (ver Fase 08.2); pendiente de cierre formal |
+| 07 | Backend FastAPI, conexión y arquitectura de servicios. | Avance parcial integrado en Avance 01 (ver Fase 08.2); pendiente de cierre formal |
 | 08 | Landing definitiva y navegación pública integrada. | Pendiente |
-| 08.2 | CRUD real de usuarios, perfil personal, sesiones revocables y celular cifrado. | Ejecutada en `integracion-avance-02` |
-| 09 | Autenticación segura, registro, sesiones y roles. | Pendiente |
-| 10 | Registro, verificación y directorio de instituciones. | Pendiente |
-| 11 | Catálogo y gestión de necesidades. | Pendiente |
-| 12 | Compromisos, donaciones y entregas. | Pendiente |
-| 13 | Mapas, ubicaciones y puntos de acopio. | Pendiente |
-| 14 | Seguimiento GPS autorizado. | Pendiente |
-| 15 | Chat y mensajería en tiempo real. | Pendiente |
-| 16 | Notificaciones, evidencias y trazabilidad. | Pendiente |
+| 08.2 | CRUD real de usuarios, perfil personal, sesiones revocables y celular cifrado. | Ejecutada e integrada en Avance 01 |
+| 09 | Paneles administrativo e institucional, verificación real, catálogo de productos y necesidades (Avance 02). La autenticación, el registro y las sesiones quedaron cubiertos en 08.2. | Ejecutada |
+| 09.1 | Experiencia pública real: detalle de necesidades, directorio y perfiles SQL, accesos por rol y correcciones de contrato. | Ejecutada |
+| Cierre de entrega | Integración funcional mínima de donación, acopio, entrega, recepción, chat persistente, notificaciones y GPS autorizado. | Ejecutada; ver §18.8 |
+| 10 | Registro, verificación y directorio de instituciones. | Pendiente como fase formal |
+| 11 | Catálogo y gestión de necesidades. | Pendiente como fase formal |
+| 12 | Compromisos, donaciones y entregas. | Funcionalidad básica integrada en el cierre; fase formal pendiente |
+| 13 | Mapas, ubicaciones y puntos de acopio. | Funcionalidad básica integrada en el cierre; fase formal pendiente |
+| 14 | Seguimiento GPS autorizado. | Funcionalidad básica integrada en el cierre; fase formal pendiente |
+| 15 | Chat y mensajería en tiempo real. | Persistencia HTTP integrada; WebSocket pendiente |
+| 16 | Notificaciones, evidencias y trazabilidad. | Funcionalidad básica integrada en el cierre; fase formal pendiente |
 | 17 | Dashboards y estadísticas reales. | Pendiente |
 | 18 | Aplicación instalable PWA. | Pendiente |
 | 19 | Pruebas integrales, seguridad y optimización. | Pendiente |
@@ -644,13 +648,13 @@ fuera del repositorio. Persisten solo las advertencias de deprecación de `@impo
 valoración estética final sigue pendiente de revisión humana; la Fase 07 de backend continúa
 pendiente y no se inicia sin autorización explícita.
 
-**Alcance autorizado de la Fase 08.2:** completar en `integracion-avance-02` el CRUD real de
-usuarios con `GET`/`PUT`/`PATCH`/`DELETE`, rediseñar el perfil personal con cuatro pestañas,
-documentar todas las operaciones en Swagger, revocar sesiones en el servidor y cifrar el celular
-con AES-256-GCM. Actualizar el informe histórico de Fase 08, el plan de desarrollo y este archivo.
-Usar sólo `DonaConectaDB_Pruebas`; conservar las cuentas de prueba existentes y no ejecutar DDL ni
-DML estructural. No modificar `Andrea`, `Jhon`, `main` ni `respaldo-avance-01`; no crear commits,
-push, merges ni cambiar de rama.
+**Alcance autorizado de la Fase 08.2:** completar, antes de la publicación del Avance 01, el CRUD
+real de usuarios con `GET`/`PUT`/`PATCH`/`DELETE`, rediseñar el perfil personal con cuatro
+pestañas, documentar todas las operaciones en Swagger, revocar sesiones en el servidor y cifrar el
+celular con AES-256-GCM. Actualizar el informe histórico de Fase 08, el plan de desarrollo y este
+archivo. Usar sólo `DonaConectaDB_Pruebas`; conservar las cuentas de prueba existentes y no ejecutar
+DDL ni DML estructural. No modificar `Jhon`, `main` ni `respaldo-avance-01`; no crear commits, push,
+merges ni cambiar de rama. El resultado quedó integrado posteriormente en `Andrea` y `main`.
 
 **Resultado de la Fase 08.2:** once operaciones HTTP documentadas con autenticación, cuerpo y
 respuestas; perfil con Información personal, Actividad, Preferencias y Seguridad y privacidad;
@@ -735,3 +739,92 @@ Esta sección complementa las secciones 3, 6 a 9 y 16. Toda fase posterior debe 
   backend, dependencias Python ni nuevas tablas sin autorización de fase. No reorganizar el
   frontend existente ni interrumpir o reemplazar Fase 04.4. El único modelo válido para el equipo
   sigue siendo el de Fase 05.1, ahora desplegado en `DonaConectaDB`.
+
+### 18.6 Alcance autorizado de la Fase 09 (Avance 02)
+
+- Trabajar exclusivamente en `Andrea`, conservando íntegramente el Avance 01 (`1d5bc00`).
+  No modificar `main`, `Jhon` ni `respaldo-avance-01`; no ejecutar commit, push, merge, rebase,
+  `reset --hard` ni `git clean`.
+- Usar únicamente `DonaConectaDB_Pruebas` para datos sintéticos y verificaciones. `DonaConectaDB`
+  permanece intacta; `ALLOW_MAIN_DB_WRITES=no` sigue vigente.
+- No ejecutar DDL. Se permite preparar y ejecutar DML idempotente/transaccional de catálogos
+  (productos de bienes materiales) sólo después de verificar que el destino es la base de pruebas.
+- Se autoriza aprovisionar localmente una cuenta administrativa sintética en la base de pruebas
+  mediante un mecanismo que lea la contraseña de un secreto local o la solicite por consola.
+  La contraseña no se versiona, no se muestra en informes ni se fija en el código fuente; el rol
+  `ADMINISTRADOR` se asigna con el modelo real y el registro público sigue sin poder crearlo.
+- Implementar panel administrativo y panel institucional, verificación con auditoría transaccional,
+  directorio público real, catálogo SQL, CRUD de necesidades y resultados reales en Explorar.
+- Reutilizar los endpoints y repositorios ya integrados de Jhon cuando sean válidos; no duplicar
+  operaciones innecesariamente ni simular datos, sesiones, GPS, chat o pruebas no ejecutadas.
+
+**Resultado de la Fase 09:** paneles reales con 14 operaciones nuevas documentadas en OpenAPI,
+verificación con historial y auditoría transaccionales, catálogo SQL de 41 bienes con unidad
+neutral `UN`, CRUD de necesidades con `fila_version` y resultados reales en Explorar. Cuenta
+administrativa sintética aprovisionada con secreto local y Argon2id; roles vigentes restaurados al
+reactivar cuentas. Catalogación ejecutada dos veces con recuentos idénticos en
+`DonaConectaDB_Pruebas`; `DonaConectaDB` intacta. Evidencias: 21/21 + 21/21 comprobaciones de API,
+1789/1789 en navegador (28 rutas y 404 × siete anchos), 69/69 pruebas Angular, 24/24 pruebas
+Python y build de 583,23 kB iniciales. Detalle en `docs/informe-paneles-fase-09.md`. La valoración
+estética final sigue pendiente de revisión humana; no se ejecutaron commit, push ni cambio de rama.
+
+### 18.7 Alcance autorizado de la Fase 09.1
+
+- Trabajar exclusivamente en `Andrea`, conservando íntegramente Avance 01 y Fase 09. No modificar
+  `main`, `Jhon` ni `respaldo-avance-01`; no ejecutar commit, push, merge, rebase, `reset --hard`
+  ni `git clean`.
+- Usar solo lecturas reales de `DonaConectaDB_Pruebas`. No ejecutar DDL ni DML de negocio;
+  `DonaConectaDB` permanece intacta y `ALLOW_MAIN_DB_WRITES=no` sigue vigente.
+- Reutilizar los endpoints y repositorios de Fase 09; agregar sólo lecturas públicas mínimas con
+  DTO explícitos, sin coordenadas, correos de representantes, hashes ni auditoría.
+- Convertir Explorar, detalle de necesidades, directorio, perfiles e Inicio en una experiencia
+  con datos SQL reales, estados honestos y accesos por rol. No inventar necesidades,
+  instituciones, contactos, horarios, GPS, chat ni sesiones.
+- Calcular disponibilidad desde `vw_disponibilidad_necesidad` y avance desde
+  `vw_progreso_necesidad`. No sumar unidades incompatibles ni presentar una unidad global.
+- Preparar, sin ejecutar, una propuesta reversible para la codificación mojibake y documentar
+  la normalización de unidades pendiente de autorización.
+- Verificar build, pruebas, API, OpenAPI, CDP responsive, `git diff --check` y `git status`.
+
+**Resultado de la Fase 09.1:** tres lecturas públicas nuevas con DTO Pydantic, filtros reales,
+determinismo en `TOP 1`, escape de comodines `LIKE`, fechas UTC, filtro de punto de acopio activo
+y de su institución, y `response_model` en los dos listados que lo omitían. Frontend con ficha de
+necesidad por producto/unidad, compromiso restringido a donantes, directorio por
+`tipo.codigo`, perfil público sin contactos inventados, tarjeta reutilizable y accesos de Inicio
+por rol. Se corrigió la URL real de verificación administrativa y defectos de accesibilidad y
+estados. Evidencias: **34/34** pruebas Python, **70/70** Angular, **2179/2179** comprobaciones CDP
+en 34 rutas y siete anchos, 10 respuestas API verificadas, OpenAPI de 31 rutas/39 operaciones/
+54 esquemas y build de 585,95 kB iniciales. No se ejecutó DDL, DML, commit, push ni cambio de rama.
+El SP actual no garantiza duplicados por donante en concurrencia verdadera; la corrección de
+mojibake y de unidades queda pendiente de autorización. Detalle en
+`docs/informe-experiencia-directorio-fase-09.1.md`. La valoración estética final sigue pendiente
+de revisión humana.
+
+### 18.8 Alcance autorizado del cierre funcional de la entrega
+
+- Trabajar exclusivamente en `Andrea`, conservando Avance 01, Fase 09 y Fase 09.1. No modificar
+  `main`, `Jhon` ni `respaldo-avance-01`; no ejecutar commit, push, merge, rebase, `reset --hard`
+  ni `git clean`.
+- Usar únicamente `DonaConectaDB_Pruebas` para el flujo y las verificaciones. No ejecutar DDL;
+  la corrección de codificación y los datos sintéticos se hicieron con scripts idempotentes
+  (`011` y `012`) bajo la guarda de base autorizada. `DonaConectaDB` permanece intacta y
+  `ALLOW_MAIN_DB_WRITES=no`.
+- Integrar compromisos con persistencia real, puntos y horarios, entregas y recepciones, chat
+  persistente, notificaciones y GPS con consentimiento, sin inventar datos, sesiones, GPS,
+  mensajes ni estadísticas. El transporte WebSocket queda fuera de este cierre: se usa polling
+  HTTP y se documenta como mejora futura.
+- Registrar en OpenAPI las operaciones nuevas, mantener la autorización en backend por rol y
+  propiedad, conservar Argon2id, AES-256-GCM, sesiones revocables y consultas parametrizadas.
+- Verificar de forma enfocada: flujo API real, comprobaciones negativas, pruebas Python y
+  Angular, build y `git diff --check`. No repetir las 2179 comprobaciones CDP de Fase 09.1.
+
+**Resultado del cierre funcional:** flujo integral **12/12** en `DonaConectaDB_Pruebas` y
+autorización **4/4**; OpenAPI con **47 rutas, 59 operaciones y 89 esquemas**; **75/75** pruebas
+Python y **88/88** Angular en 33 archivos; build de **590,83 kB** iniciales y **114,74 kB**
+transferidos. Se corrigieron el orden de routers en `main.py`, las columnas físicas leídas por
+`_fila_compromiso` y el uso de `OUTPUT INSERTED.*` en lugar de `SCOPE_IDENTITY()` en mensajes,
+conversaciones y sesiones GPS. Los mensajes quedan cifrados en SQL Server y las coordenadas
+sólo se publican con autorización registrada. Persisten como pendientes el WebSocket de
+mensajería/GPS, la corrección concurrente del procedimiento de compromisos y la valoración
+estética humana. Detalle en `docs/informe-implementacion-final.md` y
+`docs/contrato-integracion-final.md`. No se ejecutaron commit, push ni cambio de rama.
