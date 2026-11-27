@@ -1,0 +1,191 @@
+<app-page-hero
+  eyebrow="Detalle de tu donación"
+  [titulo]="tituloPagina()"
+  descripcion="Consulta el estado real de la entrega, las cantidades recibidas y el historial registrado por la institución."
+  icono="route"
+  tono="navy"
+/>
+
+<section class="dc-section-space">
+  <div class="container">
+    @switch (estado()) {
+      @case ('cargando') {
+        <div class="card border-0 shadow-sm rounded-4 p-4 text-center" role="status">
+          <div class="d-flex align-items-center justify-content-center gap-2">
+            <span class="spinner-border spinner-border-sm text-primary" aria-hidden="true"></span>
+            <span class="text-secondary mb-0">Cargando el detalle…</span>
+          </div>
+        </div>
+      }
+      @case ('error') {
+        <div class="alert alert-warning rounded-4" role="alert">
+          <p class="fw-semibold mb-2">{{ error() }}</p>
+          <a routerLink="/mis-donaciones" class="btn btn-outline-primary btn-sm">Volver a mis donaciones</a>
+        </div>
+      }
+      @case ('sin-sesion') {
+        <div class="card border-0 bg-light rounded-4 p-4 p-md-5 text-center mx-auto dc-detalle-estado">
+          <h2 class="h4 fw-bold mb-2">Acceso requerido</h2>
+          <p class="fs-6 text-secondary mb-4">
+            Inicia sesión con la cuenta de donante o representante participante para consultar este detalle.
+          </p>
+          <a routerLink="/iniciar-sesion" class="btn btn-primary">Iniciar sesión</a>
+        </div>
+      }
+      @case ('datos') {
+        @if (compromiso(); as compromiso) {
+          <nav aria-label="Ruta de navegación" class="mb-3">
+            <a routerLink="/mis-donaciones" class="fs-6 text-decoration-none">Mis donaciones</a>
+            <span class="fs-6 text-secondary mx-2">/</span>
+            <span class="fs-6 text-secondary">Compromiso #{{ id(compromiso) }}</span>
+          </nav>
+
+          <div class="row g-4 g-lg-5">
+            <div class="col-12 col-lg-8">
+              <section class="card border-0 shadow-sm rounded-4 p-3 p-md-4 mb-4" aria-labelledby="resumenDetalle">
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+                  <div>
+                    <span class="badge rounded-pill text-bg-primary mb-2">{{ etiquetaEstado(compromiso.estado) }}</span>
+                    <h2 id="resumenDetalle" class="h4 fw-bold mb-1">{{ titulo(compromiso) }}</h2>
+                    <p class="fs-6 text-secondary mb-0">
+                      <app-icon name="building" aria-hidden="true" />
+                      {{ compromiso.institucion ?? 'Institución registrada' }}
+                    </p>
+                  </div>
+                  <span class="fs-6 text-secondary">
+                    Registrado el {{ fechaTexto(compromiso.creado_en ?? compromiso.fecha_compromiso) }}
+                  </span>
+                </div>
+
+                <div class="table-responsive">
+                  <table class="table align-middle mb-0">
+                    <thead>
+                      <tr>
+                        <th scope="col">Bien</th>
+                        <th scope="col" class="text-end">Comprometido</th>
+                        <th scope="col" class="text-end">Recibido</th>
+                        <th scope="col" class="text-end">Pendiente</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (linea of compromiso.lineas ?? []; track linea.producto_id + '-' + linea.unidad_id) {
+                        <tr>
+                          <td class="fw-semibold">
+                            {{ linea.producto ?? 'Bien #' + linea.producto_id }}
+                            <span class="fs-6 text-secondary">{{ simboloLinea(linea.simbolo ?? linea.unidad_codigo, linea.unidad) }}</span>
+                          </td>
+                          <td class="text-end">{{ linea.cantidad_comprometida }}</td>
+                          <td class="text-end">{{ linea.cantidad_recibida ?? 0 }}</td>
+                          <td class="text-end fw-bold">
+                            {{ pendiente(linea.cantidad_comprometida, linea.cantidad_recibida, linea.cantidad_pendiente) }}
+                          </td>
+                        </tr>
+                      } @empty {
+                        <tr>
+                          <td colspan="4" class="fs-6 text-secondary">El compromiso no registra líneas de bienes.</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              <section class="card border-0 shadow-sm rounded-4 p-3 p-md-4 mb-4" aria-labelledby="lineaTiempo">
+                <h2 id="lineaTiempo" class="h4 fw-bold mb-3">Línea de seguimiento</h2>
+                <ol class="list-unstyled dc-detalle-linea mb-0">
+                  @for (hito of hitos(compromiso); track hito.id) {
+                    <li class="d-flex gap-3 pb-3">
+                      <span class="dc-detalle-hito d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0">
+                        <app-icon [name]="hito.icono" aria-hidden="true" />
+                      </span>
+                      <div>
+                        <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                          <h3 class="h6 fw-bold mb-0">{{ hito.titulo }}</h3>
+                          <span class="badge rounded-pill {{ hito.tono }}">{{ hito.titulo }}</span>
+                        </div>
+                        <p class="fs-6 text-secondary mb-1">{{ hito.detalle }}</p>
+                        <span class="fs-6 text-secondary">{{ fechaTexto(hito.fecha) }}</span>
+                      </div>
+                    </li>
+                  } @empty {
+                    <li class="fs-6 text-secondary">Todavía no hay eventos de seguimiento registrados.</li>
+                  }
+                </ol>
+              </section>
+
+              @if (marcadores(compromiso).length) {
+                <app-mapa-huancayo
+                  titulo="Punto de entrega autorizado"
+                  [marcadores]="marcadores(compromiso)"
+                  [marcadorResaltado]="puntoId(compromiso) || null"
+                  [destino]="destinoMapa(compromiso)"
+                />
+              }
+            </div>
+
+            <div class="col-12 col-lg-4">
+              <section class="card border-0 bg-light rounded-4 p-3 p-md-4 mb-4" aria-labelledby="coordinacion">
+                <h2 id="coordinacion" class="h5 fw-bold mb-3">Coordinación</h2>
+                <p class="fs-6 text-secondary mb-1">Punto de entrega</p>
+                @if (nombrePunto(compromiso)) {
+                  <p class="fs-6 fw-semibold mb-1">{{ nombrePunto(compromiso) }}</p>
+                } @else {
+                  <p class="fs-6 text-secondary mb-1">Punto por coordinar</p>
+                }
+                @if (direccionPunto(compromiso)) {
+                  <p class="fs-6 text-secondary mb-1">{{ direccionPunto(compromiso) }}</p>
+                }
+                @if (referenciasPunto(compromiso)) {
+                  <p class="fs-6 text-secondary mb-1">{{ referenciasPunto(compromiso) }}</p>
+                }
+                <p class="fs-6 text-secondary mb-1 mt-3">Horario programado</p>
+                <p class="fs-6 fw-semibold mb-3">{{ horariosTexto(compromiso) }}</p>
+
+                <div class="d-grid gap-2">
+                  <a [routerLink]="'/mensajes'" [queryParams]="{ compromiso: id(compromiso) }" class="btn btn-primary">
+                    <app-icon name="chat" aria-hidden="true" />
+                    Contactar por mensajes
+                  </a>
+                  @if (puntoId(compromiso) > 0 || coordenadasPunto(compromiso)) {
+                    <a
+                      [routerLink]="'/puntos-de-acopio'"
+                      [queryParams]="parametrosMapa(compromiso)"
+                      class="btn btn-outline-primary"
+                    >
+                      <app-icon name="pin" aria-hidden="true" />
+                      Ver ubicación
+                    </a>
+                  }
+                  @if (entregaId(compromiso) > 0) {
+                    <a
+                      [routerLink]="['/seguimiento', entregaId(compromiso)]"
+                      [queryParams]="{ compromiso: id(compromiso) }"
+                      class="btn btn-outline-secondary"
+                    >
+                      <app-icon name="clock" aria-hidden="true" />
+                      Seguimiento de la donación
+                    </a>
+                  }
+                  @if (idInstitucion(compromiso) > 0) {
+                    <a [routerLink]="['/instituciones', idInstitucion(compromiso)]" class="btn btn-outline-secondary">
+                      <app-icon name="building" aria-hidden="true" />
+                      Perfil de la institución
+                    </a>
+                  }
+                </div>
+              </section>
+
+              <section class="card border-0 shadow-sm rounded-4 p-3 p-md-4" aria-labelledby="privacidadDetalle">
+                <h2 id="privacidadDetalle" class="h5 fw-bold mb-3">Privacidad</h2>
+                <p class="fs-6 text-secondary mb-0">
+                  La recepción la registra únicamente la institución. La ubicación, cuando se comparte,
+                  es privada y no sustituye la confirmación de entrega.
+                </p>
+              </section>
+            </div>
+          </div>
+        }
+      }
+    }
+  </div>
+</section>

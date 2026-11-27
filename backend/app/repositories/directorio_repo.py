@@ -48,6 +48,30 @@ def _escapar_like(valor: Optional[str]) -> Optional[str]:
     )
 
 
+def _autorizacion_publica_sql(alias: str) -> str:
+    """Filtro SQL reutilizable: último evento de coordenadas debe ser publicación.
+
+    El alias lo fijan estas consultas; ningún valor del cliente se interpola en
+    el texto SQL. Las coordenadas nunca forman parte de estos DTO públicos.
+    """
+
+    return f"""EXISTS (
+        SELECT 1 FROM (
+            SELECT TOP 1 ae.tipo_evento
+            FROM dbo.auditoria_eventos ae
+            WHERE ae.recurso_tipo = N'PUNTO_ACOPIO'
+              AND ae.recurso_id = CAST({alias}.punto_id AS VARCHAR(50))
+              AND ae.tipo_evento IN (N'PUNTO_COORDENADAS_PUBLICADAS',
+                                     N'PUNTO_COORDENADAS_PRIVADAS')
+            ORDER BY ae.evento_id DESC
+        ) ultima
+        WHERE ultima.tipo_evento = N'PUNTO_COORDENADAS_PUBLICADAS'
+    )"""
+
+
+_AUT_P = _autorizacion_publica_sql("p")
+
+
 def listar_tipos_institucion() -> list[dict]:
     """Tipos reales de SQL Server con el total de instituciones verificadas."""
 
@@ -77,13 +101,14 @@ def listar_instituciones_publicas(
     distrito_id: Optional[int] = None,
     termino: Optional[str] = None,
 ) -> list[dict]:
-    sql = """
+    sql = f"""
         SELECT i.institucion_id, i.nombre, i.slug, i.descripcion, i.direccion,
                i.telefono_publico, i.email_publico, i.estado_verificacion,
                i.fecha_verificacion, i.foto_archivo_id, ti.nombre AS tipo, ti.codigo AS tipo_codigo,
                d.nombre AS distrito,
                (SELECT TOP 1 p.punto_id FROM dbo.puntos_acopio p
                  WHERE p.institucion_id = i.institucion_id AND p.estado = N'ACTIVO'
+                 AND {_AUT_P}
                  ORDER BY p.punto_id) AS id_punto_acopio,
                (SELECT COUNT(*) FROM dbo.necesidades n
                  WHERE n.institucion_id = i.institucion_id
@@ -135,13 +160,14 @@ def _fila_resumen(fila) -> dict:
 
 
 def obtener_institucion_publica(id_institucion: int) -> Optional[dict]:
-    sql = """
+    sql = f"""
         SELECT i.institucion_id, i.nombre, i.slug, i.descripcion, i.direccion,
                i.telefono_publico, i.email_publico, i.estado_verificacion,
                i.fecha_verificacion, i.foto_archivo_id, ti.nombre AS tipo,
                ti.codigo AS tipo_codigo, d.nombre AS distrito,
                (SELECT TOP 1 p.punto_id FROM dbo.puntos_acopio p
                  WHERE p.institucion_id = i.institucion_id AND p.estado = N'ACTIVO'
+                 AND {_AUT_P}
                  ORDER BY p.punto_id) AS id_punto_acopio,
                (SELECT COUNT(*) FROM dbo.necesidades n
                  WHERE n.institucion_id = i.institucion_id
@@ -159,11 +185,12 @@ def obtener_institucion_publica(id_institucion: int) -> Optional[dict]:
         institucion = _fila_resumen(fila)
 
         puntos = cursor.execute(
-            """
-            SELECT punto_id, nombre, direccion, referencias_entrega
-            FROM dbo.puntos_acopio
-            WHERE institucion_id = ? AND estado = N'ACTIVO'
-            ORDER BY punto_id;
+            f"""
+            SELECT p.punto_id, p.nombre, p.direccion, p.referencias_entrega
+            FROM dbo.puntos_acopio p
+            WHERE p.institucion_id = ? AND p.estado = N'ACTIVO'
+              AND {_AUT_P}
+            ORDER BY p.punto_id;
             """,
             (id_institucion,),
         ).fetchall()
@@ -185,11 +212,12 @@ def obtener_institucion_publica(id_institucion: int) -> Optional[dict]:
                 "hora_cierre": _hora(h.hora_cierre),
             }
             for h in cursor.execute(
-                """
+                f"""
                 SELECT h.punto_id, h.dia_semana, h.hora_apertura, h.hora_cierre
                 FROM dbo.puntos_acopio_horarios h
                 INNER JOIN dbo.puntos_acopio p ON p.punto_id = h.punto_id
                 WHERE p.institucion_id = ? AND p.estado = N'ACTIVO' AND h.activo = 1
+                  AND {_AUT_P}
                 ORDER BY h.punto_id, h.dia_semana;
                 """,
                 (id_institucion,),

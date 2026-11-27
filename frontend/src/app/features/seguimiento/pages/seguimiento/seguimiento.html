@@ -1,65 +1,233 @@
 <app-page-hero
   eyebrow="Seguimiento de entrega"
-  titulo="Seguimiento autorizado"
-  descripcion="Consulta el estado de una entrega y prepara la ubicación manual con consentimiento explícito."
+  titulo="Seguimiento de tu entrega"
+  descripcion="Consulta el avance real de la entrega, coordina acciones con la institución y comparte tu ubicación sólo si decides hacerlo. La recepción siempre la registra la institución."
   icono="route"
 />
 
 <section class="dc-section-space">
   <div class="container">
-    <app-pending-notice
-      [estado]="estado"
-      titulo="El seguimiento GPS todavía no está disponible"
-      class="d-block mb-4"
-    />
+    @if (mensaje()) {
+      <div class="alert alert-success border-0 rounded-4" role="status">{{ mensaje() }}</div>
+    }
+    @if (error()) {
+      <div class="alert alert-warning border-0 rounded-4" role="alert">{{ error() }}</div>
+    }
 
-    <div class="row g-4 g-lg-5 align-items-stretch">
-      <div class="col-12 col-lg-7">
-        <div class="card border-0 bg-white shadow-sm rounded-4 p-3 p-md-4 mb-4">
-          <span class="dc-eyebrow mb-3">Estado de la sesión</span>
-          <h2 class="h4 fw-bold mb-3">Sin sesión activa</h2>
-          <div class="alert alert-light border mb-0" role="status">
-            No hay una entrega autorizada consultada. El identificador de seguimiento se obtendrá
-            de una donación real; mientras tanto no se muestra una ubicación ni un estado inventado.
-          </div>
+    @if (!sesion.autenticado()) {
+      <div class="card border-0 bg-light rounded-4 p-4 p-md-5 text-center mx-auto dc-seguimiento-estado">
+        <h2 class="h4 fw-bold mb-2">Acceso requerido</h2>
+        <p class="text-secondary mb-4">
+          Inicia sesión como donante participante o representante de la entrega para consultar el seguimiento.
+        </p>
+        <a routerLink="/iniciar-sesion" class="btn btn-primary">Iniciar sesión</a>
+      </div>
+    } @else {
+      <div class="row g-4 g-lg-5 align-items-start">
+        <div class="col-12 col-lg-7">
+          <section class="card border-0 bg-white shadow-sm rounded-4 p-3 p-md-4 mb-4" aria-labelledby="lineaTitulo">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+              <div>
+                <span class="dc-eyebrow d-block mb-1">Entrega #{{ entregaId }}</span>
+                <h2 id="lineaTitulo" class="h4 fw-bold mb-0">Avance de la entrega</h2>
+              </div>
+              @if (estadoEntrega()) {
+                <span class="badge rounded-pill text-bg-primary">{{ estadoEntrega() }}</span>
+              }
+            </div>
+
+            @if (compromiso(); as datos) {
+              <p class="small text-secondary mb-4">
+                Compromiso #{{ compromisoId() }} · {{ datos.necesidad ?? datos.titulo ?? 'Solicitud registrada' }}
+                @if (datos.institucion) { · {{ datos.institucion }} }
+              </p>
+            } @else if (cargandoContexto()) {
+              <p class="small text-secondary mb-4" role="status">Consultando el detalle real de la entrega…</p>
+            }
+
+            @if (estadoEntrega() === 'CANCELADA') {
+              <div class="alert alert-warning border-0 rounded-4 small" role="status">
+                Esta entrega fue cancelada; no registra nuevas entregas ni recepciones.
+              </div>
+            }
+
+            @if (etapas().length) {
+              <ol class="list-group list-group-flush mb-0">
+                @for (etapa of etapas(); track etapa.clave) {
+                  <li class="list-group-item px-0 d-flex flex-wrap justify-content-between align-items-start gap-2">
+                    <div>
+                      <div class="d-flex align-items-center gap-2">
+                        <span class="fw-semibold">{{ etapa.titulo }}</span>
+                        @if (etapa.estado === 'realizada') {
+                          <span class="badge rounded-pill text-bg-success">Realizada</span>
+                        } @else if (etapa.estado === 'actual') {
+                          <span class="badge rounded-pill text-bg-primary">Actual</span>
+                        } @else {
+                          <span class="badge rounded-pill text-bg-light text-secondary">Pendiente</span>
+                        }
+                      </div>
+                      <p class="small text-secondary mb-1">{{ etapa.detalle }}</p>
+                      @if (etapa.fecha) {
+                        <span class="small text-secondary">{{ fechaTexto(etapa.fecha) }}</span>
+                      }
+                    </div>
+                  </li>
+                }
+              </ol>
+            }
+          </section>
+
+          <section class="card border-0 shadow-sm rounded-4 p-3 p-md-4 mb-4" aria-labelledby="accionesTitulo">
+            <h2 id="accionesTitulo" class="h5 fw-bold mb-1">Acciones disponibles</h2>
+            <p class="small text-secondary mb-3">Sólo se muestran las acciones permitidas para tu rol y el estado real.</p>
+
+            <div class="d-flex flex-wrap gap-2 mb-3">
+              @if (puedeCoordinarEntrega) {
+                <a
+                  [routerLink]="['/institucional/compromisos']"
+                  [queryParams]="{ compromiso: compromisoId() }"
+                  fragment="programar-entrega"
+                  class="btn btn-primary btn-sm"
+                >
+                  Coordinar entrega
+                </a>
+              } @else if (esDonante) {
+                <p class="small text-secondary mb-0">
+                  La institución coordina la entrega. Puedes escribirle para acordar los detalles.
+                </p>
+              }
+
+              @if (puntoId() > 0) {
+                <a
+                  routerLink="/puntos-de-acopio"
+                  [queryParams]="parametrosPunto()"
+                  class="btn btn-outline-primary btn-sm"
+                >
+                  Consultar punto de acopio
+                </a>
+              }
+
+              @if (compromisoId() > 0) {
+                <a routerLink="/mensajes" [queryParams]="{ compromiso: compromisoId() }" class="btn btn-outline-primary btn-sm">
+                  Contactar institución
+                </a>
+              }
+
+              @if (puedeIniciarTraslado) {
+                <button type="button" class="btn btn-outline-primary btn-sm" [disabled]="procesandoEstado()" (click)="cambiarEstado('EN_CAMINO')">
+                  @if (procesandoEstado()) {
+                    <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                  }
+                  Iniciar traslado
+                </button>
+              }
+
+              @if (puedeInformarLlegada) {
+                <button type="button" class="btn btn-outline-primary btn-sm" [disabled]="procesandoEstado()" (click)="cambiarEstado('ENTREGADA')">
+                  Informar llegada
+                </button>
+              }
+
+              @if (puedeConfirmarRecepcion) {
+                <a
+                  [routerLink]="['/institucional/compromisos']"
+                  [queryParams]="{ compromiso: compromisoId(), entrega: entregaId }"
+                  fragment="bandeja"
+                  class="btn btn-primary btn-sm"
+                >
+                  Confirmar recepción
+                </a>
+              }
+            </div>
+
+            @if (puedeCompartir) {
+              <div class="border-top pt-3">
+                <div class="form-check mb-2">
+                  <input
+                    id="consentimientoGps"
+                    class="form-check-input"
+                    type="checkbox"
+                    [checked]="consentimiento()"
+                    (change)="consentimiento.set($any($event.target).checked)"
+                    [disabled]="compartiendo()"
+                  />
+                  <label class="form-check-label small" for="consentimientoGps">
+                    Autorizo compartir mi ubicación sólo durante esta entrega.
+                  </label>
+                </div>
+                @if (compartiendo()) {
+                  <button type="button" class="btn btn-outline-danger btn-sm" (click)="detenerUbicacion()">
+                    <app-icon name="stop" aria-hidden="true" />
+                    Detener ubicación
+                  </button>
+                } @else {
+                  <button type="button" class="btn btn-primary btn-sm" (click)="compartirUbicacion()" [disabled]="cargando() || !consentimiento()">
+                    @if (cargando()) {
+                      <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                    } @else {
+                      <app-icon name="pin" aria-hidden="true" />
+                    }
+                    Compartir ubicación
+                  </button>
+                }
+                <p class="small text-secondary mt-2 mb-0">
+                  La ubicación es privada, caduca y nunca confirma la recepción de los bienes.
+                </p>
+              </div>
+            }
+          </section>
+
+          <section class="card border-0 bg-light rounded-4 p-3 p-md-4 mb-4" aria-labelledby="privacidadTitulo">
+            <span class="dc-eyebrow mb-2 d-block">Privacidad desde el inicio</span>
+            <h2 id="privacidadTitulo" class="h5 fw-bold mb-2">Ubicación autorizada</h2>
+            <p class="small text-secondary mb-2">Última actualización: <strong>{{ fechaTexto(ultimaActualizacion()) }}</strong></p>
+            @if (expiraEn()) {
+              <p class="small text-secondary mb-0">La sesión caduca el {{ fechaTexto(expiraEn()) }}.</p>
+            } @else {
+              <p class="small text-secondary mb-0">No hay una sesión activa registrada en esta pantalla.</p>
+            }
+          </section>
+
+          <app-mapa-huancayo
+            titulo="Ubicación privada autorizada"
+            [marcadores]="marcadores()"
+            [mostrarBotonUbicacion]="false"
+          />
         </div>
 
-        <app-mapa-huancayo titulo="Mapa de referencia de la entrega" />
-      </div>
+        <div class="col-12 col-lg-5">
+          <div class="card border-0 bg-light rounded-4 h-100 p-3 p-md-4">
+            <h2 class="h5 fw-bold mb-2">Cómo funciona el seguimiento</h2>
+            <ul class="list-unstyled d-grid gap-3 mb-3">
+              <li class="d-flex gap-3 align-items-start">
+                <app-icon name="hand" class="dc-seguimiento-icon flex-shrink-0" aria-hidden="true" />
+                <span class="small"><strong>Inicio manual.</strong> Tú decides cuándo compartir la ubicación.</span>
+              </li>
+              <li class="d-flex gap-3 align-items-start">
+                <app-icon name="pin" class="dc-seguimiento-icon flex-shrink-0" aria-hidden="true" />
+                <span class="small"><strong>Dato privado.</strong> No se publica ni sustituye la confirmación de recepción.</span>
+              </li>
+              <li class="d-flex gap-3 align-items-start">
+                <app-icon name="clock" class="dc-seguimiento-icon flex-shrink-0" aria-hidden="true" />
+                <span class="small"><strong>Caducidad y detención.</strong> Puedes detenerla en cualquier momento.</span>
+              </li>
+            </ul>
 
-      <div class="col-12 col-lg-5">
-        <div class="card border-0 bg-light rounded-4 h-100 p-3 p-md-4">
-          <span class="dc-eyebrow mb-3">Privacidad desde el inicio</span>
-          <h2 class="h5 fw-bold mb-3">Cómo se activaría una sesión</h2>
-          <ol class="list-unstyled d-grid gap-3 mb-4">
-            <li class="d-flex gap-3 align-items-start">
-              <app-icon name="hand" class="dc-seguimiento-icon flex-shrink-0" aria-hidden="true" />
-              <span><strong>Inicio manual.</strong> Tú decides cuándo compartir la ubicación.</span>
-            </li>
-            <li class="d-flex gap-3 align-items-start">
-              <app-icon name="pin" class="dc-seguimiento-icon flex-shrink-0" aria-hidden="true" />
-              <span><strong>Dato privado.</strong> No se publica ni sustituye la confirmación de recepción.</span>
-            </li>
-            <li class="d-flex gap-3 align-items-start">
-              <app-icon name="clock" class="dc-seguimiento-icon flex-shrink-0" aria-hidden="true" />
-              <span><strong>Caducidad y detención.</strong> Podrías detenerla en cualquier momento.</span>
-            </li>
-          </ol>
+            <h2 class="h6 fw-bold mb-2">Limitaciones de la PWA</h2>
+            <p class="small text-secondary mb-3">
+              La geolocalización en segundo plano no está garantizada: el navegador puede suspenderla,
+              requiere HTTPS y permiso del dispositivo. Por eso la entrega se confirma siempre con las
+              personas participantes, nunca solo con una coordenada.
+            </p>
 
-          <h2 class="h6 fw-bold mb-2">Limitaciones conocidas de la PWA</h2>
-          <p class="small text-secondary mb-4">
-            La geolocalización en segundo plano no está garantizada: el navegador puede suspenderla,
-            requiere HTTPS y permiso del dispositivo. Por eso la entrega se confirma siempre con las
-            personas participantes, nunca solo con una coordenada.
-          </p>
-
-          <div class="d-grid gap-2">
-            <a routerLink="/mensajes" class="btn btn-primary">Contactar por mensajes</a>
-            <a routerLink="/mis-donaciones" class="btn btn-outline-primary">Ver mis donaciones</a>
-            <a routerLink="/preguntas-frecuentes" class="btn btn-outline-secondary">Consultar privacidad</a>
+            <div class="d-grid gap-2">
+              <a routerLink="/mensajes" class="btn btn-outline-primary btn-sm">Coordinar por mensajes</a>
+              <a routerLink="/mis-donaciones" class="btn btn-outline-secondary btn-sm">Ver mis donaciones</a>
+              <a routerLink="/preguntas-frecuentes" class="btn btn-outline-secondary btn-sm">Consultar privacidad</a>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    }
   </div>
 </section>

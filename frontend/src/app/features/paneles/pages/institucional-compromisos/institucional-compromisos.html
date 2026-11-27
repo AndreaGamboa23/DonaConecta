@@ -1,0 +1,287 @@
+<app-page-hero
+  eyebrow="Panel institucional"
+  titulo="Compromisos y entregas"
+  descripcion="Selecciona una entrega para revisar sus bienes y registrar la recepción real por producto. Las cantidades y los estados se leen de tu institución."
+  icono="truck"
+  tono="navy"
+/>
+
+<section class="dc-section-space">
+  <div class="container">
+    @if (aviso()) {
+      <div class="alert alert-info border-0 rounded-4" role="status">{{ aviso() }}</div>
+    }
+    @if (noLeidas() !== null) {
+      <p class="small text-secondary mb-3">
+        Notificaciones actualizadas
+        <span class="badge rounded-pill text-bg-primary">{{ noLeidas() }} sin leer</span>
+      </p>
+    }
+
+    @switch (estado()) {
+      @case ('cargando') {
+        <div class="card border-0 shadow-sm rounded-4 p-4 text-center" role="status">
+          <div class="d-flex align-items-center justify-content-center gap-2">
+            <span class="spinner-border spinner-border-sm text-primary" aria-hidden="true"></span>
+            <span class="text-secondary mb-0">Cargando compromisos…</span>
+          </div>
+        </div>
+      }
+      @case ('error') {
+        <div class="alert alert-warning border-0 rounded-4" role="alert">
+          <p class="fw-semibold mb-2">{{ error() }}</p>
+          <button type="button" class="btn btn-outline-primary btn-sm" (click)="cargar()">Reintentar</button>
+        </div>
+      }
+      @case ('sin-sesion') {
+        <div class="card border-0 bg-light rounded-4 p-4 text-center mx-auto dc-panel-estado">
+          <h2 class="h4 fw-bold mb-2">Acceso requerido</h2>
+          <p class="text-secondary mb-3">Inicia sesión como representante autorizado para gestionar entregas.</p>
+          <a routerLink="/iniciar-sesion" class="btn btn-primary">Iniciar sesión</a>
+        </div>
+      }
+      @case ('datos') {
+        <div class="row g-4 g-xl-5">
+          <div class="col-12 col-xl-8">
+            <section id="bandeja" aria-labelledby="bandejaTitulo">
+              <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                <div>
+                  <h2 id="bandejaTitulo" class="h4 fw-bold mb-1">Bandeja de entregas</h2>
+                  <p class="small text-secondary mb-0">Elige una entrega para registrar lo que llegó realmente.</p>
+                </div>
+                <span class="badge rounded-pill text-bg-primary">{{ bandeja().length }} entregas</span>
+              </div>
+
+              @if (bandeja().length) {
+                <div class="row g-3">
+                  <div class="col-12 col-lg-4">
+                    <div class="list-group shadow-sm rounded-4" role="list" aria-label="Entregas de tu institución">
+                      @for (item of bandeja(); track item.entregaId) {
+                        <button
+                          type="button"
+                          class="list-group-item list-group-item-action rounded-4 mb-2"
+                          [class.active]="seleccionId() === item.entregaId"
+                          [attr.aria-current]="seleccionId() === item.entregaId ? 'true' : null"
+                          (click)="seleccionar(item)"
+                        >
+                          <span class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-1">
+                            <strong>Entrega #{{ item.entregaId }}</strong>
+                            <span class="badge rounded-pill {{ claseEstado(item.entrega.estado) }}">{{ item.entrega.estado }}</span>
+                          </span>
+                          <span class="d-block small text-secondary">Compromiso #{{ item.compromisoId }} · {{ titulo(item.compromiso) }}</span>
+                          <span class="d-block small">{{ fechaTexto(item.entrega.fecha_programada ?? item.entrega.creado_en) }}</span>
+                        </button>
+                      }
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-lg-8">
+                    @if (seleccion(); as actual) {
+                      <section class="card border-0 shadow-sm rounded-4 p-3 p-md-4" aria-live="polite">
+                        <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+                          <div>
+                            <span class="badge rounded-pill {{ claseEstado(actual.entrega.estado) }} mb-2">
+                              {{ actual.entrega.estado }}
+                            </span>
+                            <h3 class="h5 fw-bold mb-1">Entrega #{{ actual.entregaId }}</h3>
+                            <p class="small text-secondary mb-0">
+                              Compromiso #{{ actual.compromisoId }} · {{ titulo(actual.compromiso) }}
+                            </p>
+                          </div>
+                          <a
+                            [routerLink]="['/seguimiento', actual.entregaId]"
+                            [queryParams]="{ compromiso: actual.compromisoId }"
+                            class="btn btn-sm btn-outline-primary"
+                          >
+                            Ver seguimiento
+                          </a>
+                        </div>
+
+                        <p class="small mb-2">
+                          <span class="fw-semibold">Punto de acopio:</span>
+                          {{ nombrePunto(actual.entrega.id_punto_acopio ?? actual.compromiso.id_punto_acopio ?? 0) }}
+                          · {{ fechaTexto(actual.entrega.fecha_programada ?? actual.entrega.creado_en) }}
+                        </p>
+                        @if (actual.entrega.observaciones) {
+                          <p class="small text-secondary mb-3">{{ actual.entrega.observaciones }}</p>
+                        }
+
+                        <div class="table-responsive mb-3">
+                          <table class="table align-middle mb-0">
+                            <thead>
+                              <tr>
+                                <th scope="col">Bien</th>
+                                <th scope="col" class="text-end">Comprometido</th>
+                                <th scope="col" class="text-end">Recibido</th>
+                                <th scope="col" class="text-end">Pendiente</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              @for (linea of lineas(actual.entrega, actual.compromiso); track linea.producto_id + '-' + linea.unidad_id) {
+                                <tr>
+                                  <td class="fw-semibold">
+                                    {{ linea.producto ?? 'Bien #' + linea.producto_id }}
+                                    <span class="small text-secondary">{{ linea.unidad_codigo ?? linea.simbolo ?? linea.unidad ?? '' }}</span>
+                                  </td>
+                                  <td class="text-end">{{ linea.cantidad_comprometida }}</td>
+                                  <td class="text-end">{{ linea.cantidad_recibida ?? 0 }}</td>
+                                  <td class="text-end fw-bold">
+                                    {{ pendiente(linea.cantidad_comprometida, linea.cantidad_recibida, linea.cantidad_pendiente) }}
+                                  </td>
+                                </tr>
+                              } @empty {
+                                <tr>
+                                  <td colspan="4" class="small text-secondary">La entrega no registra líneas.</td>
+                                </tr>
+                              }
+                            </tbody>
+                          </table>
+                        </div>
+
+                        @if (recepciones(actual.entrega, actual.compromiso).length) {
+                          <div class="alert alert-success border-0 rounded-4 small" role="status">
+                            <strong>Recepción registrada.</strong>
+                            @for (recepcion of recepciones(actual.entrega, actual.compromiso); track $index) {
+                              <span class="d-block mt-1">
+                                {{ recepcion.estado }} · {{ fechaTexto(recepcion.fecha_confirmacion ?? recepcion.creado_en) }}
+                                @if (recepcion.observaciones) { — {{ recepcion.observaciones }} }
+                              </span>
+                            }
+                          </div>
+                        } @else if (actual.entrega.estado.toLocaleUpperCase('es') === 'CANCELADA') {
+                          <p class="small text-secondary mb-0">La entrega fue cancelada; no admite recepción.</p>
+                        } @else {
+                          <div class="d-flex flex-wrap gap-2 mb-3">
+                            @if (puedeMarcarEnCamino(actual.entrega)) {
+                              <button type="button" class="btn btn-sm btn-outline-primary" [disabled]="procesando()" (click)="cambiarEstado(actual.entrega, 'EN_CAMINO')">
+                                Marcar en camino
+                              </button>
+                            }
+                            @if (puedeMarcarEntregada(actual.entrega)) {
+                              <button type="button" class="btn btn-sm btn-outline-primary" [disabled]="procesando()" (click)="cambiarEstado(actual.entrega, 'ENTREGADA')">
+                                Informar llegada
+                              </button>
+                            }
+                          </div>
+
+                          <form
+                            class="border-top pt-3"
+                            [formGroup]="formularioRecepcion(actual.entrega, actual.compromiso)"
+                            (ngSubmit)="registrarRecepcion(actual.entrega, actual.compromiso)"
+                          >
+                            <h4 class="h6 fw-bold mb-3">Confirmar recepción por producto</h4>
+                            <div class="row g-3">
+                              <div class="col-12 col-md-5">
+                                <label class="form-label small fw-semibold" for="estado-{{ actual.entregaId }}">Resultado</label>
+                                <select id="estado-{{ actual.entregaId }}" class="form-select form-select-sm" formControlName="estado">
+                                  <option value="PARCIAL">Parcial</option>
+                                  <option value="CONFIRMADA" [disabled]="!puedeConfirmarTotal(actual.entrega, actual.compromiso)">Confirmada</option>
+                                  <option value="OBSERVADA">Observada</option>
+                                </select>
+                              </div>
+                              <div class="col-12 col-md-7">
+                                <label class="form-label small fw-semibold" for="obs-{{ actual.entregaId }}">Observaciones</label>
+                                <input id="obs-{{ actual.entregaId }}" type="text" class="form-control form-control-sm" maxlength="500" formControlName="observaciones" />
+                              </div>
+                              @for (linea of lineas(actual.entrega, actual.compromiso); track linea.producto_id + '-' + linea.unidad_id) {
+                                <div class="col-12 col-md-6">
+                                  <label class="form-label small fw-semibold" for="rec-{{ actual.entregaId }}-{{ linea.producto_id }}-{{ linea.unidad_id }}">
+                                    Recibido de {{ linea.producto ?? 'Bien #' + linea.producto_id }}
+                                    (máx. {{ pendiente(linea.cantidad_comprometida, linea.cantidad_recibida, linea.cantidad_pendiente) }})
+                                  </label>
+                                  <input
+                                    id="rec-{{ actual.entregaId }}-{{ linea.producto_id }}-{{ linea.unidad_id }}"
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    class="form-control form-control-sm"
+                                    [formControl]="formularioRecepcion(actual.entrega, actual.compromiso).controls.lineas.controls[linea.producto_id + '-' + linea.unidad_id]"
+                                    (input)="sincronizarCantidades(actual.entrega, actual.compromiso)"
+                                  />
+                                </div>
+                              }
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-sm mt-3" [disabled]="procesando()">
+                              Guardar recepción
+                            </button>
+                          </form>
+                        }
+                      </section>
+                    } @else {
+                      <div class="alert alert-light border rounded-4 mb-0" role="status">
+                        Selecciona una entrega de la lista para ver sus productos y opciones de recepción.
+                      </div>
+                    }
+                  </div>
+                </div>
+              } @else {
+                <div class="alert alert-light border rounded-4" role="status">
+                  Tu institución todavía no tiene entregas programadas. Cuando un donante confirme un
+                  compromiso, podrás coordinar la entrega desde el formulario de esta página.
+                </div>
+              }
+            </section>
+          </div>
+
+          <div class="col-12 col-xl-4">
+            <section id="programar-entrega" class="card border-0 bg-light rounded-4 p-3 p-md-4 mb-4" aria-labelledby="programarTitulo">
+              <h2 id="programarTitulo" class="h5 fw-bold mb-1">Programar una entrega</h2>
+              <p class="small text-secondary mb-3">Selecciona un compromiso real y un punto de acopio propio.</p>
+              <form [formGroup]="entregaFormulario" (ngSubmit)="programarEntrega()">
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold" for="compromisoEntrega">Compromiso</label>
+                  <select id="compromisoEntrega" class="form-select" formControlName="id_compromiso">
+                    @for (compromiso of compromisos(); track id(compromiso)) {
+                      <option [value]="id(compromiso)">#{{ id(compromiso) }} · {{ titulo(compromiso) }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold" for="puntoEntrega">Punto de acopio</label>
+                  <select id="puntoEntrega" class="form-select" formControlName="id_punto_acopio">
+                    @for (punto of puntos(); track idPunto(punto)) {
+                      <option [value]="idPunto(punto)">{{ punto.nombre }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold" for="fechaEntrega">Fecha programada</label>
+                  <input id="fechaEntrega" type="datetime-local" class="form-control" formControlName="fecha_programada" />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold" for="observacionesEntrega">Observaciones</label>
+                  <textarea id="observacionesEntrega" rows="2" class="form-control" formControlName="observaciones"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary w-100" [disabled]="procesando() || compromisos().length === 0">
+                  Programar entrega
+                </button>
+              </form>
+              <p class="small text-secondary mt-3 mb-0">
+                Las líneas de la entrega se copian del compromiso real. No se registran bienes inventados.
+              </p>
+            </section>
+
+            <section class="card border-0 shadow-sm rounded-4 p-3 p-md-4" aria-labelledby="acopiosTitulo">
+              <h2 id="acopiosTitulo" class="h5 fw-bold mb-3">Puntos de acopio propios</h2>
+              @if (puntos().length) {
+                <ul class="list-unstyled mb-3 d-grid gap-2">
+                  @for (punto of puntos(); track idPunto(punto)) {
+                    <li class="small border-bottom pb-2">
+                      <strong class="d-block">{{ punto.nombre }}</strong>
+                      <span class="text-secondary">{{ punto.direccion ?? 'Sin dirección registrada' }}</span>
+                    </li>
+                  }
+                </ul>
+              } @else {
+                <p class="small text-secondary">Registra puntos de acopio antes de programar entregas.</p>
+              }
+              <a routerLink="/institucional/puntos-de-acopio" class="btn btn-outline-primary btn-sm w-100">
+                Gestionar puntos de acopio
+              </a>
+            </section>
+          </div>
+        </div>
+      }
+    }
+  </div>
+</section>

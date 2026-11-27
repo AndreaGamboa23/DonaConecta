@@ -10,8 +10,12 @@ from app.routers import (
     catalogos,
     directorio,
     donaciones,
+    entregas,
+    gps,
     instituciones,
     institucional_panel,
+    mensajeria,
+    puntos_acopio,
     productos_panel,
     usuarios,
 )
@@ -50,6 +54,11 @@ app.include_router(usuarios.router)
 app.include_router(instituciones.router)
 app.include_router(directorio.router)
 app.include_router(donaciones.router)
+# `/compromisos/{id}` se registra después de las rutas fijas de `donaciones`.
+app.include_router(entregas.router)
+app.include_router(puntos_acopio.router)
+app.include_router(mensajeria.router)
+app.include_router(gps.router)
 app.include_router(productos_panel.router)
 app.include_router(admin_panel.router)
 app.include_router(institucional_panel.router)

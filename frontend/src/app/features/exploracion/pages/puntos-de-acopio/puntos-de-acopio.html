@@ -1,47 +1,154 @@
 <app-page-hero
   eyebrow="Entregas coordinadas"
   titulo="Puntos de acopio"
-  descripcion="Explora la ciudad de referencia y coordina la entrega de bienes materiales con la institución responsable."
+  descripcion="Consulta los puntos publicados por instituciones verificadas y coordina la entrega de bienes materiales."
   icono="map"
   tono="amber"
 />
 
 <section class="dc-section-space">
   <div class="container">
-    <app-pending-notice
-      [estado]="estado"
-      titulo="El directorio de puntos todavía no está conectado"
-      class="d-block mb-4"
-    />
+    @if (error()) {
+      <div class="alert alert-warning border-0 rounded-4" role="alert">
+        <p class="fs-6 fw-semibold mb-2">{{ error() }}</p>
+        <button type="button" class="btn btn-outline-primary" (click)="cargar()">Reintentar</button>
+      </div>
+    }
 
-    <app-mapa-huancayo />
+    @if (destino(); as destino) {
+      <section class="card border-0 shadow-sm rounded-4 p-3 p-md-4 mb-4" aria-labelledby="destinoTitulo">
+        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+          <div>
+            <span class="d-block fs-6 text-uppercase fw-semibold text-secondary">Tu destino de entrega</span>
+            <h2 id="destinoTitulo" class="h4 fw-bold mb-1">{{ nombreDestino() }}</h2>
+            <p class="fs-6 text-secondary mb-0">
+              <app-icon name="building" aria-hidden="true" />
+              {{ institucionDestino() || 'Institución registrada' }}
+            </p>
+          </div>
+          @if (destino.compromisoId > 0) {
+            <a [routerLink]="['/donaciones', destino.compromisoId]" class="btn btn-outline-primary">
+              <app-icon name="arrow-left" aria-hidden="true" />
+              Volver a mi donación
+            </a>
+          }
+        </div>
+
+        <div class="row g-3 g-md-4">
+          <div class="col-12 col-md-6">
+            <span class="d-block fs-6 text-secondary">Dirección</span>
+            @if (direccionDestino()) {
+              <span class="d-block fs-6 fw-semibold">{{ direccionDestino() }}</span>
+            } @else {
+              <span class="d-block fs-6 text-secondary">Dirección no publicada</span>
+            }
+          </div>
+          <div class="col-12 col-md-6">
+            <span class="d-block fs-6 text-secondary">Horario</span>
+            @if (horarioDestino()) {
+              <span class="d-block fs-6 fw-semibold">{{ horarioDestino() }}</span>
+            } @else {
+              <span class="d-block fs-6 text-secondary">Horario por coordinar con la institución</span>
+            }
+          </div>
+        </div>
+
+        @if (coordenadasDestino()) {
+          <div class="d-flex flex-wrap gap-2 mt-3">
+            <a [href]="urlRuta()" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+              <app-icon name="route" aria-hidden="true" />
+              Cómo llegar
+            </a>
+          </div>
+        } @else {
+          <div class="alert alert-info border-0 rounded-3 fs-6 mb-0 mt-3" role="status">
+            Este punto no tiene coordenadas autorizadas para mostrar en el mapa. Coordina la entrega por mensajes.
+          </div>
+        }
+      </section>
+    }
+
+    @if (!destino() || coordenadasDestino()) {
+      <app-mapa-huancayo
+        titulo="Puntos de acopio autorizados"
+        [marcadores]="marcadores()"
+        [marcadorResaltado]="resaltado()"
+        [destino]="destinoMapa()"
+      />
+    }
 
     <div class="row g-4 mt-4">
       <div class="col-12 col-lg-7">
-        <div class="dc-punto-panel rounded-4 p-3 p-md-4 h-100">
+        <section class="dc-punto-panel rounded-4 p-3 p-md-4 h-100" aria-labelledby="puntosPublicados">
           <div class="d-flex align-items-center gap-3 mb-3">
             <span class="dc-punto-icon d-inline-flex align-items-center justify-content-center rounded-3">
               <app-icon name="pin" />
             </span>
             <div>
-              <span class="d-block small text-uppercase fw-semibold text-secondary">Panel preparado</span>
-              <h2 class="h5 fw-bold mb-0">Puntos autorizados</h2>
+              <span class="d-block fs-6 text-uppercase fw-semibold text-secondary">Información publicada</span>
+              <h2 id="puntosPublicados" class="h5 fw-bold mb-0">Puntos autorizados</h2>
             </div>
           </div>
-          <p class="text-secondary mb-3">
-            Cuando el servicio esté conectado, aquí se mostrarán el nombre, el distrito, los
-            horarios y las instrucciones de entrega de cada punto publicado.
-          </p>
-          <div class="alert alert-light border small mb-0" role="status">
-            <strong>Sin datos cargados todavía.</strong> El mapa muestra solo la referencia de
-            Huancayo; no incluye puntos de acopio inventados.
-          </div>
-        </div>
+
+          @switch (estado()) {
+            @case ('cargando') {
+              <div class="d-flex align-items-center gap-2 fs-6 text-secondary" role="status">
+                <span class="spinner-border spinner-border-sm text-primary" aria-hidden="true"></span>
+                Cargando puntos publicados…
+              </div>
+            }
+            @case ('error') {
+              <p class="fs-6 text-secondary mb-0">No pudimos consultar el directorio en este momento.</p>
+            }
+            @case ('datos') {
+              @if (puntos().length === 0) {
+                <div class="alert alert-light border fs-6 mb-0" role="status">
+                  No hay puntos de acopio publicados actualmente.
+                </div>
+              } @else {
+                <div class="d-grid gap-3">
+                  @for (punto of puntos(); track id(punto)) {
+                    <article
+                      class="border rounded-4 p-3 bg-white"
+                      [class.border-primary]="resaltado() === id(punto)"
+                    >
+                      <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                        <div>
+                          <h3 class="h6 fw-bold mb-1">
+                            {{ punto.nombre }}
+                            @if (resaltado() === id(punto)) {
+                              <span class="badge rounded-pill text-bg-primary">Seleccionado</span>
+                            }
+                          </h3>
+                          <p class="fs-6 text-secondary mb-1">
+                            <app-icon name="pin" aria-hidden="true" />
+                            {{ distrito(punto) }}
+                            @if (punto.direccion) {
+                              · {{ punto.direccion }}
+                            }
+                          </p>
+                          @if (punto.referencias_entrega) {
+                            <p class="fs-6 mb-1">{{ punto.referencias_entrega }}</p>
+                          }
+                          <p class="fs-6 text-secondary mb-0">{{ horarios(punto) }}</p>
+                        </div>
+                      </div>
+                    </article>
+                  }
+                </div>
+              }
+            }
+          }
+        </section>
       </div>
       <div class="col-12 col-lg-5">
         <div class="d-grid gap-2 h-100 align-content-center">
           <a routerLink="/como-donar" class="btn btn-primary">Cómo donar</a>
-          <a routerLink="/registro/institucion" class="btn btn-outline-primary">Registrar institución</a>
+          @if (sesion.autenticado()) {
+            <a routerLink="/mis-donaciones" class="btn btn-outline-primary">Ver mis donaciones</a>
+          } @else {
+            <a routerLink="/iniciar-sesion" class="btn btn-outline-primary">Iniciar sesión</a>
+          }
           <a routerLink="/instituciones" class="btn btn-outline-secondary">Ver instituciones</a>
         </div>
       </div>

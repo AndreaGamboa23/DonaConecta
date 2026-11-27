@@ -2,12 +2,20 @@
   display: block;
 }
 
+.dc-mensajes-estado {
+  max-width: 44rem;
+}
+
 .dc-mensajes-icon {
   width: 2.75rem;
   height: 2.75rem;
   padding: 0.6rem;
   background: var(--dc-blue-soft, #dcebf5);
   color: var(--dc-blue, #3679a8);
+}
+
+.dc-mensajes-buscar {
+  max-width: 28rem;
 }
 
 app-icon {

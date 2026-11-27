@@ -17,4 +17,6 @@ export const ENLACES_INSTITUCION: readonly EnlacePanel[] = [
   { etiqueta: 'Mi institución', ruta: '/institucional/perfil', icono: 'building' },
   { etiqueta: 'Verificación', ruta: '/institucional/verificacion', icono: 'shield' },
   { etiqueta: 'Necesidades', ruta: '/institucional/necesidades', icono: 'box' },
+  { etiqueta: 'Entregas', ruta: '/institucional/compromisos', icono: 'truck' },
+  { etiqueta: 'Acopio', ruta: '/institucional/puntos-de-acopio', icono: 'pin' },
 ];

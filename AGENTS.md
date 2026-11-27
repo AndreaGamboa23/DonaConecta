@@ -445,13 +445,14 @@ La seguridad se implementa progresivamente en todas las fases, no solo al final.
 | 08.2 | CRUD real de usuarios, perfil personal, sesiones revocables y celular cifrado. | Ejecutada e integrada en Avance 01 |
 | 09 | Paneles administrativo e institucional, verificación real, catálogo de productos y necesidades (Avance 02). La autenticación, el registro y las sesiones quedaron cubiertos en 08.2. | Ejecutada |
 | 09.1 | Experiencia pública real: detalle de necesidades, directorio y perfiles SQL, accesos por rol y correcciones de contrato. | Ejecutada |
-| 10 | Registro, verificación y directorio de instituciones. | Pendiente |
-| 11 | Catálogo y gestión de necesidades. | Pendiente |
-| 12 | Compromisos, donaciones y entregas. | Pendiente |
-| 13 | Mapas, ubicaciones y puntos de acopio. | Pendiente |
-| 14 | Seguimiento GPS autorizado. | Pendiente |
-| 15 | Chat y mensajería en tiempo real. | Pendiente |
-| 16 | Notificaciones, evidencias y trazabilidad. | Pendiente |
+| Cierre de entrega | Integración funcional mínima de donación, acopio, entrega, recepción, chat persistente, notificaciones y GPS autorizado. | Ejecutada; ver §18.8 |
+| 10 | Registro, verificación y directorio de instituciones. | Pendiente como fase formal |
+| 11 | Catálogo y gestión de necesidades. | Pendiente como fase formal |
+| 12 | Compromisos, donaciones y entregas. | Funcionalidad básica integrada en el cierre; fase formal pendiente |
+| 13 | Mapas, ubicaciones y puntos de acopio. | Funcionalidad básica integrada en el cierre; fase formal pendiente |
+| 14 | Seguimiento GPS autorizado. | Funcionalidad básica integrada en el cierre; fase formal pendiente |
+| 15 | Chat y mensajería en tiempo real. | Persistencia HTTP integrada; WebSocket pendiente |
+| 16 | Notificaciones, evidencias y trazabilidad. | Funcionalidad básica integrada en el cierre; fase formal pendiente |
 | 17 | Dashboards y estadísticas reales. | Pendiente |
 | 18 | Aplicación instalable PWA. | Pendiente |
 | 19 | Pruebas integrales, seguridad y optimización. | Pendiente |
@@ -798,3 +799,32 @@ El SP actual no garantiza duplicados por donante en concurrencia verdadera; la c
 mojibake y de unidades queda pendiente de autorización. Detalle en
 `docs/informe-experiencia-directorio-fase-09.1.md`. La valoración estética final sigue pendiente
 de revisión humana.
+
+### 18.8 Alcance autorizado del cierre funcional de la entrega
+
+- Trabajar exclusivamente en `Andrea`, conservando Avance 01, Fase 09 y Fase 09.1. No modificar
+  `main`, `Jhon` ni `respaldo-avance-01`; no ejecutar commit, push, merge, rebase, `reset --hard`
+  ni `git clean`.
+- Usar únicamente `DonaConectaDB_Pruebas` para el flujo y las verificaciones. No ejecutar DDL;
+  la corrección de codificación y los datos sintéticos se hicieron con scripts idempotentes
+  (`011` y `012`) bajo la guarda de base autorizada. `DonaConectaDB` permanece intacta y
+  `ALLOW_MAIN_DB_WRITES=no`.
+- Integrar compromisos con persistencia real, puntos y horarios, entregas y recepciones, chat
+  persistente, notificaciones y GPS con consentimiento, sin inventar datos, sesiones, GPS,
+  mensajes ni estadísticas. El transporte WebSocket queda fuera de este cierre: se usa polling
+  HTTP y se documenta como mejora futura.
+- Registrar en OpenAPI las operaciones nuevas, mantener la autorización en backend por rol y
+  propiedad, conservar Argon2id, AES-256-GCM, sesiones revocables y consultas parametrizadas.
+- Verificar de forma enfocada: flujo API real, comprobaciones negativas, pruebas Python y
+  Angular, build y `git diff --check`. No repetir las 2179 comprobaciones CDP de Fase 09.1.
+
+**Resultado del cierre funcional:** flujo integral **12/12** en `DonaConectaDB_Pruebas` y
+autorización **4/4**; OpenAPI con **47 rutas, 59 operaciones y 89 esquemas**; **75/75** pruebas
+Python y **88/88** Angular en 33 archivos; build de **590,83 kB** iniciales y **114,74 kB**
+transferidos. Se corrigieron el orden de routers en `main.py`, las columnas físicas leídas por
+`_fila_compromiso` y el uso de `OUTPUT INSERTED.*` en lugar de `SCOPE_IDENTITY()` en mensajes,
+conversaciones y sesiones GPS. Los mensajes quedan cifrados en SQL Server y las coordenadas
+sólo se publican con autorización registrada. Persisten como pendientes el WebSocket de
+mensajería/GPS, la corrección concurrente del procedimiento de compromisos y la valoración
+estética humana. Detalle en `docs/informe-implementacion-final.md` y
+`docs/contrato-integracion-final.md`. No se ejecutaron commit, push ni cambio de rama.

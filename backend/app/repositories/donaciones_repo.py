@@ -413,10 +413,12 @@ def registrar_compromiso(donante_usuario_id: int, datos: dict) -> dict:
 
 
 def _fila_compromiso(fila) -> dict:
+    # La consulta base selecciona las columnas físicas `compromiso_id` y
+    # `necesidad_id`; el DTO mantiene los alias `id_*` que consume el frontend.
     return {
-        "id_compromiso": int(fila.id_compromiso),
-        "compromiso_id": int(fila.id_compromiso),
-        "id_necesidad": int(fila.id_necesidad),
+        "id_compromiso": int(fila.compromiso_id),
+        "compromiso_id": int(fila.compromiso_id),
+        "id_necesidad": int(fila.necesidad_id),
         "necesidad": fila.necesidad,
         "institucion": fila.institucion,
         "cantidad_comprometida": _numero(fila.cantidad_comprometida),

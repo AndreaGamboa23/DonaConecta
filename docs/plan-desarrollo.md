@@ -428,3 +428,32 @@ La Fase 07 de backend sigue pendiente y no se inicia sin autorización explícit
    autorizado; la valoración estética final sigue pendiente de revisión humana. Detalle en
    `docs/informe-experiencia-directorio-fase-09.1.md`. No se ejecutaron commit, push, merge ni
    cambio de rama.
+
+## 15. Resultado del cierre funcional de la entrega (26 de noviembre de 2026)
+
+1. Alcance: integrar en la rama `Andrea` la operación real de donación de bienes materiales,
+   puntos y horarios de acopio, recepción institucional, chat persistente, notificaciones y GPS
+   autorizado, además de la corrección de codificación y los ajustes visuales necesarios. Sólo se
+   escribió en `DonaConectaDB_Pruebas`; `ALLOW_MAIN_DB_WRITES=no`, sin DDL y sin tocar
+   `main`, `Jhon` ni `respaldo-avance-01`. Tampoco se ejecutaron commit, push, merge ni cambio
+   de rama.
+2. Backend: cuatro routers y sus repositorios/esquemas nuevos registrados en
+   `backend/app/main.py`, con `donaciones` antes que `entregas` para preservar
+   `/compromisos/mis-compromisos`. OpenAPI: **47 rutas, 59 operaciones y 89 esquemas**.
+   Se corrigió el mapeo de columnas de compromisos y se sustituyó `SCOPE_IDENTITY()` por
+   `OUTPUT INSERTED.*` en mensajes, conversaciones y sesiones GPS.
+3. Frontend: `/mis-donaciones`, `/donaciones/:id`, bandeja y conversación en `/mensajes`,
+   bandejas de `/institucional/compromisos` y `/institucional/puntos-acopio`, marcadores del
+   mapa sólo con coordenadas autorizadas y `/seguimiento/:id` con consentimiento y detención
+   explícitos. `BackendEstadoService` declara las operaciones con API real sin simular datos.
+4. Datos: scripts `011` y `012` ejecutados en la base de pruebas; **0** restos de mojibake,
+   instituciones `DEMO-FINAL-` verificadas y flujo real persistido con compromiso `ACEPTADO`,
+   entrega `INCIDENCIA` por recepción parcial, disponibilidad coherente y mensajes cifrados.
+5. Evidencias: flujo API **12/12**, autorización **4/4**, Python **75/75**, Angular **88/88**
+   en 33 archivos, build de **590,83 kB** iniciales y **114,74 kB** transferidos, y
+   `git diff --check` sin errores de whitespace. No se repitieron las 2179 comprobaciones CDP
+   de Fase 09.1. Detalle en `docs/informe-implementacion-final.md` y
+   `docs/contrato-integracion-final.md`.
+6. Límites: WebSocket de chat/GPS, concurrencia verdadera de compromisos duplicados y
+   valoración estética final quedan pendientes. La mensajería usa polling HTTP; GPS guarda
+   una sola posición cifrada y no sustituye la confirmación de recepción.

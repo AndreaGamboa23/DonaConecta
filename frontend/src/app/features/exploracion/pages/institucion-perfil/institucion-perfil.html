@@ -164,6 +164,24 @@
                     registrar un compromiso con una solicitud concreta.
                   </p>
                 }
+
+                <hr class="my-4" />
+                <button
+                  type="button"
+                  class="btn btn-outline-primary w-100"
+                  (click)="abrirChat()"
+                  [disabled]="abriendoChat()"
+                >
+                  <app-icon name="chat" aria-hidden="true" />
+                  {{ abriendoChat() ? 'Abriendo conversación…' : 'Enviar mensaje' }}
+                </button>
+                @if (errorChat()) {
+                  <p class="small text-danger mt-2 mb-0">{{ errorChat() }}</p>
+                } @else {
+                  <p class="small text-secondary mt-2 mb-0">
+                    La conversación se crea con una de las solicitudes publicadas de la institución.
+                  </p>
+                }
               </section>
 
               <section class="card border-0 shadow-sm rounded-4 p-3 p-md-4" aria-labelledby="acopioPerfil">

@@ -30,6 +30,7 @@ describe('Rutas de DonaConecta', () => {
       'iniciar-sesion',
       'mensajes',
       'mis-donaciones',
+      'donaciones/:id',
       'seguimiento/:id',
       'perfil',
       'como-donar',
@@ -66,6 +67,8 @@ describe('Rutas de DonaConecta', () => {
       'perfil',
       'verificacion',
       'necesidades',
+      'compromisos',
+      'puntos-de-acopio',
     ]);
     expect(
       [...(admin?.children ?? []), ...(institucional?.children ?? [])].every(

@@ -78,6 +78,7 @@ export class InstitucionTipo implements OnInit {
             distrito: item.distrito,
             estadoVerificacion: item.estado_verificacion,
             descripcion: item.descripcion ?? undefined,
+            direccion: item.direccion,
             necesidadesActivas: item.necesidades_activas ?? 0,
             perfilRuta: `/instituciones/${item.id_institucion}`,
           })),

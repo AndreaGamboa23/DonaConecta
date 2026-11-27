@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { BackendEstadoService } from '../../../core/services/backend-estado.service';
+import { EstadoServicio } from '../../../core/interfaces/dona-conecta';
 import { PendingNotice } from './pending-notice';
 
 describe('PendingNotice', () => {
@@ -7,7 +7,11 @@ describe('PendingNotice', () => {
     await TestBed.configureTestingModule({ imports: [PendingNotice] }).compileComponents();
 
     const fixture = TestBed.createComponent(PendingNotice);
-    const estado = TestBed.inject(BackendEstadoService).estado('mensajes');
+    const estado: EstadoServicio = {
+      disponible: false,
+      endpoint: '/api/v1/mensajes',
+      mensaje: 'El servicio no está disponible en este momento.',
+    };
     fixture.componentRef.setInput('estado', estado);
     fixture.componentRef.setInput('titulo', 'Acceso no disponible');
     await fixture.whenStable();

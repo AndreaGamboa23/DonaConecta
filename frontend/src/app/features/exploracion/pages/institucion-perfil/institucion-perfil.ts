@@ -1,9 +1,11 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BackendEstadoService } from '../../../../core/services/backend-estado.service';
+import { SesionService } from '../../../../core/services/sesion.service';
 import { Icon } from '../../../../shared/components/icon/icon';
 import { NecesidadCard } from '../../../../shared/components/necesidad-card/necesidad-card';
 import { PageHero } from '../../../../shared/components/page-hero/page-hero';
+import { MensajeriaApiService } from '../../../mensajes/services/mensajeria-api.service';
 import { ExploracionApiService, InstitucionDetalle } from '../../services/exploracion-api.service';
 
 type EstadoPerfil = 'servicio-no-disponible' | 'cargando' | 'error' | 'no-encontrada' | 'datos';
@@ -20,6 +22,12 @@ export class InstitucionPerfil implements OnInit {
   private readonly ruta = inject(ActivatedRoute);
   private readonly estadoServicio = inject(BackendEstadoService);
   private readonly api = inject(ExploracionApiService);
+  private readonly mensajeriaApi = inject(MensajeriaApiService);
+  private readonly router = inject(Router);
+  readonly sesion = inject(SesionService);
+
+  readonly abriendoChat = signal(false);
+  readonly errorChat = signal('');
 
   readonly estado = signal<EstadoPerfil>(
     this.estadoServicio.estado('instituciones').disponible
@@ -42,6 +50,36 @@ export class InstitucionPerfil implements OnInit {
       error: (error) => {
         const codigo = error?.error?.error?.codigo ?? error?.error?.detail?.codigo;
         this.estado.set(codigo === 'RECURSO_NO_PUBLICO' ? 'no-encontrada' : 'error');
+      },
+    });
+  }
+
+  abrirChat(): void {
+    const institucion = this.institucion();
+    if (!institucion || this.abriendoChat()) return;
+    if (!this.sesion.autenticado()) {
+      this.router.navigate(['/iniciar-sesion'], {
+        queryParams: { retorno: `/instituciones/${institucion.id_institucion}` },
+      });
+      return;
+    }
+
+    const necesidad = institucion.necesidades.find((item) => item.id_necesidad > 0);
+    if (!necesidad) {
+      this.errorChat.set(
+        'Esta institución todavía no tiene solicitudes públicas desde las cuales iniciar una conversación.',
+      );
+      return;
+    }
+
+    this.abriendoChat.set(true);
+    this.errorChat.set('');
+    const payload = { id_necesidad: necesidad.id_necesidad };
+    this.mensajeriaApi.crearConversacion(payload).subscribe({
+      next: () => this.router.navigate(['/mensajes']),
+      error: () => {
+        this.errorChat.set('No se pudo abrir la conversación. Vuelve a intentarlo más tarde.');
+        this.abriendoChat.set(false);
       },
     });
   }

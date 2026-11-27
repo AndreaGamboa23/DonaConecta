@@ -199,6 +199,18 @@ export const routes: Routes = [
         },
       },
       {
+        path: 'donaciones/:id',
+        loadComponent: () =>
+          import('./features/donaciones/pages/donacion-detalle/donacion-detalle').then(
+            (modulo) => modulo.DonacionDetalle,
+          ),
+        title: 'Detalle de una donación | DonaConecta',
+        data: {
+          description:
+            'Consulta el detalle autorizado de un compromiso: bienes, entregas, recepciones e historial real.',
+        },
+      },
+      {
         path: 'seguimiento/:id',
         loadComponent: () =>
           import('./features/seguimiento/pages/seguimiento/seguimiento').then(
@@ -366,6 +378,30 @@ export const routes: Routes = [
         data: {
           description:
             'Publica y gestiona solicitudes de bienes materiales con productos y unidades reales.',
+        },
+      },
+      {
+        path: 'compromisos',
+        loadComponent: () =>
+          import(
+            './features/paneles/pages/institucional-compromisos/institucional-compromisos'
+          ).then((modulo) => modulo.InstitucionalCompromisos),
+        title: 'Compromisos y entregas | DonaConecta',
+        data: {
+          description:
+            'Gestiona entregas, recepciones y seguimiento de los compromisos reales de tu institución.',
+        },
+      },
+      {
+        path: 'puntos-de-acopio',
+        loadComponent: () =>
+          import(
+            './features/paneles/pages/institucional-puntos-acopio/institucional-puntos-acopio'
+          ).then((modulo) => modulo.InstitucionalPuntosAcopio),
+        title: 'Puntos de acopio institucionales | DonaConecta',
+        data: {
+          description:
+            'Registra y actualiza puntos de acopio con horarios y coordenadas autorizadas.',
         },
       },
     ],

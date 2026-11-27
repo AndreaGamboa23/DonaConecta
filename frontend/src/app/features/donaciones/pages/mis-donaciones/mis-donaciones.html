@@ -1,143 +1,221 @@
 <app-page-hero
   eyebrow="Tu actividad"
   titulo="Mis donaciones"
-  [descripcion]="sesion.autenticado() ? 'Aquí puedes revisar tus compromisos de bienes materiales, puntos de entrega y confirmaciones registradas.' : 'Inicia sesión para revisar tus compromisos de bienes materiales y entregas.'"
+  descripcion="Revisa tus compromisos reales: bienes reservados, entregas programadas, recepciones confirmadas y coordinación con la institución."
   icono="gift"
   tono="navy"
 />
 
 <section class="dc-section-space">
   <div class="container">
-    <app-pending-notice
-      [estado]="estado"
-      titulo="El historial todavía no está disponible"
-      class="d-block mb-4"
-    />
-
-    @if (sesion.autenticado()) {
-      @if (errorCarga()) {
-        <div class="alert alert-warning border-0 rounded-4 mb-4" role="alert">
-          No pudimos consultar tus compromisos en este momento. Inténtalo nuevamente más tarde.
-        </div>
-      }
-
-      @if (cargando()) {
-        <div class="card border-0 bg-white shadow-sm rounded-4 p-4 text-center">
-          <div class="d-flex align-items-center justify-content-center gap-2" role="status">
+    @switch (estado()) {
+      @case ('cargando') {
+        <div class="card border-0 bg-white shadow-sm rounded-4 p-4 text-center" role="status">
+          <div class="d-flex align-items-center justify-content-center gap-2">
             <span class="spinner-border spinner-border-sm text-primary" aria-hidden="true"></span>
-            <span class="text-secondary mb-0">Cargando tus compromisos de donación...</span>
-          </div>
-        </div>
-      } @else if (!errorCarga() && donaciones().length > 0) {
-        <div class="row g-4">
-          @for (item of donaciones(); track item.id_compromiso) {
-            <div class="col-12 col-md-6">
-              <div class="card border-0 bg-white shadow-sm rounded-4 h-100 p-3 p-md-4">
-                <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
-                  <span class="badge rounded-pill text-bg-primary">{{ item.estado }}</span>
-                  <span class="small text-secondary">#{{ item.id_compromiso }}</span>
-                </div>
-                <h2 class="h5 fw-bold mb-1">{{ item.necesidad }}</h2>
-                <p class="small text-secondary mb-3">{{ item.institucion }}</p>
-                <p class="mb-2">
-                  <strong>Cantidad:</strong> {{ item.cantidad_comprometida }}
-                  {{ item.unidad_medida_base }}
-                </p>
-                <p class="small text-secondary mb-0">
-                  <strong>Punto de acopio:</strong> {{ item.punto_acopio }}
-                  @if (item.direccion_acopio) {
-                    ({{ item.direccion_acopio }})
-                  }
-                </p>
-              </div>
-            </div>
-          }
-        </div>
-      } @else if (!errorCarga()) {
-        <div class="row g-4 g-lg-5 align-items-stretch">
-          <div class="col-12 col-lg-7">
-            <div class="card border-0 bg-white shadow-sm rounded-4 h-100 p-3 p-md-4">
-              <span class="dc-eyebrow mb-3">Cómo funciona</span>
-              <h2 class="h4 fw-bold mb-4">Del interés a la recepción</h2>
-              <div class="row g-3">
-                <div class="col-12 col-sm-4">
-                  <div class="card border-0 bg-light rounded-4 h-100 p-3">
-                    <span class="dc-value-mark mb-3"><app-icon name="compass" /></span>
-                    <span class="badge rounded-pill text-bg-primary mb-2">1</span>
-                    <h3 class="h6 fw-bold mb-1">Explorar</h3>
-                    <p class="small text-secondary mb-0">Conoce necesidades publicadas por instituciones.</p>
-                  </div>
-                </div>
-                <div class="col-12 col-sm-4">
-                  <div class="card border-0 bg-light rounded-4 h-100 p-3">
-                    <span class="dc-value-mark mb-3"><app-icon name="hand" /></span>
-                    <span class="badge rounded-pill text-bg-success mb-2">2</span>
-                    <h3 class="h6 fw-bold mb-1">Compromiso</h3>
-                    <p class="small text-secondary mb-0">Reserva los bienes que puedes entregar.</p>
-                  </div>
-                </div>
-                <div class="col-12 col-sm-4">
-                  <div class="card border-0 bg-light rounded-4 h-100 p-3">
-                    <span class="dc-value-mark mb-3"><app-icon name="check-circle" /></span>
-                    <span class="badge rounded-pill text-bg-warning mb-2">3</span>
-                    <h3 class="h6 fw-bold mb-1">Recepción</h3>
-                    <p class="small text-secondary mb-0">Confirma la entrega con la institución.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-12 col-lg-5">
-            <app-empty-state
-              icono="gift"
-              titulo="Aún no tienes donaciones registradas"
-              mensaje="Explora las necesidades publicadas y registra tu primer compromiso."
-              accionPrincipal="Explorar necesidades"
-              rutaPrincipal="/necesidades"
-              accionSecundaria="Ver instituciones"
-              rutaSecundaria="/instituciones"
-            />
+            <span class="text-secondary mb-0">Cargando tus compromisos…</span>
           </div>
         </div>
       }
-    } @else {
-      <div class="row g-4 g-lg-5 align-items-stretch">
-        <div class="col-12 col-lg-7">
-          <div class="card border-0 bg-white shadow-sm rounded-4 h-100 p-3 p-md-4">
-            <span class="dc-eyebrow mb-3">Cómo funcionará</span>
-            <h2 class="h4 fw-bold mb-4">Del interés a la recepción</h2>
-            <p class="text-secondary mb-0">
-              Inicia sesión con tu cuenta de donante para comprometer bienes materiales y dar
-              seguimiento a tus entregas.
-            </p>
-          </div>
+      @case ('error') {
+        <div class="alert alert-warning border-0 rounded-4" role="alert">
+          <p class="fw-semibold mb-2">{{ error() }}</p>
+          <button type="button" class="btn btn-outline-primary btn-sm" (click)="cargar()">
+            Reintentar
+          </button>
         </div>
-        <div class="col-12 col-lg-5">
+      }
+      @case ('sin-sesion') {
+        <app-empty-state
+          icono="lock"
+          titulo="Inicia sesión para ver tus donaciones"
+          mensaje="Tus compromisos y entregas se consultan con tu cuenta; no mostramos datos de otras personas."
+          accionPrincipal="Iniciar sesión"
+          rutaPrincipal="/iniciar-sesion"
+          accionSecundaria="Explorar necesidades"
+          rutaSecundaria="/necesidades"
+        />
+      }
+      @case ('datos') {
+        @if (compromisos().length === 0) {
           <app-empty-state
             icono="gift"
-            titulo="Todavía no hay donaciones para mostrar"
-            mensaje="Inicia sesión para consultar tus compromisos registrados."
-            accionPrincipal="Iniciar sesión"
-            rutaPrincipal="/iniciar-sesion"
-            accionSecundaria="Explorar necesidades"
-            rutaSecundaria="/necesidades"
+            titulo="Aún no tienes donaciones registradas"
+            mensaje="Explora las necesidades publicadas y compromete bienes materiales con una institución verificada."
+            accionPrincipal="Explorar necesidades"
+            rutaPrincipal="/necesidades"
+            accionSecundaria="Cómo donar"
+            rutaSecundaria="/como-donar"
           />
-        </div>
-      </div>
-    }
+        } @else {
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+            <p class="text-secondary mb-0">
+              {{ compromisos().length }}
+              {{ compromisos().length === 1 ? 'compromiso registrado' : 'compromisos registrados' }}
+            </p>
+            <button type="button" class="btn btn-outline-primary btn-sm" (click)="cargar()">
+              <app-icon name="compass" aria-hidden="true" />
+              Actualizar
+            </button>
+          </div>
 
-    <div class="card border-0 bg-light rounded-4 p-3 p-md-4 mt-4">
-      <div class="row g-3 align-items-center">
-        <div class="col-12 col-md-5">
-          <h2 class="h6 fw-bold mb-1">Mientras tanto</h2>
-          <p class="small text-secondary mb-0">Prepara tu donación con la guía oficial.</p>
-        </div>
-        <div class="col-12 col-md-7 d-flex flex-wrap gap-2">
-          <a routerLink="/como-donar" class="btn btn-outline-primary btn-sm">Cómo donar</a>
-          <a routerLink="/puntos-de-acopio" class="btn btn-outline-primary btn-sm">Puntos de acopio</a>
-          <a routerLink="/mensajes" class="btn btn-outline-primary btn-sm">Mensajes</a>
-        </div>
-      </div>
-    </div>
+          <div class="row g-4">
+            @for (compromiso of compromisos(); track id(compromiso)) {
+              <div class="col-12">
+                <article class="card border-0 shadow-sm rounded-4 p-3 p-md-4 h-100">
+                  <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+                    <div>
+                      <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                        <span class="badge rounded-pill {{ claseEstado(compromiso.estado) }}">
+                          {{ etiquetaEstado(compromiso.estado) }}
+                        </span>
+                        <span class="fs-6 text-secondary">Compromiso #{{ id(compromiso) }}</span>
+                      </div>
+                      <h2 class="h4 fw-bold mb-1">{{ titulo(compromiso) }}</h2>
+                      <p class="fs-6 text-secondary mb-0">
+                        <app-icon name="building" aria-hidden="true" />
+                        {{ compromiso.institucion ?? 'Institución registrada' }}
+                        @if (idInstitucion(compromiso) > 0) {
+                          ·
+                          <a [routerLink]="['/instituciones', idInstitucion(compromiso)]" class="link-primary text-decoration-none">
+                            Ver perfil
+                          </a>
+                        }
+                      </p>
+                    </div>
+                    <div class="text-md-end fs-6 text-secondary">
+                      <span class="d-block">Registrado</span>
+                      <strong class="text-body">{{ fechaTexto(compromiso.creado_en ?? compromiso.fecha_compromiso) }}</strong>
+                    </div>
+                  </div>
+
+                  <div class="row g-3 g-md-4 mb-3">
+                    <div class="col-12 col-md-4">
+                      <span class="d-block fs-6 text-secondary">Punto de entrega</span>
+                      @if (puntoNombre(compromiso)) {
+                        <strong class="d-block fs-6">{{ puntoNombre(compromiso) }}</strong>
+                      } @else {
+                        <span class="d-block fs-6 text-secondary">Punto por coordinar</span>
+                      }
+                      @if (direccionPunto(compromiso)) {
+                        <span class="d-block fs-6 text-secondary">{{ direccionPunto(compromiso) }}</span>
+                      }
+                      @if (referenciasPunto(compromiso)) {
+                        <span class="d-block fs-6 text-secondary">{{ referenciasPunto(compromiso) }}</span>
+                      }
+                    </div>
+                    <div class="col-12 col-md-4">
+                      <span class="d-block fs-6 text-secondary">Horario programado</span>
+                      <span class="d-block fs-6">{{ horariosTexto(compromiso) }}</span>
+                    </div>
+                    <div class="col-12 col-md-4">
+                      <span class="d-block fs-6 text-secondary">Entrega registrada</span>
+                      @if (primeraEntrega(compromiso); as entrega) {
+                        <strong class="d-block fs-6">{{ etiquetaEstado(entrega.estado) }}</strong>
+                        <span class="d-block fs-6 text-secondary">
+                          {{ fechaTexto(entrega.fecha_programada) }}
+                        </span>
+                      } @else {
+                        <span class="d-block fs-6 text-secondary">Sin entrega programada</span>
+                      }
+                    </div>
+                  </div>
+
+                  <div class="table-responsive mb-3">
+                    <table class="table align-middle mb-0">
+                      <thead>
+                        <tr>
+                          <th scope="col">Bien</th>
+                          <th scope="col" class="text-end">Comprometido</th>
+                          <th scope="col" class="text-end">Recibido</th>
+                          <th scope="col" class="text-end">Pendiente</th>
+                          <th scope="col" style="width: 22%">Avance</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (linea of lineas(compromiso); track linea.producto_id + '-' + linea.unidad_id) {
+                          <tr>
+                            <td class="fw-semibold">
+                              {{ nombreLinea(linea) }}
+                              <span class="fs-6 text-secondary">{{ simboloLinea(linea) }}</span>
+                            </td>
+                            <td class="text-end">{{ linea.cantidad_comprometida }}</td>
+                            <td class="text-end">{{ linea.cantidad_recibida ?? 0 }}</td>
+                            <td class="text-end fw-bold">{{ pendiente(linea) }}</td>
+                            <td>
+                              <div
+                                class="progress"
+                                role="progressbar"
+                                [attr.aria-valuenow]="avance(linea)"
+                                aria-valuemin="0"
+                                aria-valuemax="100"
+                                [attr.aria-label]="'Avance de ' + nombreLinea(linea)"
+                              >
+                                <div class="progress-bar bg-success" [style.width.%]="avance(linea)"></div>
+                              </div>
+                            </td>
+                          </tr>
+                        } @empty {
+                          <tr>
+                            <td colspan="5" class="fs-6 text-secondary">
+                              El detalle todavía no registra líneas de bienes.
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+
+                  @if (historial(compromiso).length) {
+                    <div class="border rounded-4 p-3 mb-3 bg-light">
+                      <h3 class="h6 fw-bold mb-3">Historial reciente</h3>
+                      <ul class="list-unstyled fs-6 mb-0 d-grid gap-2">
+                        @for (evento of historial(compromiso); track $index) {
+                          <li class="d-flex flex-wrap justify-content-between gap-2">
+                            <span>{{ eventoTexto(evento) }}</span>
+                            <span class="text-secondary">{{ fechaTexto(fechaEvento(evento)) }}</span>
+                          </li>
+                        }
+                      </ul>
+                    </div>
+                  }
+
+                  <div class="d-flex flex-wrap gap-2">
+                    <a [routerLink]="['/donaciones', id(compromiso)]" class="btn btn-primary">
+                      <app-icon name="route" aria-hidden="true" />
+                      Ver detalle
+                    </a>
+                    @if (puntoId(compromiso) > 0 || coordenadasPunto(compromiso)) {
+                      <a
+                        [routerLink]="'/puntos-de-acopio'"
+                        [queryParams]="parametrosMapa(compromiso)"
+                        class="btn btn-outline-primary"
+                      >
+                        <app-icon name="pin" aria-hidden="true" />
+                        Ver ubicación
+                      </a>
+                    }
+                    <a [routerLink]="'/mensajes'" [queryParams]="{ compromiso: id(compromiso) }" class="btn btn-outline-primary">
+                      <app-icon name="chat" aria-hidden="true" />
+                      Mensajes
+                    </a>
+                    @if (entregaId(compromiso) > 0) {
+                      <a
+                        [routerLink]="['/seguimiento', entregaId(compromiso)]"
+                        [queryParams]="{ compromiso: id(compromiso) }"
+                        class="btn btn-outline-secondary"
+                      >
+                        <app-icon name="clock" aria-hidden="true" />
+                        Seguimiento
+                      </a>
+                    }
+                  </div>
+                </article>
+              </div>
+            }
+          </div>
+        }
+      }
+    }
   </div>
 </section>

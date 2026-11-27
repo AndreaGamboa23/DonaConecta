@@ -1,13 +1,19 @@
-"""Cifrado autenticado AES-256-GCM del celular.
+"""Cifrado autenticado AES-256-GCM del proyecto.
 
-La clave vive únicamente en variables de entorno. Cada cifrado genera un nonce
-aleatorio de 12 bytes y se registra la versión de clave para permitir rotación.
-No se registran claves, nonces ni valores en texto plano en los logs.
+La misma clave de entorno protege el celular, el contenido de mensajes y las
+coordenadas de GPS. Cada operación genera un nonce aleatorio de 12 bytes y
+registra la versión de clave para permitir rotación. No se registran claves,
+nonces ni valores en texto plano en los logs.
+
+Los textos persistidos en columnas ``NVARCHAR`` (mensajes) se empaquetan como
+Base64 de ``versión(4 bytes) + nonce(12 bytes) + ciphertext``; los valores
+binarios (GPS) guardan versión y nonce en columnas propias.
 """
 
 import base64
 import binascii
 import os
+import struct
 from typing import Optional
 
 from cryptography.exceptions import InvalidTag
@@ -18,6 +24,8 @@ from app.core.errores import ErrorNegocio
 
 NONCE_BYTES = 12
 CLAVE_BYTES = 32
+VERSION_BYTES = 4
+TAG_GCM_BYTES = 16
 
 
 def clave_configurada() -> bool:
@@ -48,23 +56,61 @@ def _clave() -> bytes:
     return clave
 
 
-def cifrar_telefono(telefono: str) -> tuple[bytes, bytes, int]:
+def cifrar_datos(valor: str) -> tuple[bytes, bytes, int]:
+    """Cifra cualquier texto y devuelve ``(ciphertext, nonce, clave_version)``."""
+
     nonce = os.urandom(NONCE_BYTES)
-    cifrado = AESGCM(_clave()).encrypt(nonce, telefono.strip().encode("utf-8"), None)
+    cifrado = AESGCM(_clave()).encrypt(nonce, valor.encode("utf-8"), None)
     return cifrado, nonce, int(settings.TELEFONO_CLAVE_VERSION)
+
+
+def descifrar_datos(
+    cifrado: bytes, nonce: bytes, clave_version: int
+) -> Optional[str]:
+    """Devuelve ``None`` si la versión, el nonce o la autenticación fallan."""
+
+    if not cifrado or not nonce or int(clave_version) != settings.TELEFONO_CLAVE_VERSION:
+        return None
+    try:
+        return AESGCM(_clave()).decrypt(bytes(nonce), bytes(cifrado), None).decode("utf-8")
+    except (InvalidTag, ValueError, UnicodeDecodeError, TypeError):
+        # Un fallo de autenticación no se informa al cliente como error de dato:
+        # simplemente el valor no se muestra.
+        return None
+
+
+def cifrar_telefono(telefono: str) -> tuple[bytes, bytes, int]:
+    return cifrar_datos(telefono.strip())
 
 
 def descifrar_telefono(
     cifrado: bytes, nonce: bytes, clave_version: int
 ) -> Optional[str]:
-    if not cifrado or not nonce or clave_version != settings.TELEFONO_CLAVE_VERSION:
-        return None
+    return descifrar_datos(cifrado, nonce, clave_version)
+
+
+def cifrar_texto(texto: str) -> str:
+    """Empaqueta versión, nonce y ciphertext en una cadena Base64 para SQL."""
+
+    cifrado, nonce, version = cifrar_datos(texto)
+    paquete = struct.pack(">I", version) + nonce + cifrado
+    return base64.b64encode(paquete).decode("ascii")
+
+
+def descifrar_texto(valor: str) -> Optional[str]:
+    """Invierte :func:`cifrar_texto`; nunca devuelve el valor cifrado."""
+
     try:
-        return AESGCM(_clave()).decrypt(bytes(nonce), bytes(cifrado), None).decode("utf-8")
-    except (InvalidTag, ValueError, UnicodeDecodeError):
-        # Un fallo de autenticación no se informa al cliente como error de dato:
-        # simplemente el valor no se muestra.
+        paquete = base64.b64decode(valor, validate=True)
+    except (binascii.Error, ValueError, TypeError):
         return None
+    minimo = VERSION_BYTES + NONCE_BYTES + TAG_GCM_BYTES
+    if len(paquete) < minimo:
+        return None
+    version = int.from_bytes(paquete[:VERSION_BYTES], "big")
+    nonce = paquete[VERSION_BYTES : VERSION_BYTES + NONCE_BYTES]
+    cifrado = paquete[VERSION_BYTES + NONCE_BYTES :]
+    return descifrar_datos(cifrado, nonce, version)
 
 
 def enmascarar_telefono(telefono: Optional[str]) -> Optional[str]:

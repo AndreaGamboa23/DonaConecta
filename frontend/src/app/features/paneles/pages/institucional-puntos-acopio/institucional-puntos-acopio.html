@@ -1,0 +1,168 @@
+<app-page-hero
+  eyebrow="Panel institucional"
+  titulo="Puntos de acopio"
+  descripcion="Registra y mantiene los lugares donde tu institución recibe bienes materiales, con horarios y coordenadas autorizadas."
+  icono="pin"
+  tono="navy"
+/>
+
+<section class="dc-section-space">
+  <div class="container">
+    @if (aviso()) {
+      <div class="alert alert-info border-0 rounded-4" role="status">{{ aviso() }}</div>
+    }
+
+    @switch (estado()) {
+      @case ('cargando') {
+        <div class="card border-0 shadow-sm rounded-4 p-4 text-center" role="status">
+          <div class="d-flex align-items-center justify-content-center gap-2">
+            <span class="spinner-border spinner-border-sm text-primary" aria-hidden="true"></span>
+            <span class="text-secondary mb-0">Cargando puntos de acopio…</span>
+          </div>
+        </div>
+      }
+      @case ('error') {
+        <div class="alert alert-warning border-0 rounded-4" role="alert">
+          <p class="fw-semibold mb-2">{{ error() }}</p>
+          <button type="button" class="btn btn-outline-primary btn-sm" (click)="cargar()">Reintentar</button>
+        </div>
+      }
+      @case ('sin-sesion') {
+        <div class="card border-0 bg-light rounded-4 p-4 text-center mx-auto dc-puntos-estado">
+          <h2 class="h4 fw-bold mb-2">Acceso requerido</h2>
+          <p class="text-secondary mb-3">Inicia sesión como representante para gestionar puntos de acopio.</p>
+          <a routerLink="/iniciar-sesion" class="btn btn-primary">Iniciar sesión</a>
+        </div>
+      }
+      @case ('datos') {
+        <div class="row g-4 g-lg-5">
+          <div class="col-12 col-lg-7">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+              <h2 class="h4 fw-bold mb-0">Puntos registrados</h2>
+              <button type="button" class="btn btn-primary btn-sm" (click)="nuevo()">
+                <app-icon name="pin" aria-hidden="true" />
+                Nuevo punto
+              </button>
+            </div>
+
+            @for (punto of puntos(); track id(punto)) {
+              <article class="card border-0 shadow-sm rounded-4 p-3 p-md-4 mb-3">
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
+                  <div>
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                      <h3 class="h5 fw-bold mb-0">{{ punto.nombre }}</h3>
+                      <span class="badge rounded-pill {{ punto.estado === 'INACTIVO' ? 'text-bg-secondary' : 'text-bg-success' }}">
+                        {{ punto.estado === 'INACTIVO' ? 'Inactivo' : 'Activo' }}
+                      </span>
+                    </div>
+                    <p class="small text-secondary mb-1">
+                      <app-icon name="pin" aria-hidden="true" />
+                      {{ punto.direccion ?? 'Sin dirección registrada' }}
+                    </p>
+                    @if (punto.referencias_entrega) {
+                      <p class="small mb-1">{{ punto.referencias_entrega }}</p>
+                    }
+                    <p class="small text-secondary mb-1">{{ horarios(punto) }}</p>
+                    <p class="small text-secondary mb-0">{{ coordenadas(punto) }}</p>
+                  </div>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                  <button type="button" class="btn btn-outline-primary btn-sm" (click)="editar(punto)">Editar</button>
+                  <button type="button" class="btn btn-outline-secondary btn-sm" [disabled]="procesando()" (click)="cambiarEstado(punto)">
+                    {{ punto.estado === 'INACTIVO' ? 'Activar' : 'Desactivar' }}
+                  </button>
+                  <button type="button" class="btn btn-outline-danger btn-sm" [disabled]="procesando()" (click)="eliminar(punto)">
+                    Eliminar
+                  </button>
+                </div>
+              </article>
+            } @empty {
+              <div class="alert alert-light border rounded-4" role="status">
+                Todavía no registras puntos de acopio. Usa el formulario para crear el primero.
+              </div>
+            }
+          </div>
+
+          <div class="col-12 col-lg-5">
+            <section class="card border-0 bg-light rounded-4 p-3 p-md-4" aria-labelledby="formPuntoTitulo">
+              <h2 id="formPuntoTitulo" class="h5 fw-bold mb-3">
+                {{ editandoId() ? 'Editar punto de acopio' : 'Nuevo punto de acopio' }}
+              </h2>
+              <form [formGroup]="formulario" (ngSubmit)="guardar()">
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold" for="puntoNombre">Nombre</label>
+                  <input id="puntoNombre" type="text" class="form-control" maxlength="120" formControlName="nombre" />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold" for="puntoDireccion">Dirección</label>
+                  <input id="puntoDireccion" type="text" class="form-control" maxlength="250" formControlName="direccion" />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold" for="puntoReferencias">Referencias de entrega</label>
+                  <input id="puntoReferencias" type="text" class="form-control" maxlength="250" formControlName="referencias_entrega" />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold" for="puntoDistrito">Distrito</label>
+                  <select id="puntoDistrito" class="form-select" formControlName="distrito_id">
+                    <option [value]="0">Selecciona un distrito</option>
+                    @for (distrito of distritos; track distrito.id) {
+                      <option [value]="distrito.id">{{ distrito.nombre }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="row g-3 mb-3">
+                  <div class="col-6">
+                    <label class="form-label small fw-semibold" for="puntoLatitud">Latitud</label>
+                    <input id="puntoLatitud" type="number" step="0.000001" class="form-control" formControlName="latitud" />
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label small fw-semibold" for="puntoLongitud">Longitud</label>
+                    <input id="puntoLongitud" type="number" step="0.000001" class="form-control" formControlName="longitud" />
+                  </div>
+                </div>
+                <div class="form-check mb-3">
+                  <input id="puntoPublico" type="checkbox" class="form-check-input" formControlName="coordenadas_publicas" />
+                  <label class="form-check-label small" for="puntoPublico">
+                    Autorizo publicar estas coordenadas si el punto está activo y la institución está verificada
+                  </label>
+                </div>
+
+                <fieldset class="mb-3" formGroupName="horarios">
+                  <legend class="form-label small fw-semibold">Horarios de atención</legend>
+                  @for (dia of dias; track dia; let indice = $index) {
+                    <div class="row g-2 align-items-center mb-2" [formGroupName]="indice + 1">
+                      <div class="col-12 col-sm-4">
+                        <span class="small fw-semibold">{{ dia }}</span>
+                      </div>
+                      <div class="col-4 col-sm-3">
+                        <input type="time" class="form-control form-control-sm" aria-label="Apertura {{ dia }}" formControlName="hora_apertura" />
+                      </div>
+                      <div class="col-4 col-sm-3">
+                        <input type="time" class="form-control form-control-sm" aria-label="Cierre {{ dia }}" formControlName="hora_cierre" />
+                      </div>
+                      <div class="col-4 col-sm-2 text-end">
+                        <input type="checkbox" class="form-check-input" [attr.aria-label]="'Atiende el ' + dia" formControlName="activo" />
+                      </div>
+                    </div>
+                  }
+                </fieldset>
+
+                <button type="submit" class="btn btn-primary w-100" [disabled]="procesando()">
+                  {{ editandoId() ? 'Guardar cambios' : 'Registrar punto' }}
+                </button>
+                @if (editandoId()) {
+                  <button type="button" class="btn btn-outline-secondary w-100 mt-2" (click)="nuevo()">
+                    Cancelar edición
+                  </button>
+                }
+              </form>
+              <p class="small text-secondary mt-3 mb-0">
+                Toda modificación de coordenadas queda sujeta a la autorización y auditoría del servicio.
+              </p>
+            </section>
+          </div>
+        </div>
+      }
+    }
+  </div>
+</section>

@@ -10,6 +10,7 @@ export interface InstitucionDirectorio {
   readonly distrito: string;
   readonly estadoVerificacion: string;
   readonly descripcion?: string;
+  readonly direccion?: string | null;
   readonly fotoUrl?: string;
   readonly necesidadesActivas?: number;
   /** Solo se habilita si existe una ruta de perfil público implementada. */

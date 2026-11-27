@@ -49,6 +49,21 @@
   letter-spacing: 0.02em;
 }
 
+// Jerarquía compartida para tarjetas densas:Bootstrap resuelve el resto.
+.dc-card-title {
+  font-family: var(--dc-font-heading);
+  font-size: 1.18rem;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+}
+
+.dc-texto-secundario {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: rgba($dc-navy, 0.72);
+}
+
 .dc-timeline {
   position: relative;
 }

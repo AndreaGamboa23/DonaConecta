@@ -1,21 +1,46 @@
-<aside class="card rounded-4 shadow-sm h-100 dc-bandeja" aria-label="Estado de las conversaciones">
-  <div class="card-header bg-transparent border-0 pt-3 px-3 px-md-4">
-    <h2 class="h5 fw-bold mb-1">Bandeja de conversaciones</h2>
-    <p class="small text-secondary mb-0">Sin registros cargados</p>
-  </div>
-  <div class="card-body px-3 px-md-4 pt-0">
-    <div class="dc-bandeja-vacio rounded-4 p-4 text-center">
-      <span class="dc-bandeja-icon d-inline-flex align-items-center justify-content-center rounded-circle mb-3">
-        <app-icon name="chat" aria-hidden="true" />
-      </span>
-      <p class="fw-semibold mb-2">Todavía no hay mensajes que mostrar</p>
-      <p class="small text-secondary mb-3">
-        La mensajería privada no está conectada. No presentamos chats de ejemplo ni mensajes
-        guardados en este navegador.
-      </p>
-      <a routerLink="/explorar" fragment="solicitudes" class="btn btn-outline-primary btn-sm">
-        Ver solicitudes publicadas
-      </a>
+<section class="card border-0 shadow-sm rounded-4 p-3 h-100" aria-labelledby="tituloBandeja">
+  <h2 id="tituloBandeja" class="h5 fw-bold mb-3 d-flex align-items-center gap-2">
+    <app-icon name="chat" aria-hidden="true" />
+    Conversaciones
+  </h2>
+
+  @if (cargando()) {
+    <div class="d-flex align-items-center gap-2 small text-secondary" role="status">
+      <span class="spinner-border spinner-border-sm text-primary" aria-hidden="true"></span>
+      Cargando conversaciones…
     </div>
-  </div>
-</aside>
+  } @else if (conversaciones().length === 0) {
+    <p class="small text-secondary mb-0">
+      No tienes conversaciones registradas. Inicia una desde una solicitud o una donación.
+    </p>
+  } @else {
+    <div class="list-group list-group-flush">
+      @for (conversacion of conversaciones(); track id(conversacion)) {
+        <button
+          type="button"
+          class="list-group-item list-group-item-action d-flex justify-content-between align-items-start gap-2 rounded-3 mb-1"
+          [class.active]="seleccionada() === id(conversacion)"
+          [attr.aria-pressed]="seleccionada() === id(conversacion)"
+          (click)="seleccionar.emit(id(conversacion))"
+        >
+          <span class="min-w-0">
+            <strong class="d-block text-truncate">{{ titulo(conversacion) }}</strong>
+            <span class="small d-block text-truncate opacity-75">
+              {{ conversacion.ultimo_mensaje ?? 'Sin mensajes registrados' }}
+            </span>
+            @if (fecha(conversacion.ultimo_mensaje_en ?? conversacion.actualizado_en)) {
+              <span class="small d-block opacity-75">
+                {{ fecha(conversacion.ultimo_mensaje_en ?? conversacion.actualizado_en) }}
+              </span>
+            }
+          </span>
+          @if (noLeidos(conversacion) > 0) {
+            <span class="badge rounded-pill text-bg-light text-primary flex-shrink-0">
+              {{ noLeidos(conversacion) }}
+            </span>
+          }
+        </button>
+      }
+    </div>
+  }
+</section>

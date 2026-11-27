@@ -1,0 +1,35 @@
+:host {
+  display: block;
+
+  // Bootstrap resuelve el resto del espaciado; se reduce sólo el vacío de sección.
+  .dc-section-space {
+    padding-block: 2.5rem;
+  }
+}
+
+.dc-detalle-estado {
+  max-width: 42rem;
+}
+
+.dc-detalle-linea {
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 1.25rem;
+    bottom: 1.25rem;
+    left: 1.15rem;
+    width: 2px;
+    background: linear-gradient(var(--dc-blue), var(--dc-green));
+  }
+}
+
+.dc-detalle-hito {
+  position: relative;
+  z-index: 1;
+  width: 2.35rem;
+  height: 2.35rem;
+  background: var(--dc-blue-soft);
+  color: var(--dc-navy);
+}
