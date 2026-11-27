@@ -15,7 +15,7 @@
         <div class="dc-auth-photo-content position-absolute bottom-0 start-0 end-0 p-4 p-lg-5">
           <app-brand [inverted]="true" />
           <span class="dc-eyebrow dc-eyebrow-light d-block mt-4 mb-3">Registro institucional</span>
-          <h1 class="display-6 fw-bold mb-3">Representa a tu organización</h1>
+          <h1 class="display-6 fw-bold text-white mb-3">Representa a tu organización</h1>
           <p class="mb-0 text-white">
             Vincula tu persona con una institución real de Huancayo. La verificación se revisa
             después del registro.
@@ -66,10 +66,13 @@
           <div class="progress-bar" [style.width.%]="paso() * 25"></div>
         </div>
 
-        <p class="small text-secondary mb-3">
-          Usa solo datos de prueba: la solicitud todavía no se envía ni se guarda.
-        </p>
-        <app-pending-notice [estado]="estado" titulo="El envío estará disponible al conectar el servicio" />
+        @if (entorno.modoPruebas()) {
+          <p class="small text-secondary mb-3">Entorno de demostración. Utiliza únicamente datos de prueba.</p>
+        } @else {
+          <p class="small text-secondary mb-3">
+            Crea tu cuenta para coordinar donaciones y participar en nuestra comunidad.
+          </p>
+        }
 
         <form
           class="dc-inst-form mt-4"
@@ -172,6 +175,9 @@
                     [class.is-invalid]="form.controls.telefono.invalid && form.controls.telefono.touched"
                     formControlName="telefono" />
                   <div class="invalid-feedback">Debe tener 9 dígitos y empezar en 9.</div>
+                  <small class="text-secondary d-block mt-1">
+                    Se guarda cifrado para proteger tu privacidad.
+                  </small>
                 </div>
                 <div class="col-12 col-md-7">
                   <label for="inst-cargo" class="form-label small fw-semibold">Cargo que cumples *</label>
@@ -240,8 +246,8 @@
                   <div class="alert alert-light border rounded-4 d-flex gap-3 align-items-start mb-0" role="note">
                     <app-icon name="shield" />
                     <p class="small mb-0">
-                      No se solicitan documentos ni imágenes en este formulario. Cuando el servicio esté
-                      disponible se indicará qué archivos son necesarios y cómo se protegerán.
+                      No se solicitan documentos ni imágenes en este formulario. Si la solicitud avanza,
+                      la verificación indicará qué archivos son necesarios y cómo se protegerán.
                     </p>
                   </div>
                 </div>
@@ -250,7 +256,7 @@
           }
 
           @if (respuesta()) {
-            <div class="alert alert-warning d-flex gap-2 align-items-start mt-4 mb-0" role="status">
+            <div class="alert alert-danger d-flex gap-2 align-items-start mt-4 mb-0" role="alert" aria-live="polite">
               <app-icon name="alert" />
               <span>{{ respuesta() }}</span>
             </div>
@@ -262,7 +268,10 @@
                 Anterior
               </button>
             }
-            <button type="submit" class="btn btn-primary btn-lg px-4">
+            <button type="submit" class="btn btn-primary btn-lg px-4" [disabled]="enviando()">
+              @if (enviando()) {
+                <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+              }
               {{ paso() === 4 ? 'Enviar solicitud' : 'Siguiente etapa' }}
             </button>
             <a routerLink="/" class="btn btn-link">Cancelar</a>

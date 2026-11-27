@@ -1,29 +1,38 @@
-﻿import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
-import { BackendEstadoService } from '../../../../core/services/backend-estado.service';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { SesionService } from '../../../../core/services/sesion.service';
+import { mensajeErrorApi } from '../../../../core/utils/errores-api';
 import { Brand } from '../../../../shared/components/brand/brand';
 import { Icon } from '../../../../shared/components/icon/icon';
-import { PendingNotice } from '../../../../shared/components/pending-notice/pending-notice';
 import { AutenticacionApiService } from '../../services/autenticacion-api.service';
 
 @Component({
   selector: 'app-iniciar-sesion',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, Brand, Icon, PendingNotice],
+  imports: [ReactiveFormsModule, RouterLink, Brand, Icon],
   templateUrl: './iniciar-sesion.html',
   styleUrl: './iniciar-sesion.scss',
 })
 export class IniciarSesion {
   private readonly api = inject(AutenticacionApiService);
-  private readonly estadoServicio = inject(BackendEstadoService);
   private readonly sesion = inject(SesionService);
   private readonly router = inject(Router);
+  private readonly ruta = inject(ActivatedRoute);
 
-  readonly estadoLogin = this.estadoServicio.estado('login');
+  private avisoInicial(): string {
+    const aviso = this.ruta.snapshot.queryParamMap.get('aviso');
+    if (aviso === 'credenciales') {
+      return 'Tus credenciales cambiaron. Inicia sesión con los nuevos datos.';
+    }
+    if (aviso === 'cuenta-baja') {
+      return 'Tu cuenta fue dada de baja. Ya no puedes iniciar sesión.';
+    }
+    return '';
+  }
+
   readonly verContrasena = signal(false);
-  readonly respuesta = signal('');
+  readonly respuesta = signal(this.avisoInicial());
 
   readonly form = new FormGroup({
     email: new FormControl('', {
@@ -57,14 +66,12 @@ export class IniciarSesion {
     this.api
       .login({ email: valor.email.trim().toLowerCase(), password: valor.password })
       .subscribe({
-        next: (res) => {
-          this.sesion.iniciar(res.access_token, res.usuario);
+        next: (respuesta) => {
+          this.sesion.iniciar(respuesta.access_token, respuesta.usuario);
           this.router.navigateByUrl('/perfil');
         },
-        error: (err) => {
-          this.respuesta.set(
-            err?.error?.detail ?? 'Correo o contraseña incorrectos. Verifica tus datos.',
-          );
+        error: (error) => {
+          this.respuesta.set(mensajeErrorApi(error, 'el inicio de sesión'));
         },
       });
   }

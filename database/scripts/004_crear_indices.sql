@@ -38,6 +38,14 @@ IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.sesio
         WHERE estado = 'ACTIVA';
 GO
 
+/* La foto es opcional: se permite que muchas instituciones no tengan foto,
+   pero no se repite un mismo archivo entre dos instituciones. */
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.instituciones') AND name = N'UX_instituciones_foto_no_nula')
+    CREATE UNIQUE INDEX UX_instituciones_foto_no_nula
+        ON dbo.instituciones(foto_archivo_id)
+        WHERE foto_archivo_id IS NOT NULL;
+GO
+
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.necesidades') AND name = N'IX_necesidades_institucion_estado')
     CREATE INDEX IX_necesidades_institucion_estado
         ON dbo.necesidades(institucion_id, estado);
@@ -82,6 +90,7 @@ FROM sys.indexes
 WHERE object_id IN (
     OBJECT_ID(N'dbo.usuario_roles'),
     OBJECT_ID(N'dbo.institucion_representantes'),
+    OBJECT_ID(N'dbo.instituciones'),
     OBJECT_ID(N'dbo.sesiones_gps'),
     OBJECT_ID(N'dbo.necesidades'),
     OBJECT_ID(N'dbo.compromisos'),

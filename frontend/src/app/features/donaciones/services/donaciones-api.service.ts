@@ -1,10 +1,11 @@
-﻿import { HttpClient } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable, Injector, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { BackendEstadoService } from '../../../core/services/backend-estado.service';
 
 export interface DonacionResumen {
   readonly id_compromiso: number;
+  readonly id_necesidad?: number;
   readonly necesidad: string;
   readonly institucion: string;
   readonly cantidad_comprometida: number;
@@ -28,7 +29,7 @@ export class DonacionesApiService {
   private readonly estado = inject(BackendEstadoService);
 
   listarDonaciones(): Observable<readonly DonacionResumen[]> {
-    if (!this.estado.integracionHabilitada) {
+    if (!this.estado.disponible('donaciones')) {
       return this.estado.pendiente<readonly DonacionResumen[]>('donaciones');
     }
     return this.injector
@@ -37,6 +38,9 @@ export class DonacionesApiService {
   }
 
   crearCompromiso(payload: CrearCompromisoPayload): Observable<unknown> {
+    if (!this.estado.disponible('compromisos')) {
+      return this.estado.pendiente<unknown>('compromisos');
+    }
     return this.injector.get(HttpClient).post('/api/v1/compromisos', payload);
   }
 }

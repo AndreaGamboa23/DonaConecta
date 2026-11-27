@@ -1,8 +1,14 @@
 # Contrato API REST y WebSocket de DonaConecta
 
 Versión validada en la Fase 05.1. Define los contratos que compartirán frontend y backend.
-**No hay endpoints implementados todavía.** FastAPI se implementará en la Fase 07 y la
-autenticación en la Fase 09.
+
+**Actualización (Fase 08.2):** ya están implementados el registro, el acceso, el cierre de sesión,
+la consulta del perfil, la actividad y el CRUD del perfil propio. La ruta pública efectiva es
+`POST /api/v1/auth/registro`; `/api/v1/autenticacion/registro` se conserva sólo como alias
+oculto en OpenAPI por compatibilidad con el contrato original. El listado exacto de rutas,
+métodos, cuerpos, respuestas y autenticación está en
+`docs/informe-crud-perfil-fase-08.2.md`. El resto de este documento sigue siendo el contrato
+planificado para los módulos pendientes; no debe interpretarse como implementado.
 
 ## 1. Convención general
 

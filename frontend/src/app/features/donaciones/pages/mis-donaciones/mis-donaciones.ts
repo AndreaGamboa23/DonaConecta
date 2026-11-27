@@ -1,4 +1,4 @@
-﻿import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { BackendEstadoService } from '../../../../core/services/backend-estado.service';
 import { SesionService } from '../../../../core/services/sesion.service';
@@ -22,6 +22,7 @@ export class MisDonaciones implements OnInit {
 
   readonly estado = this.estadoServicio.estado('donaciones');
   readonly cargando = signal(false);
+  readonly errorCarga = signal(false);
   readonly donaciones = signal<readonly DonacionResumen[]>([]);
 
   ngOnInit(): void {
@@ -33,6 +34,7 @@ export class MisDonaciones implements OnInit {
         this.cargando.set(false);
       },
       error: () => {
+        this.errorCarga.set(true);
         this.cargando.set(false);
       },
     });

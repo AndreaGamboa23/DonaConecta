@@ -14,7 +14,7 @@
         <span class="dc-auth-overlay" aria-hidden="true"></span>
         <div class="dc-auth-photo-content position-absolute bottom-0 start-0 end-0 p-4 p-lg-5">
           <span class="dc-eyebrow dc-eyebrow-light d-block mb-3">Tu espacio en DonaConecta</span>
-          <h2 class="h3 fw-bold mb-3">Una comunidad, muchas manos, un mismo propósito.</h2>
+          <h2 class="h3 fw-bold text-white mb-3">Una comunidad, muchas manos, un mismo propósito.</h2>
           <p class="mb-0 text-white">
             Un espacio pensado para explorar, coordinar y seguir donaciones de bienes materiales.
           </p>
@@ -32,11 +32,9 @@
         <span class="dc-eyebrow d-block mb-3">Acceso a tu cuenta</span>
         <h1 class="display-6 fw-bold mb-3">Bienvenido de nuevo</h1>
         <p class="text-secondary mb-4">
-          Cuando el acceso esté disponible, aquí verás tus donaciones, mensajes y perfil. Si todavía
-          no tienes cuenta, podrás crearla en unos pasos.
+          Accede con la cuenta que creaste para ver tus donaciones, mensajes y perfil. Si todavía no
+          tienes cuenta, podrás crearla en unos pasos.
         </p>
-
-        <app-pending-notice [estado]="estadoLogin" titulo="El acceso aún no está conectado" />
 
         <form
           class="dc-login-form mt-4"
@@ -88,7 +86,7 @@
           </div>
 
           @if (respuesta()) {
-            <div class="alert alert-warning d-flex gap-2 align-items-start" role="status">
+            <div class="alert alert-danger d-flex gap-2 align-items-start" role="alert" aria-live="polite">
               <app-icon name="alert" />
               <span>{{ respuesta() }}</span>
             </div>

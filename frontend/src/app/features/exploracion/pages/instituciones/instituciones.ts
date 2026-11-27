@@ -1,4 +1,4 @@
-﻿import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { DISTRITOS_HUANCAYO, TIPOS_INSTITUCION } from '../../../../core/data/catalogos-locales';
@@ -39,6 +39,7 @@ export class Instituciones implements OnInit {
   readonly distritos = DISTRITOS_HUANCAYO;
   readonly tipos = TIPOS_INSTITUCION;
 
+  /** Los tipos son información general; ninguno representa una institución registrada. */
   readonly tiposInformativos: readonly TipoInstitucionInformativo[] = [
     {
       nombre: 'Comedores comunitarios',
@@ -82,18 +83,22 @@ export class Instituciones implements OnInit {
   readonly tipoId = signal(0);
   readonly distritoId = signal(0);
   readonly soloVerificadas = signal(true);
-  readonly estadoDirectorio = signal<EstadoDirectorio>('cargando');
+
+  readonly estadoDirectorio = signal<EstadoDirectorio>(
+    this.estado.disponible ? 'cargando' : 'servicio-no-disponible',
+  );
   readonly todasInstituciones = signal<readonly InstitucionDirectorio[]>([]);
 
   readonly instituciones = computed(() => {
     const lista = this.todasInstituciones();
-    const tipoCodigo = TIPOS_INSTITUCION.find((t) => t.id === this.tipoId())?.codigo;
-    const distritoNombre = DISTRITOS_HUANCAYO.find((d) => d.id === this.distritoId())?.nombre;
+    const tipoCodigo = TIPOS_INSTITUCION.find((tipo) => tipo.id === this.tipoId())?.codigo;
+    const distritoNombre = DISTRITOS_HUANCAYO.find((distrito) => distrito.id === this.distritoId())
+      ?.nombre;
 
-    return lista.filter((inst) => {
-      if (tipoCodigo && inst.tipo !== tipoCodigo) return false;
-      if (distritoNombre && inst.distrito !== distritoNombre) return false;
-      if (this.soloVerificadas() && inst.estadoVerificacion !== 'VERIFICADA') return false;
+    return lista.filter((institucion) => {
+      if (tipoCodigo && institucion.tipo !== tipoCodigo) return false;
+      if (distritoNombre && institucion.distrito !== distritoNombre) return false;
+      if (this.soloVerificadas() && institucion.estadoVerificacion !== 'VERIFICADA') return false;
       return true;
     });
   });
@@ -117,15 +122,19 @@ export class Instituciones implements OnInit {
   );
 
   ngOnInit(): void {
+    if (!this.estado.disponible) {
+      this.estadoDirectorio.set('servicio-no-disponible');
+      return;
+    }
     this.api.listarInstituciones().subscribe({
       next: (lista) => {
-        const mapeadas: InstitucionDirectorio[] = lista.map((item) => ({
+        const mapeadas: readonly InstitucionDirectorio[] = lista.map((item) => ({
           institucionId: item.id_institucion,
-          nombre: item.nombre_comercial,
-          tipo: item.tipo_institucion,
+          nombre: item.nombre ?? item.nombre_comercial ?? 'Institución sin nombre',
+          tipo: item.tipo ?? item.tipo_institucion ?? '',
           distrito: item.distrito,
           estadoVerificacion: item.estado_verificacion,
-          descripcion: item.descripcion ?? item.direccion,
+          descripcion: item.descripcion ?? item.direccion ?? undefined,
         }));
         this.todasInstituciones.set(mapeadas);
         this.estadoDirectorio.set(mapeadas.length > 0 ? 'datos' : 'vacio');

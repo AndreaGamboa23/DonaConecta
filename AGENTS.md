@@ -438,8 +438,9 @@ La seguridad se implementa progresivamente en todas las fases, no solo al final.
 | 05 | Modelo entidad-relación y normalización 3FN. | Ejecutada (propuesta revisada en 05.1) |
 | 05.1 | Revisión, corrección y documentación técnica del modelo. | Ejecutada |
 | 06 | Implementación de Microsoft SQL Server. | Ejecutada |
-| 07 | Backend FastAPI, conexión y arquitectura de servicios. | Pendiente (Fases 07.A, 07.B, 07.B.1 y 07.B.2 frontend ejecutadas) |
+| 07 | Backend FastAPI, conexión y arquitectura de servicios. | Avance parcial en `integracion-avance-02` (ver Fase 08.2); pendiente de cierre formal |
 | 08 | Landing definitiva y navegación pública integrada. | Pendiente |
+| 08.2 | CRUD real de usuarios, perfil personal, sesiones revocables y celular cifrado. | Ejecutada en `integracion-avance-02` |
 | 09 | Autenticación segura, registro, sesiones y roles. | Pendiente |
 | 10 | Registro, verificación y directorio de instituciones. | Pendiente |
 | 11 | Catálogo y gestión de necesidades. | Pendiente |
@@ -642,6 +643,26 @@ controles. Las capturas quedan en `C:\Users\ANDREA\AppData\Local\Temp\opencode\d
 fuera del repositorio. Persisten solo las advertencias de deprecación de `@import` de Sass. La
 valoración estética final sigue pendiente de revisión humana; la Fase 07 de backend continúa
 pendiente y no se inicia sin autorización explícita.
+
+**Alcance autorizado de la Fase 08.2:** completar en `integracion-avance-02` el CRUD real de
+usuarios con `GET`/`PUT`/`PATCH`/`DELETE`, rediseñar el perfil personal con cuatro pestañas,
+documentar todas las operaciones en Swagger, revocar sesiones en el servidor y cifrar el celular
+con AES-256-GCM. Actualizar el informe histórico de Fase 08, el plan de desarrollo y este archivo.
+Usar sólo `DonaConectaDB_Pruebas`; conservar las cuentas de prueba existentes y no ejecutar DDL ni
+DML estructural. No modificar `Andrea`, `Jhon`, `main` ni `respaldo-avance-01`; no crear commits,
+push, merges ni cambiar de rama.
+
+**Resultado de la Fase 08.2:** once operaciones HTTP documentadas con autenticación, cuerpo y
+respuestas; perfil con Información personal, Actividad, Preferencias y Seguridad y privacidad;
+navbar actualizado al guardar y logout que revoca el JWT antes de limpiar `sessionStorage`. El
+celular se persiste con nonce único, versión de clave y clave fuera del repositorio; la baja es
+lógica, exige reautenticación y confirmación, bloquea compromisos activos, revoca sesiones y deja
+auditoría. Evidencias: **34/34** comprobaciones de API y SQL, **20/20** de flujo en navegador,
+**42/42** de OpenAPI/Swagger, **50/50** pruebas Angular en 20 archivos y **7/7** pruebas Python.
+Build: **569,46 kB** iniciales y **110,23 kB** transferidos, dentro del presupuesto de 600 kB.
+`DonaConectaDB` sigue con 0 usuarios y las cuatro cuentas previas permanecen `ACTIVO`. Detalle en
+`docs/informe-crud-perfil-fase-08.2.md`. La valoración estética final sigue pendiente de revisión
+humana y no se ejecutaron commit, push, merge ni cambio de rama.
 
 ---
 

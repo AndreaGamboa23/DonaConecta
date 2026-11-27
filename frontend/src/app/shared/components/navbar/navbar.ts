@@ -1,5 +1,6 @@
-﻿import { Component, ElementRef, HostListener, inject, signal } from '@angular/core';
+import { Component, ElementRef, HostListener, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { SesionApiService } from '../../../core/services/sesion-api.service';
 import { SesionService } from '../../../core/services/sesion.service';
 import { Brand } from '../brand/brand';
 import { Icon } from '../icon/icon';
@@ -21,11 +22,13 @@ interface EnlacePrincipal {
 export class Navbar {
   private readonly elemento = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly router = inject(Router);
+  private readonly sesionApi = inject(SesionApiService);
   readonly sesion = inject(SesionService);
 
   readonly menuOpen = signal(false);
   readonly masAbierto = signal(false);
 
+  /** Enlaces públicos visibles en la fila principal. */
   readonly links: readonly EnlacePrincipal[] = [
     { label: 'Inicio', route: '/', icon: '', exact: true },
     { label: 'Explorar', route: '/explorar', icon: '', exact: false },
@@ -39,6 +42,7 @@ export class Navbar {
     exact: false,
   };
 
+  /** Todas las rutas existen; el menú Más evita saturar la navegación principal. */
   readonly secondaryLinks = [
     { label: 'Puntos de acopio', route: '/puntos-de-acopio' },
     { label: 'Mis donaciones', route: '/mis-donaciones' },
@@ -70,10 +74,13 @@ export class Navbar {
     this.closeMenu();
   }
 
+  /** Revoca la sesión en el servidor y limpia el token de la pestaña. */
   cerrarSesion(): void {
-    this.sesion.cerrar();
     this.closeMenu();
-    this.router.navigateByUrl('/iniciar-sesion');
+    this.sesionApi.cerrar().subscribe({
+      next: () => this.router.navigateByUrl('/iniciar-sesion'),
+      error: () => this.router.navigateByUrl('/iniciar-sesion'),
+    });
   }
 
   @HostListener('document:keydown.escape')

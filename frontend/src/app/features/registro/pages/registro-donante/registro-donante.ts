@@ -1,12 +1,12 @@
-﻿import { Component, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { DISTRITOS_HUANCAYO } from '../../../../core/data/catalogos-locales';
 import { RegistroDonantePayload } from '../../../../core/interfaces/dona-conecta';
-import { BackendEstadoService } from '../../../../core/services/backend-estado.service';
+import { EntornoService } from '../../../../core/services/entorno.service';
+import { mensajeErrorApi } from '../../../../core/utils/errores-api';
 import { Brand } from '../../../../shared/components/brand/brand';
 import { Icon } from '../../../../shared/components/icon/icon';
-import { PendingNotice } from '../../../../shared/components/pending-notice/pending-notice';
 import {
   contraseniasCoinciden,
   etiquetaFuerzaPassword,
@@ -18,20 +18,20 @@ import { RegistroApiService } from '../../services/registro-api.service';
 @Component({
   selector: 'app-registro-donante',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, Brand, PendingNotice, Icon],
+  imports: [ReactiveFormsModule, RouterLink, Brand, Icon],
   templateUrl: './registro-donante.html',
   styleUrl: './registro-donante.scss',
 })
-export class RegistroDonante {
+export class RegistroDonante implements OnInit {
   private readonly api = inject(RegistroApiService);
-  private readonly estadoServicio = inject(BackendEstadoService);
+  readonly entorno = inject(EntornoService);
   private readonly router = inject(Router);
 
   readonly distritos = DISTRITOS_HUANCAYO;
-  readonly estado = this.estadoServicio.estado('registroDonante');
   readonly verContrasena = signal(false);
   readonly fuerza = signal(0);
   readonly respuesta = signal('');
+  readonly enviando = signal(false);
 
   readonly form = new FormGroup(
     {
@@ -62,6 +62,10 @@ export class RegistroDonante {
     });
   }
 
+  ngOnInit(): void {
+    this.entorno.cargar();
+  }
+
   alternarContrasena(): void {
     this.verContrasena.update((valor) => !valor);
   }
@@ -87,17 +91,15 @@ export class RegistroDonante {
     };
 
     this.respuesta.set('');
+    this.enviando.set(true);
     this.api.registrarDonante(payload).subscribe({
       next: () => {
+        this.enviando.set(false);
         this.router.navigateByUrl('/perfil');
       },
-      error: (err) => {
-        const detalle = err?.error?.detail;
-        this.respuesta.set(
-          typeof detalle === 'string'
-            ? detalle
-            : 'No se pudo completar el registro. Verifica tus datos o intenta con otro correo.',
-        );
+      error: (error) => {
+        this.enviando.set(false);
+        this.respuesta.set(mensajeErrorApi(error, 'el registro'));
       },
     });
   }

@@ -1,4 +1,4 @@
-﻿import { HttpClient } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable, Injector, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { LoginPayload, RecuperacionPayload } from '../../../core/interfaces/dona-conecta';
@@ -26,7 +26,7 @@ export class AutenticacionApiService {
   private readonly estado = inject(BackendEstadoService);
 
   login(payload: LoginPayload): Observable<LoginResponse> {
-    if (!this.estado.integracionHabilitada) {
+    if (!this.estado.disponible('login')) {
       return this.estado.pendiente<LoginResponse>('login');
     }
     return this.injector.get(HttpClient).post<LoginResponse>('/api/v1/auth/login', {
@@ -35,13 +35,7 @@ export class AutenticacionApiService {
     });
   }
 
-  recuperarClave(payload: RecuperacionPayload): Observable<RecuperacionResponse> {
-    if (!this.estado.integracionHabilitada) {
-      return this.estado.pendiente<RecuperacionResponse>('recuperacion');
-    }
-    return this.injector.get(HttpClient).post<RecuperacionResponse>(
-      '/api/v1/auth/recuperar-clave',
-      { correo: payload.email },
-    );
+  recuperarClave(_payload: RecuperacionPayload): Observable<RecuperacionResponse> {
+    return this.estado.pendiente<RecuperacionResponse>('recuperacion');
   }
 }

@@ -1,3 +1,26 @@
 :host {
   display: block;
 }
+
+.dc-perfil-tarjeta {
+  border-radius: 1.4rem;
+}
+
+.dc-avatar {
+  display: grid;
+  place-items: center;
+  width: 6rem;
+  height: 6rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--dc-blue, #3679a8), var(--dc-navy, #12304a));
+  color: #fff;
+  font-family: var(--dc-font-heading, 'Manrope', sans-serif);
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.dc-perfil-metrica {
+  background: var(--dc-blue-soft, #dcebf5);
+  color: var(--dc-navy, #12304a);
+}

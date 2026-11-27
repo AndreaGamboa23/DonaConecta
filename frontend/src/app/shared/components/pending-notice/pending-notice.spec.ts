@@ -7,7 +7,7 @@ describe('PendingNotice', () => {
     await TestBed.configureTestingModule({ imports: [PendingNotice] }).compileComponents();
 
     const fixture = TestBed.createComponent(PendingNotice);
-    const estado = TestBed.inject(BackendEstadoService).estado('login');
+    const estado = TestBed.inject(BackendEstadoService).estado('mensajes');
     fixture.componentRef.setInput('estado', estado);
     fixture.componentRef.setInput('titulo', 'Acceso no disponible');
     await fixture.whenStable();

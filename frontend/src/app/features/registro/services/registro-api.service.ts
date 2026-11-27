@@ -1,7 +1,6 @@
-﻿import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable, Injector, inject } from '@angular/core';
 import { Observable, map, switchMap } from 'rxjs';
-import { DISTRITOS_HUANCAYO, TIPOS_INSTITUCION } from '../../../core/data/catalogos-locales';
 import {
   RegistroDonantePayload,
   RegistroRepresentantePayload,
@@ -22,7 +21,7 @@ export class RegistroApiService {
   private readonly sesion = inject(SesionService);
 
   registrarDonante(payload: RegistroDonantePayload): Observable<RegistroCompletoResponse> {
-    if (!this.estado.integracionHabilitada) {
+    if (!this.estado.disponible('registroDonante')) {
       return this.estado.pendiente<RegistroCompletoResponse>('registroDonante');
     }
 
@@ -31,10 +30,14 @@ export class RegistroApiService {
       .post('/api/v1/auth/registro', {
         nombres: payload.nombres,
         apellidos: payload.apellidos,
-        correo: payload.email,
+        email: payload.email,
         telefono: payload.telefono ?? null,
         password: payload.password,
         rol: 'DONANTE',
+        distritoId: payload.distritoId,
+        preferenciaNotificacion: payload.preferenciaNotificacion,
+        consentimientoDatos: payload.consentimientoDatos,
+        aceptaTerminos: payload.aceptaTerminos,
       })
       .pipe(
         switchMap(() =>
@@ -43,11 +46,11 @@ export class RegistroApiService {
             password: payload.password,
           }),
         ),
-        map((loginRes) => {
-          this.sesion.iniciar(loginRes.access_token, loginRes.usuario);
+        map((respuesta) => {
+          this.sesion.iniciar(respuesta.access_token, respuesta.usuario);
           return {
             mensaje: 'Cuenta de donante creada correctamente.',
-            usuario: loginRes.usuario,
+            usuario: respuesta.usuario,
           };
         }),
       );
@@ -56,26 +59,29 @@ export class RegistroApiService {
   registrarRepresentante(
     payload: RegistroRepresentantePayload,
   ): Observable<RegistroCompletoResponse> {
-    if (!this.estado.integracionHabilitada) {
+    if (!this.estado.disponible('registroRepresentante')) {
       return this.estado.pendiente<RegistroCompletoResponse>('registroRepresentante');
     }
 
     const http = this.injector.get(HttpClient);
-    const tipo =
-      TIPOS_INSTITUCION.find((t) => t.id === payload.institucion.tipoId)?.codigo ??
-      'ORGANIZACION_SOCIAL';
-    const distrito =
-      DISTRITOS_HUANCAYO.find((d) => d.id === payload.institucion.distritoId)?.nombre ?? 'Huancayo';
-    const rucGenerado = `20${String(Date.now()).slice(-9)}`;
-
+    // El backend crea cuenta, vínculo, institución y rol en una sola transacción.
+    // Así no quedan cuentas huérfanas si falla una petición intermedia.
     return http
       .post('/api/v1/auth/registro', {
         nombres: payload.nombres,
         apellidos: payload.apellidos,
-        correo: payload.email,
+        email: payload.email,
         telefono: payload.telefono ?? null,
         password: payload.password,
         rol: 'REPRESENTANTE',
+        institucion: {
+          nombre: payload.institucion.nombre,
+          tipoId: payload.institucion.tipoId,
+          distritoId: payload.institucion.distritoId,
+          direccion: payload.institucion.direccion ?? null,
+          descripcion: payload.institucion.descripcion ?? null,
+          cargoRepresentante: payload.institucion.cargoRepresentante ?? null,
+        },
       })
       .pipe(
         switchMap(() =>
@@ -84,31 +90,12 @@ export class RegistroApiService {
             password: payload.password,
           }),
         ),
-        switchMap((loginRes) => {
-          this.sesion.iniciar(loginRes.access_token, loginRes.usuario);
-          const headers = new HttpHeaders({
-            Authorization: `Bearer ${loginRes.access_token}`,
-          });
-          return http
-            .post(
-              '/api/v1/instituciones',
-              {
-                ruc: rucGenerado,
-                razon_social: payload.institucion.nombre,
-                nombre_comercial: payload.institucion.nombre,
-                tipo_institucion: tipo,
-                distrito,
-                direccion: payload.institucion.direccion || 'Huancayo, Junín',
-                descripcion: payload.institucion.descripcion ?? null,
-              },
-              { headers },
-            )
-            .pipe(
-              map(() => ({
-                mensaje: 'Institución registrada correctamente (en revisión).',
-                usuario: loginRes.usuario,
-              })),
-            );
+        map((respuesta) => {
+          this.sesion.iniciar(respuesta.access_token, respuesta.usuario);
+          return {
+            mensaje: 'Solicitud registrada. La institución queda pendiente de verificación.',
+            usuario: respuesta.usuario,
+          };
         }),
       );
   }

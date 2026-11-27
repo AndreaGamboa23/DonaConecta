@@ -341,3 +341,33 @@ La Fase 07 de backend continúa pendiente y no se inicia sin autorización expl�
     imágenes ni capturas.
 
 La Fase 07 de backend sigue pendiente y no se inicia sin autorización explícita.
+
+## 12. Resultado de la Fase 08.2 (CRUD real, perfil personal y seguridad)
+
+1. Se implementaron once operaciones HTTP reales en FastAPI: registro, login, cierre de sesión,
+   consulta del perfil, actividad, perfil por identificador, `PUT`, `PATCH`, cambio de contraseña,
+   cambio de correo y baja lógica. `PUT` exige la representación editable completa; `PATCH` sólo
+   modifica los campos presentes y distingue `telefono: null` de un campo omitido.
+2. El perfil de Angular quedó organizado en cuatro pestañas —Información personal, Actividad,
+   Preferencias y Seguridad y privacidad— con formularios reactivos, contadores reales y estados
+   vacíos útiles. No hay identificadores protagonistas ni botones duplicados.
+3. El navbar y el cierre de sesión usan servicios reales: los datos se reflejan al guardar y el
+   token se revoca en SQL Server antes de limpiar `sessionStorage`. El aviso obsoleto sobre el
+   celular no guardado se sustituyó en ambos formularios de registro.
+4. Seguridad: Argon2id, JWT con `jti` e `iat`, hash SHA-256 del token en `tokens_seguridad`,
+   validación de sesión activa y roles reales en cada petición, DTO sin secretos, autorización por
+   propiedad con `404` para perfiles ajenos, baja transaccional con reautenticación y auditoría.
+5. El celular se guarda con AES-256-GCM, nonce aleatorio de 12 bytes y versión de clave `1`. La
+   clave vive sólo en `backend/.env`; `.env.example` no contiene valores sensibles. La dependencia
+   justificada `cryptography==46.0.7` se documentó en `pyproject.toml`.
+6. Evidencia real: **34/34** comprobaciones de API y persistencia con cuentas sintéticas,
+   **20/20** comprobaciones de flujo en navegador CDP y **42/42** comprobaciones de documentación
+   OpenAPI/Swagger. Se verificaron SELECT de persistencia, cifrado, revocación, baja lógica,
+   auditoría y los códigos `200`, `201`, `204`, `401`, `403`, `404`, `409` y `422`.
+   `DonaConectaDB` conserva 0 usuarios y las cuentas previas no fueron modificadas.
+7. Build de producción: **569,46 kB** iniciales y **110,23 kB** transferidos, dentro del
+   presupuesto de 600 kB. Pruebas: **20 archivos y 50/50** en Angular y **7/7** en Python.
+   Persisten únicamente las advertencias de deprecación de `@import` de Sass.
+8. Se creó `docs/informe-crud-perfil-fase-08.2.md`; el informe de Fase 08 conserva su diagnóstico
+   histórico con una nota que señala las limitaciones ya resueltas. No se ejecutaron commit, push,
+   merge ni cambio de rama. La valoración estética final sigue pendiente de revisión humana.

@@ -1,4 +1,4 @@
-﻿import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CATEGORIAS_INFORMATIVAS, DISTRITOS_HUANCAYO } from '../../../../core/data/catalogos-locales';
@@ -16,6 +16,7 @@ import { ExploracionApiService, NecesidadReal } from '../../services/exploracion
 
 type EstadoResultados = 'servicio-no-disponible' | 'cargando' | 'error' | 'vacio' | 'datos';
 
+/** Exploración pública: catálogo informativo real y solicitudes desde la API autorizada. */
 @Component({
   selector: 'app-necesidades',
   standalone: true,
@@ -57,20 +58,25 @@ export class Necesidades implements OnInit {
   readonly resultadosCatalogo = computed(() => this.respuesta().resultados.slice(0, 8));
   readonly relacionados = computed(() => this.respuesta().relacionados.slice(0, 3));
 
-  readonly estadoResultados = signal<EstadoResultados>('cargando');
+  readonly estadoResultados = signal<EstadoResultados>(
+    this.estado.disponible ? 'cargando' : 'servicio-no-disponible',
+  );
   readonly todasNecesidades = signal<readonly NecesidadReal[]>([]);
   readonly mensajeCompromiso = signal('');
+  readonly cantidades = signal<Readonly<Record<number, number>>>({});
 
   readonly necesidadesFiltradas = computed(() => {
     const lista = this.todasNecesidades();
-    const catNombre = CATEGORIAS_INFORMATIVAS.find((c) => c.id === this.categoriaId())?.nombre;
-    const distNombre = DISTRITOS_HUANCAYO.find((d) => d.id === this.distritoId())?.nombre;
-    const prio = this.prioridad();
+    const categoriaNombre = CATEGORIAS_INFORMATIVAS.find((c) => c.id === this.categoriaId())?.nombre;
+    const distritoNombre = DISTRITOS_HUANCAYO.find((d) => d.id === this.distritoId())?.nombre;
+    const prioridad = this.prioridad();
 
-    return lista.filter((n) => {
-      if (catNombre && n.categoria.toLowerCase() !== catNombre.toLowerCase()) return false;
-      if (distNombre && n.distrito !== distNombre) return false;
-      if (prio && n.prioridad !== prio) return false;
+    return lista.filter((necesidad) => {
+      if (categoriaNombre && necesidad.categoria.toLocaleLowerCase('es') !== categoriaNombre.toLocaleLowerCase('es')) {
+        return false;
+      }
+      if (distritoNombre && necesidad.distrito !== distritoNombre) return false;
+      if (prioridad && necesidad.prioridad !== prioridad) return false;
       return true;
     });
   });
@@ -88,6 +94,11 @@ export class Necesidades implements OnInit {
   }
 
   cargarNecesidades(): void {
+    if (!this.estado.disponible) {
+      this.estadoResultados.set('servicio-no-disponible');
+      return;
+    }
+    this.estadoResultados.set('cargando');
     this.api.listarNecesidades().subscribe({
       next: (lista) => {
         this.todasNecesidades.set(lista);
@@ -97,25 +108,61 @@ export class Necesidades implements OnInit {
     });
   }
 
-  comprometer(item: NecesidadReal): void {
-    const faltante = Math.max(1, item.cantidad_requerida - item.cantidad_comprometida);
+  puedeComprometer(): boolean {
+    return (this.sesion.usuario()?.roles ?? []).some(
+      (rol) => rol.toLocaleUpperCase('es') === 'DONANTE',
+    );
+  }
+
+  faltante(necesidad: NecesidadReal): number {
+    return Math.max(0, necesidad.cantidad_requerida - necesidad.cantidad_comprometida);
+  }
+
+  fijarCantidad(idNecesidad: number, evento: Event): void {
+    const valor = Number((evento.target as HTMLInputElement).value);
+    const actuales = { ...this.cantidades() };
+    if (Number.isFinite(valor) && valor > 0) actuales[idNecesidad] = valor;
+    else delete actuales[idNecesidad];
+    this.cantidades.set(actuales);
+  }
+
+  comprometer(necesidad: NecesidadReal): void {
+    const cantidad = this.cantidades()[necesidad.id_necesidad];
+    const faltante = this.faltante(necesidad);
     this.mensajeCompromiso.set('');
+
+    if (!this.puedeComprometer()) {
+      this.mensajeCompromiso.set('Inicia sesión con una cuenta de donante para comprometer bienes.');
+      return;
+    }
+    if (!cantidad || cantidad <= 0) {
+      this.mensajeCompromiso.set('Indica la cantidad que deseas comprometer.');
+      return;
+    }
+    if (faltante > 0 && cantidad > faltante) {
+      this.mensajeCompromiso.set(`La cantidad disponible es ${faltante} ${necesidad.unidad_medida_base}.`);
+      return;
+    }
+
     this.donacionesApi
       .crearCompromiso({
-        id_necesidad: item.id_necesidad,
-        cantidad_comprometida: Math.min(1, faltante),
-        comentario: 'Compromiso registrado desde la web DonaConecta',
+        id_necesidad: necesidad.id_necesidad,
+        cantidad_comprometida: cantidad,
+        comentario: 'Compromiso registrado desde la web de DonaConecta',
       })
       .subscribe({
         next: () => {
           this.mensajeCompromiso.set(
-            `¡Compromiso registrado para "${item.titulo}"! Puedes verlo en Mis donaciones.`,
+            `Compromiso de ${cantidad} ${necesidad.unidad_medida_base} registrado para «${necesidad.titulo}».`,
           );
           this.cargarNecesidades();
         },
-        error: (err) => {
+        error: (error) => {
+          const detalle = error?.error?.detail;
           this.mensajeCompromiso.set(
-            err?.error?.detail ?? 'No se pudo registrar el compromiso. Verifica tu sesión.',
+            typeof detalle === 'string'
+              ? detalle
+              : 'No se pudo registrar el compromiso. Verifica tu sesión e inténtalo de nuevo.',
           );
         },
       });

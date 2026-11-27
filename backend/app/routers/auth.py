@@ -1,56 +1,86 @@
 ﻿from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials
+
 from app.core.security import (
+    bearer_scheme,
     crear_token_acceso,
-    hashear_password,
     obtener_usuario_actual,
     verificar_password,
 )
-from app.repositories.usuarios_repo import (
-    buscar_usuario_por_correo,
-    buscar_usuario_por_id,
-    crear_usuario_con_rol,
+from app.repositories.usuarios_repo import buscar_usuario_por_correo, revocar_token, registrar_sesion
+from app.schemas.auth_schema import (
+    LoginRequest,
+    RegistroRequest,
+    RegistroResponse,
+    TokenResponse,
 )
-from app.schemas.auth_schema import LoginRequest, RegistroUsuarioRequest, TokenResponse
+from app.services import registro_service
 
-router = APIRouter(prefix="/api/v1", tags=["Autenticacion y Usuarios"])
+router = APIRouter(prefix="/api/v1", tags=["Autenticación y usuarios"])
 
-@router.post("/auth/registro", status_code=status.HTTP_201_CREATED)
-def registrar_usuario(datos: RegistroUsuarioRequest):
-    existente = buscar_usuario_por_correo(datos.correo.lower())
-    if existente:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="El correo ya se encuentra registrado",
-        )
-    password_hash = hashear_password(datos.password)
-    nuevo = crear_usuario_con_rol(
-        nombres=datos.nombres.strip(),
-        apellidos=datos.apellidos.strip(),
-        correo=datos.correo.lower().strip(),
-        telefono=datos.telefono.strip() if datos.telefono else None,
-        password_hash=password_hash,
-        nombre_rol=datos.rol,
-    )
-    return {"mensaje": "Usuario registrado correctamente", "usuario": nuevo}
+_REGISTRO_RESPUESTAS = {
+    409: {"description": "El correo ya está registrado o la institución ya existe."},
+    422: {"description": "El cuerpo no cumple el contrato o falta un consentimiento obligatorio."},
+    503: {"description": "El servicio no pudo completar la operación en SQL Server."},
+}
+_LOGIN_RESPUESTAS = {
+    401: {"description": "Correo o contraseña incorrectos, cuenta inactiva o sesión revocada."},
+    403: {"description": "La cuenta no tiene roles activos."},
+    422: {"description": "El correo o la contraseña no son válidos."},
+}
+_SESION_RESPUESTAS = {
+    204: {"description": "Sesión revocada en el servidor."},
+    401: {"description": "Token ausente, expirado o revocado."},
+}
 
-@router.post("/auth/login", response_model=TokenResponse)
+@router.post(
+    "/auth/registro",
+    response_model=RegistroResponse,
+    status_code=status.HTTP_201_CREATED,
+    responses=_REGISTRO_RESPUESTAS,
+    summary="Registrar donante o representante con transacción atómica",
+)
+@router.post(
+    "/autenticacion/registro",
+    response_model=RegistroResponse,
+    status_code=status.HTTP_201_CREATED,
+    include_in_schema=False,
+)
+def registrar_usuario(datos: RegistroRequest):
+    return registro_service.registrar(datos)
+
+
+@router.post(
+    "/auth/login",
+    response_model=TokenResponse,
+    responses=_LOGIN_RESPUESTAS,
+    summary="Iniciar sesión y registrar la sesión en SQL Server",
+)
+@router.post("/autenticacion/login", response_model=TokenResponse, include_in_schema=False)
 def iniciar_sesion(datos: LoginRequest):
-    usuario = buscar_usuario_por_correo(datos.correo.lower().strip())
-    if not usuario or not verificar_password(datos.password, usuario["password_hash"]):
+    correo = str(datos.correo).strip().lower()
+    usuario = buscar_usuario_por_correo(correo)
+    if (
+        not usuario
+        or not usuario["activo"]
+        or not verificar_password(datos.password, usuario["password_hash"])
+    ):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Correo o contrasena incorrectos",
+            detail="Correo o contraseña incorrectos",
         )
-    if not usuario["activo"]:
+    if not usuario["roles"]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="La cuenta se encuentra desactivada",
+            detail="La cuenta no tiene roles activos",
         )
-    token = crear_token_acceso(
+
+    token, expira_en = crear_token_acceso(
         id_usuario=usuario["id_usuario"],
         correo=usuario["correo"],
         roles=usuario["roles"],
     )
+    registrar_sesion(token, usuario["id_usuario"], expira_en)
     return {
         "access_token": token,
         "token_type": "bearer",
@@ -63,9 +93,16 @@ def iniciar_sesion(datos: LoginRequest):
         },
     }
 
-@router.get("/usuarios/me")
-def obtener_mi_perfil(usuario_token: dict = Depends(obtener_usuario_actual)):
-    perfil = buscar_usuario_por_id(usuario_token["id_usuario"])
-    if not perfil:
-        raise HTTPException(status_code=404, detail="Usuario no encontrado")
-    return perfil
+
+@router.delete(
+    "/auth/sesion",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses=_SESION_RESPUESTAS,
+    summary="Revocar la sesión actual en el servidor",
+)
+def cerrar_sesion(
+    credenciales: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
+    usuario: dict = Depends(obtener_usuario_actual),
+):
+    if credenciales:
+        revocar_token(credenciales.credentials, usuario["id_usuario"])
