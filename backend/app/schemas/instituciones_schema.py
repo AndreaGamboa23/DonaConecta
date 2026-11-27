@@ -6,7 +6,7 @@ aceptan sólo como alias de entrada para clientes antiguos y nunca se almacenan.
 
 from typing import Literal, Optional
 
-from pydantic import AliasChoices, BaseModel, ConfigDict, Field
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field, model_validator
 
 
 class InstitucionRegistroRequest(BaseModel):
@@ -40,5 +40,14 @@ class CrearInstitucionRequest(InstitucionRegistroRequest):
 
 
 class VerificarInstitucionRequest(BaseModel):
-    estado_verificacion: Literal["VERIFICADA", "RECHAZADA", "SUSPENDIDA", "EN_REVISION"]
+    estado_verificacion: Literal[
+        "PENDIENTE", "EN_REVISION", "VERIFICADA", "RECHAZADA", "SUSPENDIDA"
+    ]
     motivo: Optional[str] = Field(default=None, max_length=500)
+
+    @model_validator(mode="after")
+    def motivo_obligatorio_en_decisiones(self) -> "VerificarInstitucionRequest":
+        if self.estado_verificacion in {"RECHAZADA", "SUSPENDIDA"}:
+            if not (self.motivo or "").strip():
+                raise ValueError("Debe indicar el motivo de la decisión.")
+        return self

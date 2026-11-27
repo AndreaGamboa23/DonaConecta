@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, inject, signal } from '@angular/core';
+import { Component, ElementRef, HostListener, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { SesionApiService } from '../../../core/services/sesion-api.service';
 import { SesionService } from '../../../core/services/sesion.service';
@@ -41,6 +41,14 @@ export class Navbar {
     icon: 'chat',
     exact: false,
   };
+
+  /** Panel disponible según los roles reales de la sesión; el backend vuelve a autorizar. */
+  readonly panelRuta = computed(() => {
+    const roles = this.sesion.usuario()?.roles.map((rol) => rol.toLocaleUpperCase('es')) ?? [];
+    if (roles.includes('ADMINISTRADOR')) return '/admin';
+    if (roles.includes('REPRESENTANTE')) return '/institucional';
+    return '';
+  });
 
   /** Todas las rutas existen; el menú Más evita saturar la navegación principal. */
   readonly secondaryLinks = [

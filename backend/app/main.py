@@ -4,7 +4,16 @@ from fastapi.responses import JSONResponse
 
 from app.core.config import settings
 from app.core.errores import ErrorNegocio
-from app.routers import auth, catalogos, donaciones, instituciones, usuarios
+from app.routers import (
+    admin_panel,
+    auth,
+    catalogos,
+    donaciones,
+    instituciones,
+    institucional_panel,
+    productos_panel,
+    usuarios,
+)
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -39,3 +48,6 @@ app.include_router(auth.router)
 app.include_router(usuarios.router)
 app.include_router(instituciones.router)
 app.include_router(donaciones.router)
+app.include_router(productos_panel.router)
+app.include_router(admin_panel.router)
+app.include_router(institucional_panel.router)

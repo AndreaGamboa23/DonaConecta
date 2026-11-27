@@ -90,6 +90,16 @@
 
         <div class="dc-nav-actions d-flex flex-column flex-xl-row align-items-stretch align-items-xl-center gap-2 ms-xl-auto">
           @if (sesion.autenticado()) {
+            @if (panelRuta()) {
+              <a
+                class="btn btn-outline-primary d-inline-flex align-items-center justify-content-center gap-2"
+                [routerLink]="panelRuta()"
+                (click)="closeMenu()"
+              >
+                <app-icon name="shield" />
+                <span>Panel</span>
+              </a>
+            }
             <a
               class="btn btn-outline-primary d-inline-flex align-items-center justify-content-center gap-2"
               routerLink="/perfil"

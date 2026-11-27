@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, Injector, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { BackendEstadoService } from '../../../core/services/backend-estado.service';
@@ -39,11 +39,16 @@ export class ExploracionApiService {
   private readonly injector = inject(Injector);
   private readonly estado = inject(BackendEstadoService);
 
-  listarNecesidades(): Observable<readonly NecesidadReal[]> {
+  listarNecesidades(categoriaId?: number, distritoId?: number): Observable<readonly NecesidadReal[]> {
     if (!this.estado.disponible('necesidades')) {
       return this.estado.pendiente<readonly NecesidadReal[]>('necesidades');
     }
-    return this.injector.get(HttpClient).get<readonly NecesidadReal[]>('/api/v1/necesidades');
+    let parametros = new HttpParams();
+    if (categoriaId && categoriaId > 0) parametros = parametros.set('categoriaId', categoriaId);
+    if (distritoId && distritoId > 0) parametros = parametros.set('distritoId', distritoId);
+    return this.injector.get(HttpClient).get<readonly NecesidadReal[]>('/api/v1/necesidades', {
+      params: parametros,
+    });
   }
 
   listarInstituciones(): Observable<readonly InstitucionReal[]> {

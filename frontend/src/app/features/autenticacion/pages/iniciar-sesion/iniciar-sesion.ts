@@ -68,12 +68,20 @@ export class IniciarSesion {
       .subscribe({
         next: (respuesta) => {
           this.sesion.iniciar(respuesta.access_token, respuesta.usuario);
-          this.router.navigateByUrl('/perfil');
+          this.router.navigateByUrl(this.destinoPorRol(respuesta.usuario.roles));
         },
         error: (error) => {
           this.respuesta.set(mensajeErrorApi(error, 'el inicio de sesión'));
         },
       });
+  }
+
+  /** Los guards son ayuda de navegación; el backend autoriza cada operación. */
+  private destinoPorRol(roles: readonly string[]): string {
+    const normalizados = roles.map((rol) => rol.toLocaleUpperCase('es'));
+    if (normalizados.includes('ADMINISTRADOR')) return '/admin';
+    if (normalizados.includes('REPRESENTANTE')) return '/institucional';
+    return '/perfil';
   }
 
   recuperar(): void {

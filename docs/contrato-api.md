@@ -271,3 +271,30 @@ configura y registra routers. Python 3.13 y `uv` se evaluarán en Fase 07.
 `backend/README.md` aún describe `routers/`, `models/` y `main.py` en la raíz. Pertenece al
 módulo del compañero: **no se modifica unilateralmente**. Debe corregirse de forma coordinada
 al preparar el backend en Fase 07, adoptando la estructura de esta sección.
+
+## 9. Operaciones implementadas en la Fase 09 (Avance 02)
+
+Estas operaciones **sí están implementadas** en `backend/app`; el listado efectivo se publica en
+`/openapi.json`. La autorización se verifica en backend con roles activos leídos de SQL Server y,
+en el panel institucional, con la institución resuelta desde el vínculo del representante.
+
+| Método y ruta | Rol | Función |
+|---|---|---|
+| `GET /api/v1/productos?categoriaId=` | Público | Catálogo SQL de bienes con sus unidades reales. |
+| `GET /api/v1/admin/resumen` | `ADMINISTRADOR` | Indicadores reales para el panel. |
+| `GET /api/v1/admin/instituciones` | `ADMINISTRADOR` | Todas las instituciones con estado y representante. |
+| `PATCH /api/v1/admin/instituciones/{id}/verificar` | `ADMINISTRADOR` | Transición de estado con historial y auditoría transaccionales. |
+| `GET /api/v1/admin/usuarios?limit=&offset=&q=&rol=` | `ADMINISTRADOR` | Usuarios paginados, sin secretos. |
+| `PATCH /api/v1/admin/usuarios/{id}/estado` | `ADMINISTRADOR` | Activar, bloquear o dar de baja; revoca sesiones. |
+| `GET /api/v1/admin/auditoria?limit=&offset=&modulo=&resultado=` | `ADMINISTRADOR` | Eventos de auditoría paginados. |
+| `GET /api/v1/institucional/resumen` | `REPRESENTANTE` | Resumen de la institución propia. |
+| `GET` y `PATCH /api/v1/institucional/perfil` | `REPRESENTANTE` | Consulta y edición de datos públicos propios. |
+| `GET` y `POST /api/v1/institucional/necesidades` | `REPRESENTANTE` | Consulta y creación sin aceptar `id_institucion` del cliente. |
+| `PATCH` y `DELETE /api/v1/institucional/necesidades/{id}` | `REPRESENTANTE` | Cambio de estado con transiciones válidas y borrado de borradores. |
+
+Las tres listas paginadas de administrador usan `limit` (1–100) y `offset`, no la convención
+`page/pageSize` de la sección 1; se documenta así porque es el contrato real expuesto. Los DTO
+de respuesta omiten `password_hash`, hashes de token, nonces, claves y teléfonos cifrados.
+`RECHAZADA` y `SUSPENDIDA` exigen `motivo`; los saltos de estado no permitidos responden `409`.
+Los WebSockets, el GPS real y el chat siguen **pendientes** y no forman parte de este contrato
+implementado.

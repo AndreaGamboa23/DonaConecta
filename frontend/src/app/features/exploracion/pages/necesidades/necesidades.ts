@@ -5,6 +5,7 @@ import { CATEGORIAS_INFORMATIVAS, DISTRITOS_HUANCAYO } from '../../../../core/da
 import { ResultadoCatalogo } from '../../../../core/interfaces/dona-conecta';
 import { BackendEstadoService } from '../../../../core/services/backend-estado.service';
 import { CatalogoInformativoService } from '../../../../core/services/catalogo-informativo.service';
+import { PanelApiService, ProductoCatalogo } from '../../../../core/services/panel-api.service';
 import { SesionService } from '../../../../core/services/sesion.service';
 import { BuscadorCatalogo } from '../../../../shared/components/buscador-catalogo/buscador-catalogo';
 import { CategoriasDestacadas } from '../../../../shared/components/categorias-destacadas/categorias-destacadas';
@@ -37,6 +38,7 @@ export class Necesidades implements OnInit {
   private readonly catalogo = inject(CatalogoInformativoService);
   private readonly ruta = inject(ActivatedRoute);
   private readonly api = inject(ExploracionApiService);
+  private readonly panelApi = inject(PanelApiService);
   private readonly donacionesApi = inject(DonacionesApiService);
   readonly sesion = inject(SesionService);
 
@@ -62,6 +64,8 @@ export class Necesidades implements OnInit {
     this.estado.disponible ? 'cargando' : 'servicio-no-disponible',
   );
   readonly todasNecesidades = signal<readonly NecesidadReal[]>([]);
+  readonly productosReales = signal<readonly ProductoCatalogo[]>([]);
+  readonly estadoProductos = signal<'cargando' | 'datos' | 'vacio' | 'error'>('cargando');
   readonly mensajeCompromiso = signal('');
   readonly cantidades = signal<Readonly<Record<number, number>>>({});
 
@@ -91,6 +95,7 @@ export class Necesidades implements OnInit {
 
   ngOnInit(): void {
     this.cargarNecesidades();
+    this.cargarProductos();
   }
 
   cargarNecesidades(): void {
@@ -99,13 +104,35 @@ export class Necesidades implements OnInit {
       return;
     }
     this.estadoResultados.set('cargando');
-    this.api.listarNecesidades().subscribe({
+    this.api.listarNecesidades(this.categoriaId(), this.distritoId()).subscribe({
       next: (lista) => {
         this.todasNecesidades.set(lista);
         this.estadoResultados.set(lista.length > 0 ? 'datos' : 'vacio');
       },
       error: () => this.estadoResultados.set('error'),
     });
+  }
+
+  /** Bienes materiales persistidos en SQL Server, sin mezclarlos con la guía informativa. */
+  cargarProductos(): void {
+    this.estadoProductos.set('cargando');
+    this.panelApi.listarProductos().subscribe({
+      next: (productos) => {
+        this.productosReales.set(productos);
+        this.estadoProductos.set(productos.length > 0 ? 'datos' : 'vacio');
+      },
+      error: () => this.estadoProductos.set('error'),
+    });
+  }
+
+  fijarCategoria(id: number): void {
+    this.categoriaId.set(id);
+    this.cargarNecesidades();
+  }
+
+  fijarDistrito(id: number): void {
+    this.distritoId.set(id);
+    this.cargarNecesidades();
   }
 
   puedeComprometer(): boolean {
@@ -177,9 +204,15 @@ export class Necesidades implements OnInit {
     this.categoriaId.set(0);
     this.distritoId.set(0);
     this.prioridad.set('');
+    this.cargarNecesidades();
   }
 
   rutaResultado(resultado: ResultadoCatalogo): string {
     return this.catalogo.rutaResultado(resultado);
+  }
+
+  unidadesTexto(producto: ProductoCatalogo): string {
+    const simbolos = producto.unidades.map((unidad) => unidad.simbolo).filter(Boolean);
+    return simbolos.length > 0 ? simbolos.join(', ') : 'unidad no registrada';
   }
 }

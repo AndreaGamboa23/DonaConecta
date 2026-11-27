@@ -198,6 +198,25 @@ precompilados disponibles.
    pertenecer al alcance de la implementación de la base de datos; se proponen para una fase de
    documentación coordinada.
 
+## Fase 09 — Paneles, catálogo SQL y necesidades (Avance 02)
+
+| Decisión | Justificación |
+|---|---|
+| Reutilizar las operaciones ya integradas de autenticación, registro, perfil, necesidades y compromisos | Evita duplicar contratos y conserva el Avance 01 intacto. |
+| Routers separados `productos_panel`, `admin_panel` e `institucional_panel` | Mantiene `main.py` como registrador y separa presentación, reglas y persistencia. |
+| Reglas de transición puras en `core/reglas_paneles.py` | Permite probar los estados sin SQL y aplica la misma política en repositorios. |
+| `fila_version` (`ROWVERSION`) expuesto como base64 y aceptado en `PATCH` | Hace utilizable la concurrencia optimista; una versión obsoleta responde `409`. |
+| Institución derivada del representante autenticado | El cliente no puede suplante el `id_institucion` ajeno; la propiedad se valida en backend. |
+| Historial de verificación y auditoría en una sola transacción | No puede quedar un cambio de estado sin trazabilidad. |
+| Solo el contacto principal se activa al verificar | Evita habilitar accesos a vínculos secundarios no confirmados. |
+| Edición de líneas bloqueada cuando hay compromisos | Preserva la integridad de la disponibilidad calculada desde la vista real. |
+| Reactivación con restauración de roles válidos | Corrige el fallo detectado en integración: un usuario reactivado sin roles no podía iniciar sesión. |
+| Catálogo SQL con unidad neutral `UN` | Los 41 bienes editoriales no declaran presentación comercial; no se inventan formatos. |
+| Idempotencia por `(categoría, nombre)` y `(producto, unidad)` | El nombre duplicado en dos categorías es legítimo y no se colapsa en una segunda ejecución. |
+| Guard de base con variable local en `RAISERROR` | T-SQL no admite `DB_NAME()` como argumento directo; el fallo real se corrigió antes de reejecutar. |
+| Cuenta administrativa con correo `ejemplo.com` | `.invalid` es reservado y Pydantic `EmailStr` lo rechaza en login; se conserva la identificación sintética con un dominio válido. |
+| Contraseña del administrador fuera del repositorio | Se lee de archivo local, variable o consola; no se acepta como argumento ni se imprime. |
+
 ### Contradicciones detectadas y resueltas en el modelo
 
 - Contaje de tablas 41 vs. 40 → corregido a 42 con inventario explícito.

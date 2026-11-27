@@ -196,3 +196,24 @@ SQL, trazas ni credenciales: FastAPI deberá traducirlos a un cuerpo homogéneo 
 Sigue pendiente: rate limiting, verificación de correo con envío real, HTTPS/TLS en producción,
 rotación automática de claves, cifrado de documentos privados y coordenadas GPS. Detalle completo
 en `docs/informe-crud-perfil-fase-08.2.md`.
+
+### 11.7 Paneles y verificación en Fase 09
+
+- **Cuenta administrativa sintética:** se aprovisiona solo en `DonaConectaDB_Pruebas` mediante
+  `backend/scripts/provisionar_admin.py`. Exige `--confirmar-base-pruebas`, comprueba `DB_NAME()`
+  dentro de la transacción y lee la contraseña de archivo local, variable de entorno o consola.
+  No hay contraseña en el código, en argumentos visibles ni en el repositorio.
+- **Dominio de correo:** la cuenta usa `admin.sintetico@ejemplo.com`. El dominio reservado
+  `.invalid` fue rechazado por `EmailStr` de Pydantic en el inicio de sesión; se conserva la
+  convención de datos sintéticos con un dominio válido y claramente de prueba.
+- **Autorización de paneles:** cada endpoint verifica roles activos en SQL Server. Los DTO de
+  administración excluyen `password_hash`, hashes de token, nonces, claves y teléfonos cifrados.
+  El panel institucional deriva la institución del representante autenticado; no acepta un
+  `id_institucion` proporcionado por el cliente.
+- **Verificación:** las transiciones de estado están restringidas; `RECHAZADA` y `SUSPENDIDA`
+  requieren motivo; el historial y la auditoría se escriben en la misma transacción y solo se
+  activa el vínculo principal del representante.
+- **Necesidades:** la edición de líneas se bloquea cuando existen compromisos; `fila_version`
+  produce `409` ante actualizaciones concurrentes; la baja solo aplica a borradores sin historial.
+- **Sin cambios de cifrado:** no se agregó cifrado nuevo en esta fase. Siguen sin afirmarse TDE,
+  extremo a extremo, HTTPS en producción ni rate limiting.

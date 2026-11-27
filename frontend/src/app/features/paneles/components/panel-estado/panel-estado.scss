@@ -1,0 +1,12 @@
+.dc-panel-vacio {
+  width: 3.5rem;
+  height: 3.5rem;
+  background: var(--dc-blue-soft, #dcebf5);
+  color: var(--dc-navy, #12304a);
+}
+
+.dc-panel-vacio app-icon {
+  display: block;
+  width: 1.75rem;
+  height: 1.75rem;
+}

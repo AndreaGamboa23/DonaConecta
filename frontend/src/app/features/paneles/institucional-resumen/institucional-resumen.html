@@ -1,0 +1,71 @@
+<app-panel-encabezado
+  seccion="Institución"
+  titulo="Nuestro trabajo en comunidad"
+  descripcion="Consulta el estado real de tu institución y de las solicitudes de bienes materiales."
+  icono="hand"
+/>
+
+@if (estado() === 'cargando') {
+  <div class="card border-0 shadow-sm rounded-4 p-3 p-md-4">
+    <app-panel-estado estado="cargando" />
+  </div>
+} @else if (estado() === 'error') {
+  <div class="card border-0 shadow-sm rounded-4 p-3 p-md-4">
+    <app-panel-estado estado="error" [mensaje]="error()" (reintentar)="cargar()" />
+  </div>
+} @else {
+  @if (resumen(); as datos) {
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-4">
+      <span [class]="claseVerificacion(verificacion())">{{ verificacion() }}</span>
+      <span class="small text-secondary">Solicitudes de {{ datos.nombre }}</span>
+    </div>
+  }
+
+  @if (metricas().length === 0) {
+    <div class="alert alert-info border-0 rounded-4" role="status">
+      Todavía no hay cifras para mostrar. Registra una necesidad para comenzar.
+    </div>
+  } @else {
+    <section class="row g-3 g-lg-4" aria-label="Indicadores de la institución">
+      @for (metrica of metricas(); track metrica.etiqueta) {
+        <div class="col-12 col-sm-6 col-xl-4">
+          <article class="card border-0 shadow-sm rounded-4 h-100 p-3 p-md-4">
+            <div class="d-flex align-items-center justify-content-between gap-3">
+              <div>
+                <p class="small text-secondary fw-semibold mb-1">{{ metrica.etiqueta }}</p>
+                <p class="display-6 fw-bold mb-0">{{ metrica.valor }}</p>
+              </div>
+              <span class="dc-metrica-icono d-inline-flex align-items-center justify-content-center rounded-3 flex-shrink-0">
+                <app-icon [name]="metrica.icono" aria-hidden="true" />
+              </span>
+            </div>
+          </article>
+        </div>
+      }
+    </section>
+  }
+
+  <section class="row g-3 g-lg-4 mt-1">
+    <div class="col-12 col-md-6">
+      <article class="card border-0 bg-white shadow-sm rounded-4 h-100 p-3 p-md-4">
+        <h2 class="h5 fw-bold mb-2">Tus solicitudes</h2>
+        <p class="small text-secondary mb-3">
+          Publica nuevas necesidades y revisa la disponibilidad real de cada bien.
+        </p>
+        <a routerLink="/institucional/necesidades" class="btn btn-primary btn-sm">Gestionar necesidades</a>
+      </article>
+    </div>
+    <div class="col-12 col-md-6">
+      <article class="card border-0 bg-white shadow-sm rounded-4 h-100 p-3 p-md-4">
+        <h2 class="h5 fw-bold mb-2">Datos y verificación</h2>
+        <p class="small text-secondary mb-3">
+          Mantén actualizada la información de tu institución y consulta su estado.
+        </p>
+        <div class="d-flex flex-wrap gap-2">
+          <a routerLink="/institucional/perfil" class="btn btn-outline-primary btn-sm">Editar datos</a>
+          <a routerLink="/institucional/verificacion" class="btn btn-outline-secondary btn-sm">Ver verificación</a>
+        </div>
+      </article>
+    </div>
+  </section>
+}

@@ -1,0 +1,18 @@
+<a class="visually-hidden-focusable btn btn-light m-2" href="#contenidoPanel">
+  Saltar al contenido principal
+</a>
+
+<app-panel-nav [rol]="etiquetaRol()" [enlaces]="enlaces()" />
+
+<div class="dc-panel-fondo">
+  <main id="contenidoPanel" class="container-xxl px-3 px-lg-4 py-4 py-lg-5" tabindex="-1">
+    <router-outlet />
+  </main>
+</div>
+
+<footer class="container-fluid px-3 px-lg-4 py-3 bg-white border-top">
+  <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 small text-secondary">
+    <span>DonaConecta · Una comunidad, muchas manos, un mismo propósito.</span>
+    <a routerLink="/" class="text-primary text-decoration-none">Volver al inicio</a>
+  </div>
+</footer>

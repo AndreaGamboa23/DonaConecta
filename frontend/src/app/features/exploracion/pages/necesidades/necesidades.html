@@ -94,6 +94,48 @@
         </div>
         <app-categorias-destacadas [filtro]="termino()" />
 
+        <section class="card border-0 bg-white shadow-sm rounded-4 p-3 p-md-4 mt-4" aria-labelledby="bienesRegistrados">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+            <div>
+              <h2 id="bienesRegistrados" class="h5 fw-bold mb-0">Bienes registrados en el catálogo</h2>
+              <p class="small text-secondary mb-0">Productos y unidades consultados desde la base de datos de DonaConecta.</p>
+            </div>
+            <span class="badge rounded-pill text-bg-primary">{{ productosReales().length }}</span>
+          </div>
+
+          @switch (estadoProductos()) {
+            @case ('cargando') {
+              <div class="d-flex align-items-center gap-2" role="status">
+                <span class="spinner-border spinner-border-sm text-primary" aria-hidden="true"></span>
+                <span>Cargando el catálogo…</span>
+              </div>
+            }
+            @case ('error') {
+              <div class="alert alert-warning border-0 small mb-0" role="alert">
+                No se pudo consultar el catálogo de bienes. Vuelve a intentarlo más tarde.
+              </div>
+            }
+            @case ('vacio') {
+              <p class="small text-secondary mb-0">
+                El catálogo de bienes materiales todavía no tiene productos registrados.
+              </p>
+            }
+            @case ('datos') {
+              <ul class="list-group list-group-flush">
+                @for (producto of productosReales(); track producto.producto_id) {
+                  <li class="list-group-item d-flex flex-wrap justify-content-between align-items-center gap-2 px-0">
+                    <div>
+                      <span class="fw-semibold small d-block">{{ producto.nombre }}</span>
+                      <span class="small text-secondary">{{ producto.categoria }}</span>
+                    </div>
+                    <span class="badge rounded-pill text-bg-light">{{ unidadesTexto(producto) }}</span>
+                  </li>
+                }
+              </ul>
+            }
+          }
+        </section>
+
         <div class="card border-0 bg-light rounded-4 p-3 p-md-4 mt-4">
           <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
             <h2 class="h5 fw-bold mb-0">Filtros de solicitudes</h2>
@@ -107,7 +149,7 @@
             <div class="col-12 col-md-6 col-xl-4">
               <label class="form-label small fw-semibold" for="filtroCategoria">Categoría</label>
               <select id="filtroCategoria" class="form-select" [ngModel]="categoriaId()"
-                (ngModelChange)="categoriaId.set($event)">
+                (ngModelChange)="fijarCategoria($event)">
                 <option [ngValue]="0">Todas las categorías</option>
                 @for (categoria of categorias; track categoria.id) {
                   <option [ngValue]="categoria.id">{{ categoria.nombre }}</option>
@@ -117,7 +159,7 @@
             <div class="col-12 col-md-6 col-xl-4">
               <label class="form-label small fw-semibold" for="filtroDistrito">Distrito</label>
               <select id="filtroDistrito" class="form-select" [ngModel]="distritoId()"
-                (ngModelChange)="distritoId.set($event)">
+                (ngModelChange)="fijarDistrito($event)">
                 <option [ngValue]="0">Todos los distritos</option>
                 @for (distrito of distritos; track distrito.id) {
                   <option [ngValue]="distrito.id">{{ distrito.nombre }}</option>

@@ -15,9 +15,10 @@ explícita; no se adelanta una fase sin esa autorización.
 | 05 | Modelo entidad-relación y normalización 3FN. | Ejecutada (propuesta revisada en 05.1) |
 | 05.1 | Revisión, corrección y documentación técnica del modelo. | Ejecutada |
 | 06 | Implementación de Microsoft SQL Server. | Ejecutada |
-| 07 | Backend FastAPI, conexión y arquitectura de servicios. | Pendiente (Fases 07.A, 07.B, 07.B.1 y 07.B.2 frontend ejecutadas) |
-| 08 | Landing definitiva y navegación pública integrada. | Pendiente |
-| 09 | Autenticación segura, registro, sesiones y roles. | Pendiente |
+| 07 | Backend FastAPI, conexión y arquitectura de servicios. | Avance parcial integrado en Avance 01 (ver Fase 08.2); pendiente de cierre formal |
+| 08 | Landing definitiva y navegación pública integrada. | Ejecutada en avances previos |
+| 08.2 | CRUD real de usuarios, perfil personal, sesiones revocables y celular cifrado. | Ejecutada e integrada en Avance 01 |
+| 09 | Paneles administrativo e institucional, verificación real, catálogo SQL y necesidades (Avance 02). | Ejecutada |
 | 10 | Registro, verificación y directorio de instituciones. | Pendiente |
 | 11 | Catálogo y gestión de necesidades. | Pendiente |
 | 12 | Compromisos, donaciones y entregas. | Pendiente |
@@ -371,3 +372,28 @@ La Fase 07 de backend sigue pendiente y no se inicia sin autorización explícit
 8. Se creó `docs/informe-crud-perfil-fase-08.2.md`; el informe de Fase 08 conserva su diagnóstico
    histórico con una nota que señala las limitaciones ya resueltas. No se ejecutaron commit, push,
    merge ni cambio de rama. La valoración estética final sigue pendiente de revisión humana.
+
+## 13. Resultado de la Fase 09 (Avance 02)
+
+1. Backend: 14 operaciones nuevas de panel y catálogo con DTO explícitos, reglas puras de
+   transición, repositorios parametrizados, auditoría transaccional y autorización por rol y
+   propiedad. OpenAPI expone 28 rutas, 36 operaciones y 45 esquemas; las 14 operaciones de panel
+   tienen resumen, respuestas y seguridad declarada.
+2. Frontend: rutas `/admin` e `/institucional` con `rolGuard`, layout de panel, carga diferida,
+   ocho páginas, acceso por rol desde el navbar y catálogo SQL real en Explorar/Necesidades.
+   Se conservan el buscador determinista, las guías editoriales y los estados honestos.
+3. SQL: DML idempotente de 41 bienes en `DonaConectaDB_Pruebas` (42 productos totales), sin DDL;
+   `DonaConectaDB` sigue con 0 filas de negocio y `ALLOW_MAIN_DB_WRITES=no`.
+4. Integración real: institución `DEMO-INST-FASE09` verificada con historial y auditoría;
+   necesidad `DEMO-NEC-FASE09-Arroz` publicada y compromiso del donante persistidos. Dos defectos
+   detectados en ejecución se corrigieron: correo `.invalid` rechazado por `EmailStr` y
+   reactivación sin roles de una cuenta bloqueada.
+5. Evidencias: **21/21 + 21/21** comprobaciones de API, **1789/1789** comprobaciones de navegador
+   en 28 rutas y 404 × siete anchos (360–1920 px), **69/69** pruebas Angular en 25 archivos y
+   **24/24** pruebas Python. Build: **583,23 kB** iniciales y **112,73 kB** transferidos.
+6. Seguridad: cuenta administrativa sintética aprovisionada con contraseña fuera del repositorio,
+   Argon2id y rol `ADMINISTRADOR` real; DTO sin secretos; bloqueo y baja revocan sesiones; la
+   reactivación restaura solo roles vigentes en el modelo.
+7. Detalle completo en `docs/informe-paneles-fase-09.md`, `docs/contrato-api.md` §9,
+   `docs/seguridad-privacidad.md` §11.7 y `docs/decisiones-tecnicas.md`. No se ejecutaron commit,
+   push, merge ni cambio de rama; la valoración estética final sigue pendiente de revisión humana.

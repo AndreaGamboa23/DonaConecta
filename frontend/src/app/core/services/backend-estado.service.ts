@@ -35,6 +35,21 @@ const OPERACIONES = {
   perfilCambiarCorreo: '/api/v1/usuarios/me/correo',
   perfilBaja: '/api/v1/usuarios/me',
   cerrarSesionServidor: '/api/v1/auth/sesion',
+  categorias: '/api/v1/categorias',
+  unidadesMedida: '/api/v1/unidades-medida',
+  productos: '/api/v1/productos',
+  adminResumen: '/api/v1/admin/resumen',
+  adminInstituciones: '/api/v1/admin/instituciones',
+  verificarInstitucion: '/api/v1/instituciones/admin/instituciones/{id}/verificar',
+  adminUsuarios: '/api/v1/admin/usuarios',
+  cambiarEstadoUsuario: '/api/v1/admin/usuarios/{id}/estado',
+  adminAuditoria: '/api/v1/admin/auditoria',
+  institucionalResumen: '/api/v1/institucional/resumen',
+  institucionalPerfil: '/api/v1/institucional/perfil',
+  institucionalNecesidades: '/api/v1/institucional/necesidades',
+  crearNecesidad: '/api/v1/institucional/necesidades',
+  actualizarNecesidad: '/api/v1/institucional/necesidades/{id}',
+  eliminarNecesidad: '/api/v1/institucional/necesidades/{id}',
 } as const;
 
 export type OperacionBackend = keyof typeof OPERACIONES;
@@ -55,6 +70,21 @@ const OPERACIONES_DISPONIBLES: ReadonlySet<OperacionBackend> = new Set<Operacion
   'compromisos',
   'necesidades',
   'instituciones',
+  'categorias',
+  'unidadesMedida',
+  'productos',
+  'adminResumen',
+  'adminInstituciones',
+  'verificarInstitucion',
+  'adminUsuarios',
+  'cambiarEstadoUsuario',
+  'adminAuditoria',
+  'institucionalResumen',
+  'institucionalPerfil',
+  'institucionalNecesidades',
+  'crearNecesidad',
+  'actualizarNecesidad',
+  'eliminarNecesidad',
 ]);
 
 /**
