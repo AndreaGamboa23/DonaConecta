@@ -197,6 +197,7 @@ export interface CrearNecesidadPayload {
   readonly titulo: string;
   readonly descripcion: string;
   readonly prioridad: PrioridadNecesidad;
+  readonly estado?: 'BORRADOR' | 'PUBLICADA';
   readonly fecha_limite?: string | null;
   readonly id_categoria?: number | null;
   readonly lineas: readonly LineaNecesidad[];

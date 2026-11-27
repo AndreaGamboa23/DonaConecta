@@ -14,6 +14,16 @@
     <app-panel-estado estado="error" [mensaje]="error()" (reintentar)="cargar()" />
   </div>
 } @else if (perfil(); as institucion) {
+  @if (!verificada()) {
+    <div class="alert alert-warning border-0 rounded-4 mb-3" role="status">
+      <strong class="d-block">Cómo obtener la aprobación</strong>
+      Tu registro ya fue recibido. Revisa que los datos públicos de contacto estén completos y
+      espera a que el administrador revise la solicitud en el panel de verificación. Mientras
+      tanto puedes editar tu información y guardar solicitudes como borrador; la publicación se
+      habilita automáticamente cuando el estado cambie a <span class="fw-semibold">VERIFICADA</span>.
+    </div>
+  }
+
   <div class="row g-3 g-lg-4">
     <div class="col-12 col-lg-7">
       <section class="card border-0 shadow-sm rounded-4 h-100">
@@ -72,9 +82,12 @@
             <a routerLink="/institucional/necesidades" class="btn btn-primary">Ir a mis necesidades</a>
           } @else {
             <p class="small text-secondary mb-3">
-              La publicación de solicitudes depende del estado de verificación. Puedes revisar tus datos mientras tanto.
+              Mientras la verificación está pendiente puedes revisar tus datos y preparar solicitudes como borrador.
             </p>
-            <a routerLink="/institucional/perfil" class="btn btn-outline-primary">Revisar mis datos</a>
+            <div class="d-grid gap-2">
+              <a routerLink="/institucional/necesidades" class="btn btn-outline-primary">Preparar un borrador</a>
+              <a routerLink="/institucional/perfil" class="btn btn-link btn-sm">Revisar mis datos</a>
+            </div>
           }
         </div>
       </aside>

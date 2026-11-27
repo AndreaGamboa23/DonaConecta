@@ -428,7 +428,15 @@ def listar_auditoria_admin(
 # ------------------------------------------------------------- Panel institucional
 
 
-def _institucion_autorizada_en_cursor(cursor, usuario_id: int) -> int:
+def _institucion_autorizada_en_cursor(
+    cursor, usuario_id: int, permitir_pendiente: bool = False
+) -> int:
+    """Devuelve la institución del representante.
+
+    Las operaciones de negocio exigen verificación. Las pantallas de consulta del
+    panel permiten un vínculo pendiente para mostrar su estado real sin aprobarlo.
+    """
+
     fila = cursor.execute(
         """
         SELECT TOP 1 ir.institucion_id
@@ -440,6 +448,19 @@ def _institucion_autorizada_en_cursor(cursor, usuario_id: int) -> int:
         """,
         (usuario_id,),
     ).fetchone()
+    if not fila and permitir_pendiente:
+        fila = cursor.execute(
+            """
+            SELECT TOP 1 ir.institucion_id
+            FROM dbo.institucion_representantes ir
+            INNER JOIN dbo.usuario_roles ur ON ur.usuario_id = ir.usuario_id
+            INNER JOIN dbo.roles r ON r.rol_id = ur.rol_id
+            WHERE ir.usuario_id = ? AND ir.estado IN (N'ACTIVO', N'PENDIENTE')
+              AND ur.estado = N'ACTIVO' AND r.codigo = N'REPRESENTANTE'
+            ORDER BY ir.es_contacto_principal DESC, ir.fecha_inicio, ir.institucion_id;
+            """,
+            (usuario_id,),
+        ).fetchone()
     if not fila:
         raise ErrorNegocio(
             403,
@@ -449,15 +470,19 @@ def _institucion_autorizada_en_cursor(cursor, usuario_id: int) -> int:
     return _entero(fila.institucion_id)
 
 
-def institucion_autorizada(usuario_id: int) -> int:
+def institucion_autorizada(usuario_id: int, permitir_pendiente: bool = False) -> int:
     with get_connection() as conn:
-        return _institucion_autorizada_en_cursor(conn.cursor(), usuario_id)
+        return _institucion_autorizada_en_cursor(
+            conn.cursor(), usuario_id, permitir_pendiente=permitir_pendiente
+        )
 
 
 def resumen_institucional(usuario_id: int) -> dict:
     with get_connection() as conn:
         cursor = conn.cursor()
-        institucion_id = _institucion_autorizada_en_cursor(cursor, usuario_id)
+        institucion_id = _institucion_autorizada_en_cursor(
+            cursor, usuario_id, permitir_pendiente=True
+        )
         fila = cursor.execute(
             """
             SELECT i.institucion_id, i.nombre, i.estado_verificacion,
@@ -508,7 +533,10 @@ def _perfil_en_cursor(cursor, institucion_id: int) -> dict:
 def perfil_institucional(usuario_id: int) -> dict:
     with get_connection() as conn:
         cursor = conn.cursor()
-        return _perfil_en_cursor(cursor, _institucion_autorizada_en_cursor(cursor, usuario_id))
+        return _perfil_en_cursor(
+            cursor,
+            _institucion_autorizada_en_cursor(cursor, usuario_id, permitir_pendiente=True),
+        )
 
 
 CAMPOS_PERFIL_PERMITIDOS = (
@@ -522,7 +550,9 @@ CAMPOS_PERFIL_PERMITIDOS = (
 def actualizar_perfil_institucional(usuario_id: int, cambios: Mapping[str, Any]) -> dict:
     with get_connection(escritura=True) as conn:
         cursor = conn.cursor()
-        institucion_id = _institucion_autorizada_en_cursor(cursor, usuario_id)
+        institucion_id = _institucion_autorizada_en_cursor(
+            cursor, usuario_id, permitir_pendiente=True
+        )
         banderas: list[int] = []
         valores: list[Any] = []
         for campo in CAMPOS_PERFIL_PERMITIDOS:
@@ -600,7 +630,9 @@ _LINEAS_SQL = """
 def _listar_necesidades_en_cursor(
     cursor, usuario_id: int, necesidad_id: Optional[int] = None
 ) -> list[dict]:
-    institucion_id = _institucion_autorizada_en_cursor(cursor, usuario_id)
+    institucion_id = _institucion_autorizada_en_cursor(
+        cursor, usuario_id, permitir_pendiente=True
+    )
     filtro = "AND n.necesidad_id = ?" if necesidad_id is not None else ""
     parametros = (
         (institucion_id, necesidad_id)
@@ -719,7 +751,9 @@ def actualizar_necesidad_institucional(
 ) -> dict:
     with get_connection(escritura=True) as conn:
         cursor = conn.cursor()
-        institucion_id = _institucion_autorizada_en_cursor(cursor, usuario_id)
+        institucion_id = _institucion_autorizada_en_cursor(
+            cursor, usuario_id, permitir_pendiente=True
+        )
         fila = cursor.execute(
             """
             SELECT institucion_id, estado, motivo_cancelacion, fila_version
@@ -731,6 +765,9 @@ def actualizar_necesidad_institucional(
             raise ErrorNegocio(404, "NECESIDAD_NO_ENCONTRADA", "La necesidad indicada no existe.")
 
         estado_nuevo = cambios.get("estado")
+        if estado_nuevo == "PUBLICADA":
+            # Publicar necesidades sí exige institución verificada; el borrador no.
+            _institucion_autorizada_en_cursor(cursor, usuario_id)
         motivo = (cambios.get("motivo") or "").strip() or None
         version_enviada = cambios.get("fila_version")
         if estado_nuevo is not None:
@@ -841,7 +878,9 @@ def actualizar_necesidad_institucional(
 def eliminar_necesidad_institucional(usuario_id: int, necesidad_id: int) -> bool:
     with get_connection(escritura=True) as conn:
         cursor = conn.cursor()
-        institucion_id = _institucion_autorizada_en_cursor(cursor, usuario_id)
+        institucion_id = _institucion_autorizada_en_cursor(
+            cursor, usuario_id, permitir_pendiente=True
+        )
         fila = cursor.execute(
             "SELECT estado FROM dbo.necesidades WHERE necesidad_id = ? AND institucion_id = ?;",
             (necesidad_id, institucion_id),

@@ -109,7 +109,9 @@ def publicar_necesidad_institucional(
     usuario_id: int, datos: CrearNecesidadInstitucionalRequest
 ) -> dict:
     # La institución se resuelve en servidor; el cliente nunca la elige.
-    id_institucion = _ejecutar(paneles_repo.institucion_autorizada, usuario_id)
+    id_institucion = _ejecutar(
+        paneles_repo.institucion_autorizada, usuario_id, permitir_pendiente=True
+    )
     payload = datos.model_dump()
     payload["id_institucion"] = id_institucion
     solicitud = CrearNecesidadRequest.model_validate(payload)
@@ -117,7 +119,12 @@ def publicar_necesidad_institucional(
     necesidad = _ejecutar(
         paneles_repo.obtener_necesidad_institucional, usuario_id, creada["id_necesidad"]
     )
-    return {"mensaje": "Necesidad publicada correctamente", "necesidad": necesidad}
+    mensaje = (
+        "Borrador guardado correctamente"
+        if creada.get("estado") == "BORRADOR"
+        else "Necesidad publicada correctamente"
+    )
+    return {"mensaje": mensaje, "necesidad": necesidad}
 
 
 def actualizar_necesidad_institucional(

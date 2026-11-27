@@ -33,6 +33,10 @@ export class InstitucionalResumen implements OnInit {
 
   readonly verificacion = computed(() => this.resumen()?.estado_verificacion ?? '');
 
+  readonly pendienteVerificacion = computed(
+    () => this.verificacion().toLocaleUpperCase('es') === 'PENDIENTE',
+  );
+
   readonly metricas = computed<readonly MetricaInstitucional[]>(() => {
     const datos = this.resumen();
     if (!datos) return [];

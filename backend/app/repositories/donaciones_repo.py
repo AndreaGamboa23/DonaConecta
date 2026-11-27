@@ -173,6 +173,9 @@ def _fecha_limite_valida(valor: Optional[datetime]) -> Optional[datetime]:
 
 
 def crear_necesidad_en_cursor(cursor, usuario_id: int, datos: dict) -> dict:
+    estado = (datos.get("estado") or "PUBLICADA").upper()
+    if estado not in {"BORRADOR", "PUBLICADA"}:
+        raise error_catalogo("Estado de necesidad no permitido en la creación.")
     autorizado = cursor.execute(
         """
         SELECT autorizado
@@ -181,6 +184,21 @@ def crear_necesidad_en_cursor(cursor, usuario_id: int, datos: dict) -> dict:
         """,
         (usuario_id, datos["id_institucion"]),
     ).fetchone()
+    if not autorizado and estado == "BORRADOR":
+        autorizado = cursor.execute(
+            """
+            SELECT 1 AS autorizado
+            FROM dbo.institucion_representantes ir
+            INNER JOIN dbo.usuario_roles ur ON ur.usuario_id = ir.usuario_id
+            INNER JOIN dbo.roles r ON r.rol_id = ur.rol_id
+            INNER JOIN dbo.instituciones i ON i.institucion_id = ir.institucion_id
+            WHERE ir.usuario_id = ? AND ir.institucion_id = ?
+              AND ir.estado = N'ACTIVO' AND ur.estado = N'ACTIVO'
+              AND r.codigo = N'REPRESENTANTE'
+              AND i.estado_verificacion IN (N'PENDIENTE', N'EN_REVISION');
+            """,
+            (usuario_id, datos["id_institucion"]),
+        ).fetchone()
     if not autorizado:
         raise ErrorNegocio(
             403,
@@ -242,13 +260,14 @@ def crear_necesidad_en_cursor(cursor, usuario_id: int, datos: dict) -> dict:
             fecha_publicacion, fecha_limite, punto_acopio_id, creado_por_usuario_id
         )
         OUTPUT INSERTED.necesidad_id, INSERTED.estado
-        VALUES (?, ?, ?, ?, N'PUBLICADA', SYSUTCDATETIME(), ?, ?, ?);
+        VALUES (?, ?, ?, ?, ?, SYSUTCDATETIME(), ?, ?, ?);
         """,
         (
             datos["id_institucion"],
             datos["titulo"].strip(),
             datos["descripcion"].strip(),
             datos["prioridad"],
+            estado,
             _fecha_limite_valida(datos.get("fecha_limite")),
             punto_id,
             usuario_id,

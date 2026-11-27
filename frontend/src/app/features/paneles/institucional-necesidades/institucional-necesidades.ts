@@ -1,4 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import {
   FormArray,
   FormControl,
@@ -34,7 +35,7 @@ type EstadoPagina = 'cargando' | 'datos' | 'error';
 @Component({
   selector: 'app-institucional-necesidades',
   standalone: true,
-  imports: [ReactiveFormsModule, PanelEncabezado, PanelEstado],
+  imports: [ReactiveFormsModule, RouterLink, PanelEncabezado, PanelEstado],
   templateUrl: './institucional-necesidades.html',
   styleUrl: './institucional-necesidades.scss',
 })
@@ -82,6 +83,10 @@ export class InstitucionalNecesidades implements OnInit {
   });
 
   readonly catalogoSinProductos = computed(() => this.productos().length === 0);
+  readonly verificada = computed(
+    () =>
+      (this.perfil()?.estado_verificacion ?? '').toLocaleUpperCase('es') === 'VERIFICADA',
+  );
 
   constructor() {
     this.anadirLinea();
@@ -168,7 +173,7 @@ export class InstitucionalNecesidades implements OnInit {
       .filter((unidad) => unidad.unidad_id > 0);
   }
 
-  crear(): void {
+  crear(estado: 'BORRADOR' | 'PUBLICADA' = 'PUBLICADA'): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.avisar('Completa el título, la descripción y al menos una línea válida.', true);
@@ -180,11 +185,19 @@ export class InstitucionalNecesidades implements OnInit {
       this.avisar('Agrega al menos un bien material a la solicitud.', true);
       return;
     }
+    if (estado === 'PUBLICADA' && !this.verificada()) {
+      this.avisar(
+        'Tu institución todavía no está verificada. Guarda un borrador y espera la aprobación del administrador.',
+        true,
+      );
+      return;
+    }
 
     const datos: CrearNecesidadPayload = {
       titulo: valor.titulo.trim(),
       descripcion: valor.descripcion.trim(),
       prioridad: valor.prioridad,
+      estado,
       fecha_limite: valor.fecha_limite || null,
       id_categoria: valor.id_categoria > 0 ? valor.id_categoria : null,
       lineas: valor.lineas.map((linea) => ({
@@ -204,7 +217,10 @@ export class InstitucionalNecesidades implements OnInit {
         this.guardando.set(false);
       },
       error: (fallo) => {
-        this.avisar(mensajeErrorApi(fallo, 'Publicar la solicitud'), true);
+        this.avisar(
+          mensajeErrorApi(fallo, estado === 'BORRADOR' ? 'Guardar el borrador' : 'Publicar la solicitud'),
+          true,
+        );
         this.guardando.set(false);
       },
     });
