@@ -477,7 +477,11 @@ def test_necesidades_institucionales_incluyen_lineas_y_todos_los_estados(context
 def test_publicar_necesidad_deriva_institucion_del_representante(monkeypatch):
     capturado = {}
 
-    monkeypatch.setattr(paneles_repo, "institucion_autorizada", lambda _usuario_id: 9)
+    monkeypatch.setattr(
+        paneles_repo,
+        "institucion_autorizada",
+        lambda _usuario_id, permitir_pendiente=False: 9,
+    )
 
     def publicar(usuario_id, datos):
         capturado["id_usuario"] = usuario_id
