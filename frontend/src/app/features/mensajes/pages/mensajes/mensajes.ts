@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { BackendEstadoService } from '../../../../core/services/backend-estado.service';
+import { SesionService } from '../../../../core/services/sesion.service';
 import { PageHero } from '../../../../shared/components/page-hero/page-hero';
 import { PendingNotice } from '../../../../shared/components/pending-notice/pending-notice';
 import { BandejaConversaciones } from '../../components/bandeja-conversaciones/bandeja-conversaciones';
@@ -21,6 +22,7 @@ import { PanelConversacion } from '../../components/panel-conversacion/panel-con
 })
 export class Mensajes {
   readonly estado = inject(BackendEstadoService).estado('mensajes');
+  readonly sesion = inject(SesionService);
 
   /** Ninguna conversación se crea ni se simula; el identificador llega desde la API. */
   readonly conversacionId = signal<number | null>(null);
@@ -31,5 +33,10 @@ export class Mensajes {
 
   volverABandeja(): void {
     this.conversacionId.set(null);
+  }
+
+  /** Alias conservado para contratos previos del componente. */
+  volverBandeja(): void {
+    this.volverABandeja();
   }
 }

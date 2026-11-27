@@ -1,9 +1,10 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { DISTRITOS_HUANCAYO, TIPOS_INSTITUCION } from '../../../../core/data/catalogos-locales';
 import { RegistroRepresentantePayload } from '../../../../core/interfaces/dona-conecta';
-import { BackendEstadoService } from '../../../../core/services/backend-estado.service';
+import { EntornoService } from '../../../../core/services/entorno.service';
+import { mensajeErrorApi } from '../../../../core/utils/errores-api';
 import {
   contraseniasCoinciden,
   etiquetaFuerzaPassword,
@@ -12,7 +13,6 @@ import {
 } from '../../../../core/utils/formularios';
 import { Brand } from '../../../../shared/components/brand/brand';
 import { Icon } from '../../../../shared/components/icon/icon';
-import { PendingNotice } from '../../../../shared/components/pending-notice/pending-notice';
 import { RegistroApiService } from '../../services/registro-api.service';
 
 type Paso = 1 | 2 | 3 | 4;
@@ -20,21 +20,22 @@ type Paso = 1 | 2 | 3 | 4;
 @Component({
   selector: 'app-registro-institucion',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, Brand, Icon, PendingNotice],
+  imports: [ReactiveFormsModule, RouterLink, Brand, Icon],
   templateUrl: './registro-institucion.html',
   styleUrl: './registro-institucion.scss',
 })
-export class RegistroInstitucion {
+export class RegistroInstitucion implements OnInit {
   private readonly api = inject(RegistroApiService);
-  private readonly estadoServicio = inject(BackendEstadoService);
+  readonly entorno = inject(EntornoService);
+  private readonly router = inject(Router);
 
   readonly distritos = DISTRITOS_HUANCAYO;
   readonly tipos = TIPOS_INSTITUCION;
-  readonly estado = this.estadoServicio.estado('registroRepresentante');
   readonly paso = signal<Paso>(1);
   readonly verContrasena = signal(false);
   readonly fuerza = signal(0);
   readonly respuesta = signal('');
+  readonly enviando = signal(false);
 
   readonly etapas = [
     { numero: 1, titulo: 'Acceso', icono: 'lock' },
@@ -103,6 +104,10 @@ export class RegistroInstitucion {
     });
   }
 
+  ngOnInit(): void {
+    this.entorno.cargar();
+  }
+
   alternarContrasena(): void {
     this.verContrasena.update((valor) => !valor);
   }
@@ -138,11 +143,16 @@ export class RegistroInstitucion {
     };
 
     this.respuesta.set('');
+    this.enviando.set(true);
     this.api.registrarRepresentante(payload).subscribe({
-      error: () =>
-        this.respuesta.set(
-          'Tu solicitud no se ha enviado: el servicio oficial aún no está conectado. No se ha guardado ningún dato.',
-        ),
+      next: () => {
+        this.enviando.set(false);
+        this.router.navigateByUrl('/perfil');
+      },
+      error: (error) => {
+        this.enviando.set(false);
+        this.respuesta.set(mensajeErrorApi(error, 'la solicitud institucional'));
+      },
     });
   }
 

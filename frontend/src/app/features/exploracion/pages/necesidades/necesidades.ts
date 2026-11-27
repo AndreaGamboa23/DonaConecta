@@ -1,19 +1,22 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CATEGORIAS_INFORMATIVAS, DISTRITOS_HUANCAYO } from '../../../../core/data/catalogos-locales';
-import { CatalogoInformativoService } from '../../../../core/services/catalogo-informativo.service';
 import { ResultadoCatalogo } from '../../../../core/interfaces/dona-conecta';
 import { BackendEstadoService } from '../../../../core/services/backend-estado.service';
+import { CatalogoInformativoService } from '../../../../core/services/catalogo-informativo.service';
+import { SesionService } from '../../../../core/services/sesion.service';
 import { BuscadorCatalogo } from '../../../../shared/components/buscador-catalogo/buscador-catalogo';
 import { CategoriasDestacadas } from '../../../../shared/components/categorias-destacadas/categorias-destacadas';
 import { EmptyState } from '../../../../shared/components/empty-state/empty-state';
 import { Icon } from '../../../../shared/components/icon/icon';
 import { PageHero } from '../../../../shared/components/page-hero/page-hero';
+import { DonacionesApiService } from '../../../donaciones/services/donaciones-api.service';
+import { ExploracionApiService, NecesidadReal } from '../../services/exploracion-api.service';
 
 type EstadoResultados = 'servicio-no-disponible' | 'cargando' | 'error' | 'vacio' | 'datos';
 
-/** Exploración pública: catálogo informativo real y solicitudes solo con integración. */
+/** Exploración pública: catálogo informativo real y solicitudes desde la API autorizada. */
 @Component({
   selector: 'app-necesidades',
   standalone: true,
@@ -29,10 +32,13 @@ type EstadoResultados = 'servicio-no-disponible' | 'cargando' | 'error' | 'vacio
   templateUrl: './necesidades.html',
   styleUrl: './necesidades.scss',
 })
-export class Necesidades {
+export class Necesidades implements OnInit {
   private readonly estadoServicio = inject(BackendEstadoService);
   private readonly catalogo = inject(CatalogoInformativoService);
   private readonly ruta = inject(ActivatedRoute);
+  private readonly api = inject(ExploracionApiService);
+  private readonly donacionesApi = inject(DonacionesApiService);
+  readonly sesion = inject(SesionService);
 
   readonly estado = this.estadoServicio.estado('necesidades');
   readonly categorias = CATEGORIAS_INFORMATIVAS;
@@ -52,8 +58,28 @@ export class Necesidades {
   readonly resultadosCatalogo = computed(() => this.respuesta().resultados.slice(0, 8));
   readonly relacionados = computed(() => this.respuesta().relacionados.slice(0, 3));
 
-  /** Las solicitudes solo cambiarán cuando exista una consulta REST autorizada. */
-  readonly estadoResultados = signal<EstadoResultados>('servicio-no-disponible');
+  readonly estadoResultados = signal<EstadoResultados>(
+    this.estado.disponible ? 'cargando' : 'servicio-no-disponible',
+  );
+  readonly todasNecesidades = signal<readonly NecesidadReal[]>([]);
+  readonly mensajeCompromiso = signal('');
+  readonly cantidades = signal<Readonly<Record<number, number>>>({});
+
+  readonly necesidadesFiltradas = computed(() => {
+    const lista = this.todasNecesidades();
+    const categoriaNombre = CATEGORIAS_INFORMATIVAS.find((c) => c.id === this.categoriaId())?.nombre;
+    const distritoNombre = DISTRITOS_HUANCAYO.find((d) => d.id === this.distritoId())?.nombre;
+    const prioridad = this.prioridad();
+
+    return lista.filter((necesidad) => {
+      if (categoriaNombre && necesidad.categoria.toLocaleLowerCase('es') !== categoriaNombre.toLocaleLowerCase('es')) {
+        return false;
+      }
+      if (distritoNombre && necesidad.distrito !== distritoNombre) return false;
+      if (prioridad && necesidad.prioridad !== prioridad) return false;
+      return true;
+    });
+  });
 
   readonly filtrosActivos = computed(
     () =>
@@ -62,6 +88,85 @@ export class Necesidades {
       Number(this.distritoId() > 0) +
       Number(Boolean(this.prioridad())),
   );
+
+  ngOnInit(): void {
+    this.cargarNecesidades();
+  }
+
+  cargarNecesidades(): void {
+    if (!this.estado.disponible) {
+      this.estadoResultados.set('servicio-no-disponible');
+      return;
+    }
+    this.estadoResultados.set('cargando');
+    this.api.listarNecesidades().subscribe({
+      next: (lista) => {
+        this.todasNecesidades.set(lista);
+        this.estadoResultados.set(lista.length > 0 ? 'datos' : 'vacio');
+      },
+      error: () => this.estadoResultados.set('error'),
+    });
+  }
+
+  puedeComprometer(): boolean {
+    return (this.sesion.usuario()?.roles ?? []).some(
+      (rol) => rol.toLocaleUpperCase('es') === 'DONANTE',
+    );
+  }
+
+  faltante(necesidad: NecesidadReal): number {
+    return Math.max(0, necesidad.cantidad_requerida - necesidad.cantidad_comprometida);
+  }
+
+  fijarCantidad(idNecesidad: number, evento: Event): void {
+    const valor = Number((evento.target as HTMLInputElement).value);
+    const actuales = { ...this.cantidades() };
+    if (Number.isFinite(valor) && valor > 0) actuales[idNecesidad] = valor;
+    else delete actuales[idNecesidad];
+    this.cantidades.set(actuales);
+  }
+
+  comprometer(necesidad: NecesidadReal): void {
+    const cantidad = this.cantidades()[necesidad.id_necesidad];
+    const faltante = this.faltante(necesidad);
+    this.mensajeCompromiso.set('');
+
+    if (!this.puedeComprometer()) {
+      this.mensajeCompromiso.set('Inicia sesión con una cuenta de donante para comprometer bienes.');
+      return;
+    }
+    if (!cantidad || cantidad <= 0) {
+      this.mensajeCompromiso.set('Indica la cantidad que deseas comprometer.');
+      return;
+    }
+    if (faltante > 0 && cantidad > faltante) {
+      this.mensajeCompromiso.set(`La cantidad disponible es ${faltante} ${necesidad.unidad_medida_base}.`);
+      return;
+    }
+
+    this.donacionesApi
+      .crearCompromiso({
+        id_necesidad: necesidad.id_necesidad,
+        cantidad_comprometida: cantidad,
+        comentario: 'Compromiso registrado desde la web de DonaConecta',
+      })
+      .subscribe({
+        next: () => {
+          this.mensajeCompromiso.set(
+            `Compromiso de ${cantidad} ${necesidad.unidad_medida_base} registrado para «${necesidad.titulo}».`,
+          );
+          this.cargarNecesidades();
+        },
+        error: (error) => {
+          const detalle = error?.error?.detail;
+          this.mensajeCompromiso.set(
+            typeof detalle === 'string'
+              ? detalle
+              : 'No se pudo registrar el compromiso. Verifica tu sesión e inténtalo de nuevo.',
+          );
+        },
+      });
+  }
 
   usarTermino(termino: string): void {
     this.termino.set(termino);

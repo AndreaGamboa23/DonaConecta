@@ -124,11 +124,16 @@ datos personales; no declara conformidad legal.
 - **No implementado:** cifrado de extremo a extremo del chat, criptografía propia y funciones
   nativas de SQL Server no verificadas en la edición instalada.
 
-### 11.2 Sesiones
+### 11.2 Sesiones (estado real en Fase 08.2)
 
-Access token de corta duración firmado; refresh token opaco cuyo hash se guarda en
-`tokens_seguridad`. La renovación rota el token y revoca el anterior. `logout` revoca la
-sesión. Rate limiting en login, recuperación, registro, envío de mensajes e inicio de GPS.
+El backend emite un JWT de acceso con `sub`, `correo`, `roles`, `jti`, `iat` y `exp`. En
+`tokens_seguridad` se guarda el **SHA-256 del token**, nunca el token. La fila usa el valor de
+catálogo `tipo = REFRESCAR_SESION` exigido por el `CHECK` del modelo, pero **no es un refresh
+token**: no hay renovación ni rotación implementadas. Cada petición protegida valida firma,
+expiración, sesión no revocada y cuenta activa en SQL Server. `logout` revoca la sesión actual;
+el cambio de contraseña, el cambio de correo y la baja revocan todas las sesiones. El token se
+guarda en `sessionStorage` del navegador, no en una cookie `HttpOnly`. El rate limiting sigue
+pendiente y no se afirma implementado.
 
 ### 11.3 Verificación en Fase 06
 
@@ -144,10 +149,9 @@ La comprobación prevista se ejecutó en la instancia real `.\SQLEXPRESS`:
 | `IsIntegratedSecurityOnly` | `1` (autenticación Windows) |
 
 **No se afirma** TDE, Always Encrypted, cifrado nativo de columnas, cifrado de respaldo ni
-cifrado de extremo a extremo. Ninguno fue activado. La única estrategia afirmable sigue siendo la
-de aplicación descrita en la matriz §11, pendiente de implementación en Fase 07 con Argon2id para
-contraseñas y AES-256-GCM para los datos recuperables que se justifiquen (correo, teléfono y
-coordenada GPS autorizada).
+cifrado de extremo a extremo. Ninguno fue activado. La estrategia de aplicación iniciada en Fase
+08.2 cubre Argon2id para contraseñas y AES-256-GCM para el celular; el correo y la coordenada GPS
+autorizada siguen pendientes.
 
 ### 11.4 Aislamiento de privilegios verificado en Fase 06
 
@@ -176,3 +180,19 @@ SQL, trazas ni credenciales: FastAPI deberá traducirlos a un cuerpo homogéneo 
   y certificados válidos. Nada de esto se declara realizado en Fase 06.
 - Repetir la revisión de OWASP y la evaluación formal de la normativa peruana antes de afirmar
   conformidad legal.
+
+### 11.6 Implementación verificada en Fase 08.2
+
+| Medida | Estado real | Evidencia |
+|---|---|---|
+| Contraseñas | Argon2id (`argon2-cffi`, versión PHC `19`). | Hash verificado en SELECT tras registro y cambio de contraseña. |
+| Celular | AES-256-GCM, nonce aleatorio de 12 bytes por escritura, versión de clave `1`, clave de 32 bytes en `backend/.env`. | SELECT de `telefono_cifrado`, `telefono_nonce` y `telefono_clave_version`; la API devuelve `•••• 4321` / `•••• 7665`. |
+| Gestión de clave | Fuera del repositorio; `.env.example` sin valor sensible; `git check-ignore` confirma `.env` ignorado. | Sin secretos en código, logs, respuestas ni documentación. |
+| Sesiones | JWT con `jti`; SHA-256 del token en SQL Server; revocación individual y total. | `401` tras logout, cambio de credenciales y baja; `DELETE /auth/sesion` `204`. |
+| Perfil | DTO sin `password_hash`, `token_hash`, nonce ni clave; celular enmascarado. | `PerfilResponse` verificado en OpenAPI y en respuestas reales. |
+| Autorización | Token válido + sesión activa + cuenta activa + roles reales; propiedad verificada en `/{id}/perfil`. | `401`, `403` y `404` obtenidos en pruebas reales. |
+| Baja lógica | Reautenticación, confirmación `BAJA`, bloqueo por compromisos activos, transacción y auditoría. | `204` y SELECT con `estado_cuenta='BAJA'`, roles `INACTIVO`, 0 sesiones activas y fila conservada. |
+
+Sigue pendiente: rate limiting, verificación de correo con envío real, HTTPS/TLS en producción,
+rotación automática de claves, cifrado de documentos privados y coordenadas GPS. Detalle completo
+en `docs/informe-crud-perfil-fase-08.2.md`.

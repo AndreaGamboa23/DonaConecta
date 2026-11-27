@@ -23,14 +23,14 @@ export class MensajeriaApiService {
   private readonly estado = inject(BackendEstadoService);
 
   listarConversaciones(): Observable<PagedResult<ConversacionResumen>> {
-    if (!this.estado.integracionHabilitada) {
+    if (!this.estado.disponible('conversaciones')) {
       return this.estado.pendiente<PagedResult<ConversacionResumen>>('conversaciones');
     }
     return this.injector.get(HttpClient).get<PagedResult<ConversacionResumen>>('/api/v1/conversaciones');
   }
 
   listarMensajes(conversacionId: number): Observable<PagedResult<MensajeDTO>> {
-    if (!this.estado.integracionHabilitada) {
+    if (!this.estado.disponible('mensajes')) {
       return this.estado.pendiente<PagedResult<MensajeDTO>>('mensajes');
     }
     return this.injector.get(HttpClient).get<PagedResult<MensajeDTO>>(

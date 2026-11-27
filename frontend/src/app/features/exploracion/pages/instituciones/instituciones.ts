@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { DISTRITOS_HUANCAYO, TIPOS_INSTITUCION } from '../../../../core/data/catalogos-locales';
@@ -10,6 +10,7 @@ import {
   InstitucionDirectorio,
 } from '../../../../shared/components/institucion-card/institucion-card';
 import { PageHero } from '../../../../shared/components/page-hero/page-hero';
+import { ExploracionApiService } from '../../services/exploracion-api.service';
 
 type EstadoDirectorio = 'servicio-no-disponible' | 'cargando' | 'error' | 'vacio' | 'datos';
 
@@ -23,7 +24,6 @@ interface TipoInstitucionInformativo {
   readonly icono: string;
 }
 
-/** Los tipos son información general; ninguno representa una institución registrada. */
 @Component({
   selector: 'app-instituciones',
   standalone: true,
@@ -31,13 +31,15 @@ interface TipoInstitucionInformativo {
   templateUrl: './instituciones.html',
   styleUrl: './instituciones.scss',
 })
-export class Instituciones {
+export class Instituciones implements OnInit {
   private readonly estadoServicio = inject(BackendEstadoService);
+  private readonly api = inject(ExploracionApiService);
 
   readonly estado = this.estadoServicio.estado('instituciones');
   readonly distritos = DISTRITOS_HUANCAYO;
   readonly tipos = TIPOS_INSTITUCION;
 
+  /** Los tipos son información general; ninguno representa una institución registrada. */
   readonly tiposInformativos: readonly TipoInstitucionInformativo[] = [
     {
       nombre: 'Comedores comunitarios',
@@ -81,9 +83,25 @@ export class Instituciones {
   readonly tipoId = signal(0);
   readonly distritoId = signal(0);
   readonly soloVerificadas = signal(true);
-  readonly estadoDirectorio = signal<EstadoDirectorio>('servicio-no-disponible');
-  /** Se llenará solo con registros devueltos por la API autorizada. */
-  readonly instituciones = signal<readonly InstitucionDirectorio[]>([]);
+
+  readonly estadoDirectorio = signal<EstadoDirectorio>(
+    this.estado.disponible ? 'cargando' : 'servicio-no-disponible',
+  );
+  readonly todasInstituciones = signal<readonly InstitucionDirectorio[]>([]);
+
+  readonly instituciones = computed(() => {
+    const lista = this.todasInstituciones();
+    const tipoCodigo = TIPOS_INSTITUCION.find((tipo) => tipo.id === this.tipoId())?.codigo;
+    const distritoNombre = DISTRITOS_HUANCAYO.find((distrito) => distrito.id === this.distritoId())
+      ?.nombre;
+
+    return lista.filter((institucion) => {
+      if (tipoCodigo && institucion.tipo !== tipoCodigo) return false;
+      if (distritoNombre && institucion.distrito !== distritoNombre) return false;
+      if (this.soloVerificadas() && institucion.estadoVerificacion !== 'VERIFICADA') return false;
+      return true;
+    });
+  });
 
   readonly tiposVisibles = computed(() => {
     const texto = normalizarTexto(this.termino());
@@ -102,6 +120,28 @@ export class Instituciones {
       Number(this.distritoId() > 0) +
       Number(!this.soloVerificadas()),
   );
+
+  ngOnInit(): void {
+    if (!this.estado.disponible) {
+      this.estadoDirectorio.set('servicio-no-disponible');
+      return;
+    }
+    this.api.listarInstituciones().subscribe({
+      next: (lista) => {
+        const mapeadas: readonly InstitucionDirectorio[] = lista.map((item) => ({
+          institucionId: item.id_institucion,
+          nombre: item.nombre ?? item.nombre_comercial ?? 'Institución sin nombre',
+          tipo: item.tipo ?? item.tipo_institucion ?? '',
+          distrito: item.distrito,
+          estadoVerificacion: item.estado_verificacion,
+          descripcion: item.descripcion ?? item.direccion ?? undefined,
+        }));
+        this.todasInstituciones.set(mapeadas);
+        this.estadoDirectorio.set(mapeadas.length > 0 ? 'datos' : 'vacio');
+      },
+      error: () => this.estadoDirectorio.set('error'),
+    });
+  }
 
   limpiarFiltros(): void {
     this.termino.set('');

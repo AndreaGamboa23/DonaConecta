@@ -89,16 +89,34 @@
         </ul>
 
         <div class="dc-nav-actions d-flex flex-column flex-xl-row align-items-stretch align-items-xl-center gap-2 ms-xl-auto">
-          <a
-            class="btn btn-outline-secondary dc-nav-login"
-            routerLink="/iniciar-sesion"
-            (click)="closeMenu()"
-          >
-            Iniciar sesión
-          </a>
-          <a class="btn btn-primary dc-nav-register" routerLink="/registro" (click)="closeMenu()">
-            Regístrate
-          </a>
+          @if (sesion.autenticado()) {
+            <a
+              class="btn btn-outline-primary d-inline-flex align-items-center justify-content-center gap-2"
+              routerLink="/perfil"
+              (click)="closeMenu()"
+            >
+              <app-icon name="user" />
+              <span>{{ sesion.usuario()?.nombres }}</span>
+            </a>
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              (click)="cerrarSesion()"
+            >
+              Cerrar sesión
+            </button>
+          } @else {
+            <a
+              class="btn btn-outline-secondary dc-nav-login"
+              routerLink="/iniciar-sesion"
+              (click)="closeMenu()"
+            >
+              Iniciar sesión
+            </a>
+            <a class="btn btn-primary dc-nav-register" routerLink="/registro" (click)="closeMenu()">
+              Regístrate
+            </a>
+          }
         </div>
       </div>
     </div>

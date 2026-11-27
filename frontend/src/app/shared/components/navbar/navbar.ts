@@ -1,5 +1,7 @@
 import { Component, ElementRef, HostListener, inject, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { SesionApiService } from '../../../core/services/sesion-api.service';
+import { SesionService } from '../../../core/services/sesion.service';
 import { Brand } from '../brand/brand';
 import { Icon } from '../icon/icon';
 
@@ -19,6 +21,9 @@ interface EnlacePrincipal {
 })
 export class Navbar {
   private readonly elemento = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly router = inject(Router);
+  private readonly sesionApi = inject(SesionApiService);
+  readonly sesion = inject(SesionService);
 
   readonly menuOpen = signal(false);
   readonly masAbierto = signal(false);
@@ -67,6 +72,15 @@ export class Navbar {
   seleccionarMas(): void {
     this.cerrarMas();
     this.closeMenu();
+  }
+
+  /** Revoca la sesión en el servidor y limpia el token de la pestaña. */
+  cerrarSesion(): void {
+    this.closeMenu();
+    this.sesionApi.cerrar().subscribe({
+      next: () => this.router.navigateByUrl('/iniciar-sesion'),
+      error: () => this.router.navigateByUrl('/iniciar-sesion'),
+    });
   }
 
   @HostListener('document:keydown.escape')

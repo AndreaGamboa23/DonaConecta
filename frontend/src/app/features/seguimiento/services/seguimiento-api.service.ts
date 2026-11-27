@@ -16,7 +16,7 @@ export class SeguimientoApiService {
   private readonly estado = inject(BackendEstadoService);
 
   consultarSesion(sesionId: number): Observable<SeguimientoResumen> {
-    if (!this.estado.integracionHabilitada) {
+    if (!this.estado.disponible('seguimiento')) {
       return this.estado.pendiente<SeguimientoResumen>('seguimiento');
     }
     return this.injector.get(HttpClient).get<SeguimientoResumen>(`/api/v1/seguimientos/${sesionId}`);

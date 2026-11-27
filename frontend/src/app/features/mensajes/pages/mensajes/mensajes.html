@@ -34,7 +34,11 @@
     </div>
 
     <div class="d-flex flex-wrap gap-2 mt-4">
-      <a routerLink="/iniciar-sesion" class="btn btn-primary">Iniciar sesión</a>
+      @if (sesion.autenticado()) {
+        <a routerLink="/necesidades" class="btn btn-primary">Explorar necesidades</a>
+      } @else {
+        <a routerLink="/iniciar-sesion" class="btn btn-primary">Iniciar sesión</a>
+      }
       <a routerLink="/mis-donaciones" class="btn btn-outline-secondary">Ver mis donaciones</a>
       <a routerLink="/como-donar" class="btn btn-outline-secondary">Cómo donar</a>
     </div>

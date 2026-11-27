@@ -178,7 +178,7 @@ CREATE TABLE dbo.instituciones (
     email_publico         NVARCHAR(256) NULL,
     latitud               DECIMAL(9,6) NULL CONSTRAINT CK_instituciones_lat CHECK (latitud BETWEEN -90 AND 90),
     longitud              DECIMAL(9,6) NULL CONSTRAINT CK_instituciones_lon CHECK (longitud BETWEEN -180 AND 180),
-    foto_archivo_id       BIGINT NULL CONSTRAINT UQ_instituciones_foto UNIQUE,
+    foto_archivo_id       BIGINT NULL, /* UNIQUE filtrado en 004: SQL Server solo admite un NULL */
     estado_verificacion   VARCHAR(20) NOT NULL CONSTRAINT CK_instituciones_estado CHECK
                           (estado_verificacion IN ('PENDIENTE','EN_REVISION','VERIFICADA','RECHAZADA','SUSPENDIDA','BAJA')),
     fecha_registro        DATETIME2(0) NOT NULL CONSTRAINT DF_instituciones_registro DEFAULT (SYSUTCDATETIME()),

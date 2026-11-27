@@ -1,90 +1,323 @@
 <app-page-hero
   eyebrow="Mi espacio"
-  titulo="Mi perfil"
-  descripcion="Cuando exista una sesión real, aquí podrás revisar tus datos, tu rol y tus preferencias. Ahora mismo no hay una cuenta conectada."
+  titulo="Tu perfil, tus conexiones"
+  descripcion="Gestiona tus datos personales, revisa tu actividad y decide cómo quieres participar en la comunidad."
   icono="user"
-  tono="green"
+  tono="navy"
 />
 
 <section class="dc-section-space">
   <div class="container">
-    <app-pending-notice
-      [estado]="estado"
-      titulo="Tu perfil todavía no está disponible"
-      class="d-block mb-4"
-    />
+    @if (!sesion.autenticado()) {
+      <app-empty-state
+        titulo="Inicia sesión para ver tu perfil"
+        mensaje="Tu información personal está protegida y solo se muestra cuando tienes una sesión activa."
+        icono="lock"
+        accionPrincipal="Iniciar sesión"
+        rutaPrincipal="/iniciar-sesion"
+      />
+    } @else {
+      @if (error()) {
+        <div class="alert alert-danger" role="alert">{{ error() }}</div>
+      }
+      @if (aviso()) {
+        <div class="alert alert-success" role="status">{{ aviso() }}</div>
+      }
 
-    <div class="row g-4 g-lg-5 align-items-stretch">
-      <div class="col-12 col-lg-7">
-        <div class="card border-0 bg-white shadow-sm rounded-4 h-100 p-3 p-md-4">
-          <span class="dc-eyebrow mb-3">Tu espacio personal</span>
-          <h2 class="h4 fw-bold mb-4">Lo que podrás gestionar</h2>
-
-          <div class="list-group list-group-flush">
-            <div class="list-group-item d-flex gap-3 align-items-start px-0 py-3">
-              <span class="dc-value-mark flex-shrink-0">
-                <app-icon name="user" />
-              </span>
-              <div>
-                <h3 class="h6 fw-bold mb-1">Datos de contacto</h3>
-                <p class="small text-secondary mb-0">
-                  Nombres, correo y distrito que registres tú mismo.
-                </p>
+      @if (cargando()) {
+        <div class="text-center py-5" role="status">
+          <div class="spinner-border text-primary" aria-hidden="true"></div>
+          <p class="mt-3 mb-0 text-body-secondary">Cargando tu información…</p>
+        </div>
+      } @else if (perfil(); as datos) {
+        <div class="row g-4">
+          <aside class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100 dc-perfil-tarjeta">
+              <div class="card-body p-4 p-lg-5 text-center">
+                <div class="dc-avatar mx-auto mb-3" aria-hidden="true">{{ iniciales() }}</div>
+                <h2 class="h4 mb-1">{{ nombreCompleto() }}</h2>
+                <p class="text-body-secondary mb-3">{{ datos.correo }}</p>
+                <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
+                  <span class="badge text-bg-primary">{{ rolPrincipal() }}</span>
+                  <span class="badge" [class.text-bg-success]="datos.estado_cuenta === 'ACTIVO'"
+                    [class.text-bg-secondary]="datos.estado_cuenta !== 'ACTIVO'">
+                    {{ estadoLegible(datos.estado_cuenta) }}
+                  </span>
+                </div>
+                <dl class="row g-2 text-start small mb-4">
+                  <dt class="col-5 text-body-secondary">Miembro desde</dt>
+                  <dd class="col-7 mb-0">{{ fechaLegible(datos.fecha_registro) }}</dd>
+                  @if (datos.donante; as donante) {
+                    <dt class="col-5 text-body-secondary">Distrito</dt>
+                    <dd class="col-7 mb-0">{{ donante.distrito }}</dd>
+                  }
+                  @if (datos.institucion; as institucion) {
+                    <dt class="col-5 text-body-secondary">Institución</dt>
+                    <dd class="col-7 mb-0">{{ institucion.nombre }}</dd>
+                  }
+                </dl>
+                <button class="btn btn-outline-secondary w-100" type="button" (click)="cerrarSesion()"
+                  [disabled]="cerrando()">
+                  {{ cerrando() ? 'Cerrando sesión…' : 'Cerrar sesión' }}
+                </button>
               </div>
             </div>
+          </aside>
 
-            <div class="list-group-item d-flex gap-3 align-items-start px-0 py-3">
-              <span class="dc-value-mark flex-shrink-0">
-                <app-icon name="shield" />
-              </span>
-              <div>
-                <h3 class="h6 fw-bold mb-1">Rol y permisos</h3>
-                <p class="small text-secondary mb-0">
-                  Donante o representante institucional, según tu registro.
-                </p>
+          <div class="col-lg-8">
+            <div class="card border-0 shadow-sm dc-perfil-tarjeta">
+              <div class="card-header bg-white border-0 p-3 p-lg-4 pb-0">
+                <ul class="nav nav-pills nav-fill gap-2" role="tablist" aria-label="Secciones del perfil">
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link" type="button" role="tab"
+                      [class.active]="pestana() === 'informacion'" [attr.aria-selected]="pestana() === 'informacion'"
+                      (click)="seleccionar('informacion')">Información personal</button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link" type="button" role="tab"
+                      [class.active]="pestana() === 'actividad'" [attr.aria-selected]="pestana() === 'actividad'"
+                      (click)="seleccionar('actividad')">Actividad</button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link" type="button" role="tab"
+                      [class.active]="pestana() === 'preferencias'" [attr.aria-selected]="pestana() === 'preferencias'"
+                      (click)="seleccionar('preferencias')">Preferencias</button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link" type="button" role="tab"
+                      [class.active]="pestana() === 'seguridad'" [attr.aria-selected]="pestana() === 'seguridad'"
+                      (click)="seleccionar('seguridad')">Seguridad y privacidad</button>
+                  </li>
+                </ul>
               </div>
-            </div>
 
-            <div class="list-group-item d-flex gap-3 align-items-start px-0 py-3">
-              <span class="dc-value-mark flex-shrink-0">
-                <app-icon name="lock" />
-              </span>
-              <div>
-                <h3 class="h6 fw-bold mb-1">Privacidad</h3>
-                <p class="small text-secondary mb-0">
-                  Preferencias de notificación y consentimiento sobre tus datos.
-                </p>
+              <div class="card-body p-3 p-lg-4">
+                @switch (pestana()) {
+                  @case ('informacion') {
+                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-4">
+                      <div>
+                        <h3 class="h5 mb-1">Información personal</h3>
+                        <p class="text-body-secondary small mb-0">Estos datos se usan para coordinar tus donaciones.</p>
+                      </div>
+                      @if (!editando()) {
+                        <button class="btn btn-sm btn-outline-primary" type="button"
+                          (click)="alternarEdicion()">Editar datos</button>
+                      }
+                    </div>
+
+                    @if (!editando()) {
+                      <dl class="row g-3 mb-0">
+                        <dt class="col-sm-4 text-body-secondary">Nombres</dt>
+                        <dd class="col-sm-8 mb-0">{{ datos.nombres }}</dd>
+                        <dt class="col-sm-4 text-body-secondary">Apellidos</dt>
+                        <dd class="col-sm-8 mb-0">{{ datos.apellidos }}</dd>
+                        <dt class="col-sm-4 text-body-secondary">Correo</dt>
+                        <dd class="col-sm-8 mb-0">{{ datos.correo }}</dd>
+                        <dt class="col-sm-4 text-body-secondary">Celular</dt>
+                        <dd class="col-sm-8 mb-0">
+                          {{ datos.telefono_enmascarado ?? 'No registrado' }}
+                          @if (datos.telefono_guardado) {
+                            <span class="text-body-secondary d-block small">Número protegido con cifrado.</span>
+                          }
+                        </dd>
+                      </dl>
+                    } @else {
+                      <form [formGroup]="formPerfil" (ngSubmit)="guardarPerfil()" novalidate>
+                        <div class="row g-3">
+                          <div class="col-md-6">
+                            <label class="form-label" for="perfil-nombres">Nombres</label>
+                            <input id="perfil-nombres" class="form-control" formControlName="nombres"
+                              autocomplete="given-name" required />
+                          </div>
+                          <div class="col-md-6">
+                            <label class="form-label" for="perfil-apellidos">Apellidos</label>
+                            <input id="perfil-apellidos" class="form-control" formControlName="apellidos"
+                              autocomplete="family-name" required />
+                          </div>
+                          <div class="col-md-6">
+                            <label class="form-label" for="perfil-telefono">Celular</label>
+                            <input id="perfil-telefono" class="form-control" formControlName="telefono"
+                              inputmode="numeric" autocomplete="tel" placeholder="987654321" />
+                            <small class="text-body-secondary">Se guarda cifrado. Déjalo vacío para eliminarlo.</small>
+                          </div>
+                          @if (esDonante()) {
+                            <div class="col-md-6">
+                              <label class="form-label" for="perfil-distrito">Distrito</label>
+                              <select id="perfil-distrito" class="form-select" formControlName="distritoId" required>
+                                @for (distrito of distritos; track distrito.id) {
+                                  <option [value]="distrito.id">{{ distrito.nombre }}</option>
+                                }
+                              </select>
+                            </div>
+                          }
+                        </div>
+                        <div class="d-flex flex-wrap gap-2 mt-4">
+                          <button class="btn btn-primary" type="submit" [disabled]="guardando()">
+                            {{ guardando() ? 'Guardando…' : 'Guardar cambios' }}
+                          </button>
+                          <button class="btn btn-outline-secondary" type="button" (click)="alternarEdicion()"
+                            [disabled]="guardando()">Cancelar</button>
+                        </div>
+                      </form>
+                    }
+                  }
+                  @case ('actividad') {
+                    <h3 class="h5 mb-1">Actividad</h3>
+                    <p class="text-body-secondary small mb-4">Cantidades calculadas desde tus registros reales.</p>
+                    @if (errorActividad()) {
+                      <div class="alert alert-warning" role="alert">{{ errorActividad() }}</div>
+                    }
+                    @if (actividad(); as actividadDatos) {
+                      <div class="row g-3">
+                        <div class="col-6 col-lg-4">
+                          <div class="dc-perfil-metrica p-3 rounded-4 h-100">
+                            <span class="d-block display-6 fw-bold">{{ actividadDatos.compromisos }}</span>
+                            <span class="small text-body-secondary">Compromisos</span>
+                          </div>
+                        </div>
+                        <div class="col-6 col-lg-4">
+                          <div class="dc-perfil-metrica p-3 rounded-4 h-100">
+                            <span class="d-block display-6 fw-bold">{{ actividadDatos.entregas }}</span>
+                            <span class="small text-body-secondary">Entregas</span>
+                          </div>
+                        </div>
+                        <div class="col-6 col-lg-4">
+                          <div class="dc-perfil-metrica p-3 rounded-4 h-100">
+                            <span class="d-block display-6 fw-bold">{{ actividadDatos.recepciones }}</span>
+                            <span class="small text-body-secondary">Recepciones confirmadas</span>
+                          </div>
+                        </div>
+                        <div class="col-6 col-lg-4">
+                          <div class="dc-perfil-metrica p-3 rounded-4 h-100">
+                            <span class="d-block display-6 fw-bold">{{ actividadDatos.conversaciones }}</span>
+                            <span class="small text-body-secondary">Conversaciones</span>
+                          </div>
+                        </div>
+                        <div class="col-6 col-lg-4">
+                          <div class="dc-perfil-metrica p-3 rounded-4 h-100">
+                            <span class="d-block display-6 fw-bold">{{ actividadDatos.historial }}</span>
+                            <span class="small text-body-secondary">Registros de auditoría</span>
+                          </div>
+                        </div>
+                      </div>
+                    } @else if (!errorActividad()) {
+                      <div class="text-center py-4">
+                        <div class="spinner-border spinner-border-sm text-primary" role="status" aria-hidden="true"></div>
+                      </div>
+                    }
+                    <div class="alert alert-light border mt-4 mb-0">
+                      @if ((actividad()?.compromisos ?? 0) === 0) {
+                        <p class="mb-2">Aún no tienes compromisos de donación registrados.</p>
+                        <a class="btn btn-sm btn-outline-primary" routerLink="/explorar">Explorar necesidades</a>
+                      } @else {
+                        <p class="mb-0">Consulta el detalle de tus compromisos desde la sección Mis donaciones.</p>
+                      }
+                    </div>
+                  }
+                  @case ('preferencias') {
+                    <h3 class="h5 mb-1">Preferencias</h3>
+                    <p class="text-body-secondary small mb-4">Elige qué tipo de novedades deseas recibir.</p>
+                    @if (esDonante()) {
+                      <form [formGroup]="formPreferencias" (ngSubmit)="guardarPreferencias()">
+                        <div class="mb-3">
+                          <label class="form-label" for="preferencia-notificacion">Notificaciones</label>
+                          <select id="preferencia-notificacion" class="form-select" formControlName="preferenciaNotificacion">
+                            <option value="TODAS">Todas las novedades</option>
+                            <option value="IMPORTANTES">Solo novedades importantes</option>
+                            <option value="NINGUNA">Sin notificaciones</option>
+                          </select>
+                        </div>
+                        <button class="btn btn-primary" type="submit" [disabled]="guardandoPreferencias()">
+                          {{ guardandoPreferencias() ? 'Guardando…' : 'Guardar preferencia' }}
+                        </button>
+                      </form>
+                    } @else {
+                      <app-empty-state
+                        titulo="Sin preferencias de donante"
+                        mensaje="Las notificaciones se configuran desde un perfil de donante."
+                        icono="mail"
+                      />
+                    }
+                  }
+                  @case ('seguridad') {
+                    <h3 class="h5 mb-1">Seguridad y privacidad</h3>
+                    <p class="text-body-secondary small mb-4">Protege tu cuenta y decide conservarla o darla de baja.</p>
+
+                    <form [formGroup]="formContrasena" (ngSubmit)="cambiarContrasena()" class="border rounded-4 p-3 p-lg-4 mb-4">
+                      <h4 class="h6 mb-3">Cambiar contraseña</h4>
+                      <div class="row g-3">
+                        <div class="col-md-4">
+                          <label class="form-label" for="password-actual">Contraseña actual</label>
+                          <input id="password-actual" class="form-control" type="password"
+                            formControlName="passwordActual" autocomplete="current-password" required />
+                        </div>
+                        <div class="col-md-4">
+                          <label class="form-label" for="password-nueva">Nueva contraseña</label>
+                          <input id="password-nueva" class="form-control" type="password"
+                            formControlName="passwordNueva" autocomplete="new-password" required />
+                        </div>
+                        <div class="col-md-4">
+                          <label class="form-label" for="password-confirmacion">Confirmar contraseña</label>
+                          <input id="password-confirmacion" class="form-control" type="password"
+                            formControlName="confirmacion" autocomplete="new-password" required />
+                          @if (formContrasena.hasError('noCoinciden')) {
+                            <small class="text-danger">Las contraseñas nuevas no coinciden.</small>
+                          }
+                        </div>
+                      </div>
+                      <button class="btn btn-outline-primary mt-3" type="submit" [disabled]="guardando()">
+                        Actualizar contraseña
+                      </button>
+                    </form>
+
+                    <form [formGroup]="formCorreo" (ngSubmit)="cambiarCorreo()" class="border rounded-4 p-3 p-lg-4 mb-4">
+                      <h4 class="h6 mb-3">Cambiar correo electrónico</h4>
+                      <div class="row g-3">
+                        <div class="col-md-6">
+                          <label class="form-label" for="correo-nuevo">Nuevo correo</label>
+                          <input id="correo-nuevo" class="form-control" type="email"
+                            formControlName="nuevoCorreo" autocomplete="email" required />
+                        </div>
+                        <div class="col-md-6">
+                          <label class="form-label" for="correo-password">Contraseña actual</label>
+                          <input id="correo-password" class="form-control" type="password"
+                            formControlName="password" autocomplete="current-password" required />
+                        </div>
+                      </div>
+                      <button class="btn btn-outline-primary mt-3" type="submit" [disabled]="guardando()">
+                        Actualizar correo
+                      </button>
+                    </form>
+
+                    <div class="border border-danger-subtle rounded-4 p-3 p-lg-4">
+                      <h4 class="h6 text-danger mb-2">Dar de baja mi cuenta</h4>
+                      <p class="small text-body-secondary mb-3">
+                        La baja conserva tus registros y bloquea el acceso. No elimina información de manera permanente.
+                      </p>
+                      <form [formGroup]="formBaja" (ngSubmit)="bajaCuenta()" class="row g-2 align-items-end">
+                        <div class="col-sm-5">
+                          <label class="form-label" for="baja-password">Contraseña actual</label>
+                          <input id="baja-password" class="form-control" type="password"
+                            formControlName="password" autocomplete="current-password" required />
+                        </div>
+                        <div class="col-sm-4">
+                          <label class="form-label" for="baja-confirmacion">Escribe BAJA</label>
+                          <input id="baja-confirmacion" class="form-control" formControlName="confirmacion" required />
+                        </div>
+                        <div class="col-sm-3 d-grid">
+                          <button class="btn btn-outline-danger" type="submit" [disabled]="bajando()">
+                            {{ bajando() ? 'Procesando…' : 'Dar de baja' }}
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  }
+                }
               </div>
             </div>
           </div>
         </div>
-      </div>
-
-      <div class="col-12 col-lg-5">
-        <app-empty-state
-          icono="user"
-          titulo="Aún no hay una sesión activa"
-          mensaje="Cuando el acceso esté disponible, inicia sesión o crea una cuenta para ver tu información."
-          accionPrincipal="Iniciar sesión"
-          rutaPrincipal="/iniciar-sesion"
-          accionSecundaria="Crear cuenta"
-          rutaSecundaria="/registro"
-        />
-      </div>
-    </div>
-
-    <div class="card border-0 bg-light rounded-4 p-3 p-md-4 mt-4">
-      <div class="row g-3 align-items-center">
-        <div class="col-12 col-md-5">
-          <h2 class="h6 fw-bold mb-1">Mientras tanto</h2>
-          <p class="small text-secondary mb-0">Puedes seguir conociendo la plataforma.</p>
-        </div>
-        <div class="col-12 col-md-7 d-flex flex-wrap gap-2">
-          <a routerLink="/necesidades" class="btn btn-outline-primary btn-sm">Explorar necesidades</a>
-          <a routerLink="/mensajes" class="btn btn-outline-primary btn-sm">Ver mensajes</a>
-          <a routerLink="/mis-donaciones" class="btn btn-outline-primary btn-sm">Mis donaciones</a>
-        </div>
-      </div>
-    </div>
+      }
+    }
   </div>
 </section>

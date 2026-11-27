@@ -183,7 +183,8 @@ precompilados disponibles.
 
 1. **Cifrado nativo de SQL Server Express:** verificado en Fase 06. La instancia es Express
    (`EngineEdition = 4`), `EncryptionState = NULL` y no hay column master keys ni symmetric keys.
-   No se activó TDE ni Always Encrypted. La estrategia de aplicación sigue pendiente de Fase 07.
+   No se activó TDE ni Always Encrypted. La estrategia de aplicación se inició en Fase 08.2 para
+   el celular con AES-256-GCM; GPS y cifrado nativo siguen pendientes.
 2. **`sp_getapplock`:** no se implementó. Las pruebas con dos conexiones no mostraron interbloqueos
    `1205`; `UPDLOCK/HOLDLOCK` serializó correctamente. Se reevaluaría solo si apareciera evidencia
    contraria con carga real.
@@ -239,3 +240,17 @@ precompilados disponibles.
 | Importar `leaflet.css` globalmente en la compilación de desarrollo | La ausencia de ese CSS en una compilación anterior causó huecos azules; la verificación CDP confirmó `.leaflet-pane` en `absolute` y 18/18 mosaicos cargados. |
 | `loading="eager"` solo en la primera tarjeta y en la imagen principal de Historias | Evita `NG0913` sin marcar como prioritarias todas las fotografías; el resto mantiene `loading="lazy"`. |
 | Sin dependencias nuevas, sin HTTP, sin WebSocket y sin localStorage | La fase es frontend-only con `BackendEstadoService.integracionHabilitada = false`; no se activó autenticación, GPS, chat ni persistencia. |
+
+## Fase 08.2 — CRUD real, sesiones y celular cifrado
+
+| Decisión | Justificación |
+|---|---|
+| Instalar `cryptography==46.0.7` | Única dependencia Python nueva. Proporciona AESGCM mantenido y verificado para el celular; no se implementó criptografía propia ni se sustituyó Argon2id. `uv.lock` registra la versión exacta. |
+| AES-256-GCM con nonce aleatorio de 12 bytes y `telefono_clave_version = 1` | Cada escritura usa un nonce nuevo; la versión permite rotar la clave sin adivinar qué clave cifró cada fila. La clave de 32 bytes se lee de `backend/.env` y nunca se versiona ni se imprime. |
+| DTO con `telefono_enmascarado` y `telefono_guardado` | La API nunca devuelve el celular completo, el nonce ni la clave. La interfaz muestra `•••• 4321`, suficiente para confirmar el dato sin exponerlo. |
+| `tokens_seguridad.tipo = REFRESCAR_SESION` para la sesión activa | Es el único valor permitido por el `CHECK` del modelo para este fin. Se guarda el SHA-256 del JWT con `jti`, sin implementar refresh token ni rotación; la documentación lo declara expresamente. |
+| Revocación de todas las sesiones al cambiar credenciales o dar de baja | Evita que un JWT emitido antes de la operación siga siendo válido. El logout revoca únicamente la sesión actual. |
+| `PUT` completo y `PATCH` parcial con `extra='forbid'` | Diferencia semánticamente ambos métodos y bloquea intentos de modificar roles, identificadores o credenciales desde el perfil general. Alias `camelCase` conservan el contrato de Angular. |
+| Baja lógica en transacción con bloqueo de compromisos activos | Conserva trazabilidad e integridad referencial; impide dar de baja una cuenta con compromisos `PENDIENTE` o `ACEPTADO`. |
+| `404` para perfil ajeno e inexistente | Evita revelar qué identificadores de usuario existen. La autorización por propiedad se refuerza en backend aunque Angular oculte rutas. |
+| Actividad calculada con `COUNT`/`JOIN` | Los contadores de la pestaña Actividad provienen de registros reales; no se almacenan derivados ni se muestran valores estimados. |

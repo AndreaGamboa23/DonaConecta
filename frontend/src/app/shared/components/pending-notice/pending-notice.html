@@ -1,12 +1,14 @@
-<div class="dc-pending-notice alert d-flex gap-3 align-items-start mb-0" role="status">
-  <span class="dc-pending-icon d-flex align-items-center justify-content-center rounded-circle flex-shrink-0">
-    <app-icon name="clock" />
-  </span>
-  <div>
-    <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-      <strong class="small">{{ titulo() }}</strong>
-      <span class="badge text-bg-warning">Sin conexión</span>
+@if (!estado().disponible) {
+  <div class="dc-pending-notice alert d-flex gap-3 align-items-start mb-0" role="status">
+    <span class="dc-pending-icon d-flex align-items-center justify-content-center rounded-circle flex-shrink-0">
+      <app-icon name="clock" />
+    </span>
+    <div>
+      <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+        <strong class="small">{{ titulo() }}</strong>
+        <span class="badge text-bg-warning">Sin conexión</span>
+      </div>
+      <p class="small mb-0">{{ estado().mensaje }}</p>
     </div>
-    <p class="small mb-0">{{ estado().mensaje }}</p>
   </div>
-</div>
+}
