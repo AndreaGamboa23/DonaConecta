@@ -298,3 +298,47 @@ de respuesta omiten `password_hash`, hashes de token, nonces, claves y teléfono
 `RECHAZADA` y `SUSPENDIDA` exigen `motivo`; los saltos de estado no permitidos responden `409`.
 Los WebSockets, el GPS real y el chat siguen **pendientes** y no forman parte de este contrato
 implementado.
+
+## 10. Operaciones y decisiones de la Fase 09.1
+
+El backend expone tres operaciones públicas nuevas, con DTO Pydantic explícito y sin
+coordenadas, correos de representantes, hashes, nonces ni auditoría:
+
+| Método y ruta | Respuesta | Función |
+|---|---|---|
+| `GET /api/v1/necesidades/{id}` | `NecesidadDetallePublica` | Detalle de una necesidad `PUBLICADA` de institución `VERIFICADA`, con líneas por producto y unidad. |
+| `GET /api/v1/instituciones/tipos` | `list[TipoInstitucionPublico]` | Tipos SQL reales con total de verificadas. |
+| `GET /api/v1/instituciones/{id}` | `InstitucionDetallePublica` | Perfil público de institución verificada, puntos activos y necesidades publicadas. |
+
+`GET /api/v1/necesidades` admite `categoriaId`, `distritoId`, `institucionId`, `prioridad`,
+`limit` (1–100) y `offset`. `GET /api/v1/instituciones` admite `tipoCodigo`, `distritoId` y `q`.
+Ambos devuelven arreglos planos: se amplía la excepción documentada en la sección 9 a estos
+dos listados públicos, porque ese es el contrato implementado y consumido por Angular. No se
+expone `total`; la interfaz no ofrece paginación numérica y el botón «cargar más» usa `limit`
+y `offset` sobre la respuesta real. Las búsquedas `LIKE` escapan `%`, `_`, `[` y `\` en el
+repositorio y mantienen parámetros `?`.
+
+La disponibilidad y el avance se leen de `vw_disponibilidad_necesidad` y
+`vw_progreso_necesidad`. La regla es `requerida − reserva vigente restante − recibido`, sin
+doble conteo. El detalle expone cantidades **por línea y por unidad**; los totales agregados
+del DTO se conservan por compatibilidad, pero la interfaz no muestra una única unidad para
+sumas de bienes distintos.
+
+`POST /api/v1/compromisos` devuelve `409 / COMPROMISO_VIGENTE` cuando el mismo donante ya
+tiene un compromiso vigente para la necesidad. Esa comprobación es secuencial y el frontend
+bloquea nuevos envíos mientras la petición está en curso. El procedimiento almacenado actual
+solo serializa disponibilidad por necesidad, no duplicados por donante; la simultaneidad
+real queda pendiente de una modificación autorizada del SP y de su índice.
+
+Estado real del contrato histórico:
+
+- `GET /api/v1/necesidades/{id}/disponibilidad` no existe; la disponibilidad se integró en
+  el detalle de la necesidad.
+- La ruta efectiva de compromisos del donante es `GET /api/v1/compromisos/mis-compromisos`;
+  `/compromisos/mios` sigue sin implementarse.
+- El alias oculto `GET /api/v1/donaciones/mias` es heredado de Fase 09, no nuevo en 09.1.
+  Si se conserva, debe marcarse como `deprecated` en una fase posterior.
+
+La introspección actual de `app.openapi()` registra **31 rutas, 39 operaciones y 54 esquemas**;
+las tres operaciones adicionales respecto de Fase 09 son las listadas arriba. No se agregaron
+alias ocultos nuevos.

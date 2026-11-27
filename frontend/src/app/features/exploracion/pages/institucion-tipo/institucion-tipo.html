@@ -1,0 +1,146 @@
+<app-page-hero
+  eyebrow="Directorio por tipo"
+  [titulo]="titulo()"
+  [descripcion]="
+    'Instituciones verificadas registradas en esta categoría. El listado y los conteos se consultan desde SQL Server.'
+  "
+  icono="building"
+  tono="green"
+/>
+
+<section class="dc-section-space">
+  <div class="container">
+    <nav aria-label="Ruta de navegación" class="mb-3">
+      <a routerLink="/instituciones" class="small text-decoration-none">Instituciones</a>
+      <span class="small text-secondary mx-2">/</span>
+      <span class="small text-secondary">{{ titulo() }}</span>
+    </nav>
+
+    <div class="row g-4 g-lg-5">
+      <div class="col-12 col-lg-4">
+        <div class="card border-0 bg-light rounded-4 p-3 p-md-4 mb-4">
+          <h2 class="h5 fw-bold mb-3">Otros tipos registrados</h2>
+          @switch (estadoTipos()) {
+            @case ('cargando') {
+              <div class="d-flex align-items-center gap-2" role="status">
+                <span class="spinner-border spinner-border-sm text-primary" aria-hidden="true"></span>
+                <span>Cargando tipos…</span>
+              </div>
+            }
+            @case ('error') {
+              <p class="small text-secondary mb-0">No se pudo consultar el catálogo de tipos.</p>
+            }
+            @default {
+              <div class="list-group list-group-flush">
+                @for (tipo of tipos(); track tipo.codigo) {
+                  <a
+                    class="list-group-item list-group-item-action d-flex justify-content-between align-items-center gap-2 px-0"
+                    [class.active]="tipo.codigo === codigo"
+                    [attr.aria-current]="tipo.codigo === codigo ? 'page' : null"
+                    [routerLink]="['/instituciones/tipo', tipo.codigo]"
+                  >
+                    <span class="small fw-semibold">{{ tipo.nombre }}</span>
+                    <span class="badge rounded-pill text-bg-light">{{ tipo.total_verificadas }}</span>
+                  </a>
+                }
+              </div>
+            }
+          }
+        </div>
+
+        <section class="card border-0 shadow-sm rounded-4 p-3 p-md-4">
+          <h2 class="h5 fw-bold mb-3">Refinar resultados</h2>
+          <label class="form-label small fw-semibold" for="buscarTipo">Nombre o descripción</label>
+          <div class="input-group mb-3">
+            <span class="input-group-text bg-white">
+              <app-icon name="search" aria-hidden="true" />
+            </span>
+            <input
+              id="buscarTipo"
+              type="search"
+              class="form-control"
+              placeholder="Buscar en este tipo"
+              [ngModel]="termino()"
+              (ngModelChange)="termino.set($event)"
+              (keyup.enter)="cargar()"
+            />
+          </div>
+          <label class="form-label small fw-semibold" for="distritoTipo">Distrito</label>
+          <select
+            id="distritoTipo"
+            class="form-select mb-3"
+            [ngModel]="distritoId()"
+            (ngModelChange)="distritoId.set($event); cargar()"
+          >
+            <option [ngValue]="0">Todos los distritos</option>
+            @for (distrito of distritos; track distrito.id) {
+              <option [ngValue]="distrito.id">{{ distrito.nombre }}</option>
+            }
+          </select>
+          <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn btn-primary btn-sm" (click)="cargar()">Buscar</button>
+            <button type="button" class="btn btn-link btn-sm p-0" (click)="limpiar()">Limpiar</button>
+          </div>
+        </section>
+      </div>
+
+      <div class="col-12 col-lg-8">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3" aria-live="polite">
+          <h2 class="h4 fw-bold mb-0">Resultados verificados</h2>
+          @if (estadoListado() === 'datos') {
+            <span class="badge rounded-pill text-bg-success">{{ instituciones().length }}</span>
+          }
+        </div>
+
+        @switch (estadoListado()) {
+          @case ('servicio-no-disponible') {
+            <div class="alert alert-info rounded-4" role="status">
+              El directorio no está disponible en este momento.
+            </div>
+          }
+          @case ('cargando') {
+            <div class="d-flex align-items-center gap-2" role="status">
+              <span class="spinner-border spinner-border-sm text-primary" aria-hidden="true"></span>
+              <span>Cargando instituciones…</span>
+            </div>
+          }
+          @case ('error') {
+            <div class="alert alert-warning rounded-4" role="alert">
+              No se pudo cargar este tipo de institución. Vuelve a intentarlo más tarde.
+            </div>
+          }
+          @case ('vacio') {
+            <div class="card border-0 bg-light rounded-4 p-4">
+              <h3 class="h5 fw-bold mb-2">No hay instituciones verificadas con estos criterios</h3>
+              <p class="small text-secondary mb-3">
+                @if (totalTipo() === 0) {
+                  Todavía no hay organizaciones verificadas de este tipo en el directorio. Puedes
+                  explorar otros tipos o consultar las solicitudes publicadas.
+                } @else {
+                  Prueba con otro distrito o limpia la búsqueda.
+                }
+              </p>
+              <div class="d-flex flex-wrap gap-2">
+                <button type="button" class="btn btn-outline-primary" (click)="limpiar()">
+                  Limpiar filtros
+                </button>
+                <a routerLink="/explorar" fragment="solicitudes" class="btn btn-outline-secondary">
+                  Ver solicitudes
+                </a>
+              </div>
+            </div>
+          }
+          @case ('datos') {
+            <div class="row g-3 g-lg-4 row-cols-1 row-cols-md-2">
+              @for (institucion of instituciones(); track institucion.institucionId) {
+                <div class="col">
+                  <app-institucion-card [institucion]="institucion" />
+                </div>
+              }
+            </div>
+          }
+        }
+      </div>
+    </div>
+  </div>
+</section>

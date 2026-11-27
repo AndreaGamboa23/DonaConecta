@@ -1,42 +1,21 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { BackendEstadoService } from '../../../../core/services/backend-estado.service';
 import { SesionService } from '../../../../core/services/sesion.service';
+import { Icon } from '../../../../shared/components/icon/icon';
 import { PageHero } from '../../../../shared/components/page-hero/page-hero';
 import { PendingNotice } from '../../../../shared/components/pending-notice/pending-notice';
 import { BandejaConversaciones } from '../../components/bandeja-conversaciones/bandeja-conversaciones';
-import { PanelConversacion } from '../../components/panel-conversacion/panel-conversacion';
 
+/** Estado honesto de la mensajería: no se simulan chats ni conversaciones. */
 @Component({
   selector: 'app-mensajes',
   standalone: true,
-  imports: [
-    RouterLink,
-    PageHero,
-    PendingNotice,
-    BandejaConversaciones,
-    PanelConversacion,
-  ],
+  imports: [RouterLink, Icon, PageHero, PendingNotice, BandejaConversaciones],
   templateUrl: './mensajes.html',
   styleUrl: './mensajes.scss',
 })
 export class Mensajes {
   readonly estado = inject(BackendEstadoService).estado('mensajes');
   readonly sesion = inject(SesionService);
-
-  /** Ninguna conversación se crea ni se simula; el identificador llega desde la API. */
-  readonly conversacionId = signal<number | null>(null);
-
-  abrirConversacion(id: number): void {
-    this.conversacionId.set(id);
-  }
-
-  volverABandeja(): void {
-    this.conversacionId.set(null);
-  }
-
-  /** Alias conservado para contratos previos del componente. */
-  volverBandeja(): void {
-    this.volverABandeja();
-  }
 }

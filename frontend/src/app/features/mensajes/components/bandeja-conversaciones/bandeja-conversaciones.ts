@@ -1,17 +1,13 @@
-import { Component, computed, output, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { Icon } from '../../../../shared/components/icon/icon';
 
 /** Bandeja sin registros inventados: espera a la API autorizada de conversaciones. */
 @Component({
   selector: 'app-bandeja-conversaciones',
   standalone: true,
-  imports: [FormsModule, Icon],
+  imports: [RouterLink, Icon],
   templateUrl: './bandeja-conversaciones.html',
   styleUrl: './bandeja-conversaciones.scss',
 })
-export class BandejaConversaciones {
-  readonly abrir = output<number>();
-  readonly termino = signal('');
-  readonly sinResultados = computed(() => this.termino().trim().length > 0);
-}
+export class BandejaConversaciones {}

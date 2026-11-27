@@ -6,18 +6,28 @@ import { ResultadoCatalogo } from '../../../../core/interfaces/dona-conecta';
 import { BackendEstadoService } from '../../../../core/services/backend-estado.service';
 import { CatalogoInformativoService } from '../../../../core/services/catalogo-informativo.service';
 import { PanelApiService, ProductoCatalogo } from '../../../../core/services/panel-api.service';
-import { SesionService } from '../../../../core/services/sesion.service';
+import { normalizarTexto } from '../../../../core/utils/busqueda-texto';
 import { BuscadorCatalogo } from '../../../../shared/components/buscador-catalogo/buscador-catalogo';
 import { CategoriasDestacadas } from '../../../../shared/components/categorias-destacadas/categorias-destacadas';
 import { EmptyState } from '../../../../shared/components/empty-state/empty-state';
 import { Icon } from '../../../../shared/components/icon/icon';
+import { NecesidadCard } from '../../../../shared/components/necesidad-card/necesidad-card';
 import { PageHero } from '../../../../shared/components/page-hero/page-hero';
-import { DonacionesApiService } from '../../../donaciones/services/donaciones-api.service';
-import { ExploracionApiService, NecesidadReal } from '../../services/exploracion-api.service';
+import {
+  ExploracionApiService,
+  FiltrosNecesidades,
+  InstitucionReal,
+  NecesidadReal,
+} from '../../services/exploracion-api.service';
 
-type EstadoResultados = 'servicio-no-disponible' | 'cargando' | 'error' | 'vacio' | 'datos';
+type EstadoCarga = 'servicio-no-disponible' | 'cargando' | 'error' | 'vacio' | 'datos';
 
-/** Exploración pública: catálogo informativo real y solicitudes desde la API autorizada. */
+const TAMANO_PAGINA = 6;
+
+/**
+ * Exploración pública: guía informativa de bienes, catálogo SQL y solicitudes
+ * reales separadas. Los compromisos se registran en el detalle de la necesidad.
+ */
 @Component({
   selector: 'app-necesidades',
   standalone: true,
@@ -28,6 +38,7 @@ type EstadoResultados = 'servicio-no-disponible' | 'cargando' | 'error' | 'vacio
     CategoriasDestacadas,
     EmptyState,
     Icon,
+    NecesidadCard,
     PageHero,
   ],
   templateUrl: './necesidades.html',
@@ -39,8 +50,6 @@ export class Necesidades implements OnInit {
   private readonly ruta = inject(ActivatedRoute);
   private readonly api = inject(ExploracionApiService);
   private readonly panelApi = inject(PanelApiService);
-  private readonly donacionesApi = inject(DonacionesApiService);
-  readonly sesion = inject(SesionService);
 
   readonly estado = this.estadoServicio.estado('necesidades');
   readonly categorias = CATEGORIAS_INFORMATIVAS;
@@ -54,66 +63,112 @@ export class Necesidades implements OnInit {
   readonly termino = signal(this.ruta.snapshot.queryParamMap.get('q') ?? '');
   readonly categoriaId = signal(0);
   readonly distritoId = signal(0);
+  readonly institucionId = signal(0);
   readonly prioridad = signal('');
 
   readonly respuesta = computed(() => this.catalogo.buscar(this.termino()));
-  readonly resultadosCatalogo = computed(() => this.respuesta().resultados.slice(0, 8));
-  readonly relacionados = computed(() => this.respuesta().relacionados.slice(0, 3));
+  readonly resultadosCatalogo = computed(() => this.respuesta().resultados.slice(0, 6));
+  readonly relacionados = computed(() => this.respuesta().relacionados.slice(0, 4));
 
-  readonly estadoResultados = signal<EstadoResultados>(
+  readonly estadoProductos = signal<EstadoCarga>('cargando');
+  readonly productosReales = signal<readonly ProductoCatalogo[]>([]);
+  readonly mostrarTodosProductos = signal(false);
+
+  readonly estadoInstituciones = signal<EstadoCarga>('cargando');
+  readonly instituciones = signal<readonly InstitucionReal[]>([]);
+
+  readonly estadoNecesidades = signal<EstadoCarga>(
     this.estado.disponible ? 'cargando' : 'servicio-no-disponible',
   );
-  readonly todasNecesidades = signal<readonly NecesidadReal[]>([]);
-  readonly productosReales = signal<readonly ProductoCatalogo[]>([]);
-  readonly estadoProductos = signal<'cargando' | 'datos' | 'vacio' | 'error'>('cargando');
-  readonly mensajeCompromiso = signal('');
-  readonly cantidades = signal<Readonly<Record<number, number>>>({});
+  readonly necesidades = signal<readonly NecesidadReal[]>([]);
+  readonly cargandoMas = signal(false);
+  readonly hayMas = signal(false);
 
-  readonly necesidadesFiltradas = computed(() => {
-    const lista = this.todasNecesidades();
-    const categoriaNombre = CATEGORIAS_INFORMATIVAS.find((c) => c.id === this.categoriaId())?.nombre;
-    const distritoNombre = DISTRITOS_HUANCAYO.find((d) => d.id === this.distritoId())?.nombre;
-    const prioridad = this.prioridad();
+  /** El producto 1 es un registro técnico usado por pruebas de concurrencia. */
+  readonly productosInformativos = computed(() =>
+    this.productosReales().filter((producto) => producto.producto_id !== 1),
+  );
 
-    return lista.filter((necesidad) => {
-      if (categoriaNombre && necesidad.categoria.toLocaleLowerCase('es') !== categoriaNombre.toLocaleLowerCase('es')) {
-        return false;
-      }
-      if (distritoNombre && necesidad.distrito !== distritoNombre) return false;
-      if (prioridad && necesidad.prioridad !== prioridad) return false;
-      return true;
-    });
+  readonly productosFiltrados = computed(() => {
+    const texto = normalizarTexto(this.termino());
+    const productos = this.productosInformativos();
+    if (!texto) return productos;
+    return productos.filter((producto) =>
+      normalizarTexto(`${producto.nombre} ${producto.categoria}`).includes(texto),
+    );
   });
+
+  readonly productosVisibles = computed(() =>
+    this.mostrarTodosProductos()
+      ? this.productosFiltrados()
+      : this.productosFiltrados().slice(0, 12),
+  );
 
   readonly filtrosActivos = computed(
     () =>
       Number(Boolean(this.termino().trim())) +
       Number(this.categoriaId() > 0) +
       Number(this.distritoId() > 0) +
+      Number(this.institucionId() > 0) +
       Number(Boolean(this.prioridad())),
   );
 
   ngOnInit(): void {
-    this.cargarNecesidades();
     this.cargarProductos();
+    this.cargarInstituciones();
+    this.cargarNecesidades();
+  }
+
+  private filtros(): FiltrosNecesidades {
+    return {
+      categoriaId: this.categoriaId() || undefined,
+      distritoId: this.distritoId() || undefined,
+      institucionId: this.institucionId() || undefined,
+      prioridad: this.prioridad() || undefined,
+      limit: TAMANO_PAGINA,
+      offset: 0,
+    };
   }
 
   cargarNecesidades(): void {
     if (!this.estado.disponible) {
-      this.estadoResultados.set('servicio-no-disponible');
+      this.estadoNecesidades.set('servicio-no-disponible');
       return;
     }
-    this.estadoResultados.set('cargando');
-    this.api.listarNecesidades(this.categoriaId(), this.distritoId()).subscribe({
+    this.estadoNecesidades.set('cargando');
+    this.api.listarNecesidades(this.filtros()).subscribe({
       next: (lista) => {
-        this.todasNecesidades.set(lista);
-        this.estadoResultados.set(lista.length > 0 ? 'datos' : 'vacio');
+        this.necesidades.set(lista);
+        this.hayMas.set(lista.length === TAMANO_PAGINA);
+        this.estadoNecesidades.set(lista.length > 0 ? 'datos' : 'vacio');
       },
-      error: () => this.estadoResultados.set('error'),
+      error: () => {
+        this.necesidades.set([]);
+        this.hayMas.set(false);
+        this.estadoNecesidades.set('error');
+      },
     });
   }
 
-  /** Bienes materiales persistidos en SQL Server, sin mezclarlos con la guía informativa. */
+  cargarMas(): void {
+    if (!this.estado.disponible || this.cargandoMas() || !this.hayMas()) return;
+    this.cargandoMas.set(true);
+    this.api
+      .listarNecesidades({ ...this.filtros(), offset: this.necesidades().length })
+      .subscribe({
+        next: (lista) => {
+          const vistos = new Set(this.necesidades().map((item) => item.id_necesidad));
+          this.necesidades.update((actuales) => [
+            ...actuales,
+            ...lista.filter((item) => !vistos.has(item.id_necesidad)),
+          ]);
+          this.hayMas.set(lista.length === TAMANO_PAGINA);
+        },
+        error: () => this.hayMas.set(false),
+        complete: () => this.cargandoMas.set(false),
+      });
+  }
+
   cargarProductos(): void {
     this.estadoProductos.set('cargando');
     this.panelApi.listarProductos().subscribe({
@@ -122,6 +177,16 @@ export class Necesidades implements OnInit {
         this.estadoProductos.set(productos.length > 0 ? 'datos' : 'vacio');
       },
       error: () => this.estadoProductos.set('error'),
+    });
+  }
+
+  cargarInstituciones(): void {
+    this.api.listarInstituciones().subscribe({
+      next: (lista) => {
+        this.instituciones.set(lista);
+        this.estadoInstituciones.set('datos');
+      },
+      error: () => this.estadoInstituciones.set('error'),
     });
   }
 
@@ -135,64 +200,14 @@ export class Necesidades implements OnInit {
     this.cargarNecesidades();
   }
 
-  puedeComprometer(): boolean {
-    return (this.sesion.usuario()?.roles ?? []).some(
-      (rol) => rol.toLocaleUpperCase('es') === 'DONANTE',
-    );
+  fijarInstitucion(id: number): void {
+    this.institucionId.set(id);
+    this.cargarNecesidades();
   }
 
-  faltante(necesidad: NecesidadReal): number {
-    return Math.max(0, necesidad.cantidad_requerida - necesidad.cantidad_comprometida);
-  }
-
-  fijarCantidad(idNecesidad: number, evento: Event): void {
-    const valor = Number((evento.target as HTMLInputElement).value);
-    const actuales = { ...this.cantidades() };
-    if (Number.isFinite(valor) && valor > 0) actuales[idNecesidad] = valor;
-    else delete actuales[idNecesidad];
-    this.cantidades.set(actuales);
-  }
-
-  comprometer(necesidad: NecesidadReal): void {
-    const cantidad = this.cantidades()[necesidad.id_necesidad];
-    const faltante = this.faltante(necesidad);
-    this.mensajeCompromiso.set('');
-
-    if (!this.puedeComprometer()) {
-      this.mensajeCompromiso.set('Inicia sesión con una cuenta de donante para comprometer bienes.');
-      return;
-    }
-    if (!cantidad || cantidad <= 0) {
-      this.mensajeCompromiso.set('Indica la cantidad que deseas comprometer.');
-      return;
-    }
-    if (faltante > 0 && cantidad > faltante) {
-      this.mensajeCompromiso.set(`La cantidad disponible es ${faltante} ${necesidad.unidad_medida_base}.`);
-      return;
-    }
-
-    this.donacionesApi
-      .crearCompromiso({
-        id_necesidad: necesidad.id_necesidad,
-        cantidad_comprometida: cantidad,
-        comentario: 'Compromiso registrado desde la web de DonaConecta',
-      })
-      .subscribe({
-        next: () => {
-          this.mensajeCompromiso.set(
-            `Compromiso de ${cantidad} ${necesidad.unidad_medida_base} registrado para «${necesidad.titulo}».`,
-          );
-          this.cargarNecesidades();
-        },
-        error: (error) => {
-          const detalle = error?.error?.detail;
-          this.mensajeCompromiso.set(
-            typeof detalle === 'string'
-              ? detalle
-              : 'No se pudo registrar el compromiso. Verifica tu sesión e inténtalo de nuevo.',
-          );
-        },
-      });
+  fijarPrioridad(valor: string): void {
+    this.prioridad.set(valor);
+    this.cargarNecesidades();
   }
 
   usarTermino(termino: string): void {
@@ -203,7 +218,9 @@ export class Necesidades implements OnInit {
     this.termino.set('');
     this.categoriaId.set(0);
     this.distritoId.set(0);
+    this.institucionId.set(0);
     this.prioridad.set('');
+    this.mostrarTodosProductos.set(false);
     this.cargarNecesidades();
   }
 

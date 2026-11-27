@@ -26,13 +26,20 @@
       @if (institucion.descripcion) {
         <p class="mb-3">{{ institucion.descripcion }}</p>
       }
+      @if (institucion.necesidadesActivas !== undefined) {
+        <p class="small text-secondary mb-3">
+          <app-icon name="box" aria-hidden="true" />
+          {{ institucion.necesidadesActivas }}
+          {{ institucion.necesidadesActivas === 1 ? 'necesidad publicada' : 'necesidades publicadas' }}
+        </p>
+      }
       <div class="d-flex flex-wrap gap-2">
         @if (institucion.perfilRuta) {
-          <a [routerLink]="institucion.perfilRuta" class="btn btn-primary btn-sm">Ver perfil</a>
+          <a [routerLink]="institucion.perfilRuta" class="btn btn-primary btn-sm">Ver perfil público</a>
         }
-        <a routerLink="/necesidades" class="btn btn-outline-primary btn-sm">Necesidades</a>
-        <a routerLink="/puntos-de-acopio" class="btn btn-outline-secondary btn-sm">Puntos de acopio</a>
-        <a routerLink="/mensajes" class="btn btn-outline-secondary btn-sm">Conversación</a>
+        <a routerLink="/explorar" fragment="solicitudes" class="btn btn-outline-primary btn-sm">
+          Solicitudes
+        </a>
       </div>
     </div>
   </article>

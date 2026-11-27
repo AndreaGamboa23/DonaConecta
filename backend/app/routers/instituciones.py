@@ -1,11 +1,14 @@
-﻿from fastapi import APIRouter, Depends, HTTPException, status
+﻿from typing import Optional
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from app.core.security import requerir_roles
+from app.repositories.directorio_repo import listar_instituciones_publicas
 from app.repositories.instituciones_repo import (
     crear_institucion,
     listar_instituciones_pendientes,
-    listar_instituciones_verificadas,
 )
+from app.schemas.directorio_schema import InstitucionResumenPublica
 from app.schemas.instituciones_schema import (
     CrearInstitucionRequest,
     VerificarInstitucionRequest,
@@ -16,9 +19,26 @@ from app.services import paneles_service
 router = APIRouter(prefix="/api/v1", tags=["Instituciones"])
 
 
-@router.get("/instituciones")
-def obtener_instituciones_publicas():
-    return listar_instituciones_verificadas()
+@router.get(
+    "/instituciones",
+    summary="Directorio de instituciones verificadas",
+    description=(
+        "Sólo organizaciones VERIFICADA. Los filtros por tipo real, distrito y texto "
+        "se aplican en SQL Server; nunca se devuelven solicitudes pendientes, "
+        "rechazadas ni suspendidas."
+    ),
+    response_model=list[InstitucionResumenPublica],
+)
+def obtener_instituciones_publicas(
+    tipoCodigo: Optional[str] = Query(default=None, alias="tipoCodigo"),
+    distritoId: Optional[int] = Query(default=None, alias="distritoId"),
+    q: Optional[str] = Query(default=None, max_length=100),
+):
+    return listar_instituciones_publicas(
+        tipo_codigo=tipoCodigo,
+        distrito_id=distritoId,
+        termino=q,
+    )
 
 
 @router.post("/instituciones", status_code=status.HTTP_201_CREATED)

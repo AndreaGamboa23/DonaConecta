@@ -57,7 +57,7 @@ describe('PanelApiService', () => {
     servicio
       .verificarInstitucion(7, { estado_verificacion: 'VERIFICADA', motivo: 'Documentación revisada' })
       .subscribe();
-    const verificacion = http.expectOne('/api/v1/instituciones/admin/instituciones/7/verificar');
+    const verificacion = http.expectOne('/api/v1/admin/instituciones/7/verificar');
     expect(verificacion.request.method).toBe('PATCH');
     expect(verificacion.request.body).toEqual({
       estado_verificacion: 'VERIFICADA',

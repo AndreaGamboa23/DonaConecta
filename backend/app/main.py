@@ -8,6 +8,7 @@ from app.routers import (
     admin_panel,
     auth,
     catalogos,
+    directorio,
     donaciones,
     instituciones,
     institucional_panel,
@@ -47,6 +48,7 @@ app.include_router(catalogos.router)
 app.include_router(auth.router)
 app.include_router(usuarios.router)
 app.include_router(instituciones.router)
+app.include_router(directorio.router)
 app.include_router(donaciones.router)
 app.include_router(productos_panel.router)
 app.include_router(admin_panel.router)

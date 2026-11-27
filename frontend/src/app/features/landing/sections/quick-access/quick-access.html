@@ -8,7 +8,7 @@
               <app-icon name="pin" />
             </span>
             <div>
-              <span class="d-block small text-secondary">Tu comunidad</span>
+              <span class="d-block small text-secondary">{{ saludo() }}</span>
               <strong class="d-block">Huancayo, Junín</strong>
             </div>
           </div>
@@ -16,21 +16,22 @@
 
         <div class="col-12 col-md-8">
           <p class="small text-secondary mb-0">
-            Elige un servicio para empezar. Puedes explorar la comunidad y leer la guía sin crear
-            una cuenta.
+            Elige un servicio según tu momento: explorar, donar, coordinar una entrega o gestionar tu
+            cuenta. Todas las acciones llevan a páginas implementadas.
           </p>
         </div>
       </div>
     </div>
 
     <div class="row g-3 row-cols-1 row-cols-sm-2 row-cols-lg-4">
-      @for (action of actions; track action.route) {
+      @for (action of acciones(); track action.route + action.label) {
         <div class="col">
           <app-service-card
             [icono]="action.icon"
             [titulo]="action.label"
             [descripcion]="action.descripcion"
             [ruta]="action.route"
+            [fragmento]="action.fragmento || ''"
             [etiqueta]="action.etiqueta"
             [tono]="action.tono"
           />

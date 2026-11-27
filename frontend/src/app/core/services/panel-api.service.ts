@@ -299,7 +299,7 @@ export class PanelApiService {
       return this.estado.pendiente<VerificarInstitucionResponse>('verificarInstitucion');
     }
     return this.http.patch<VerificarInstitucionResponse>(
-      `/api/v1/instituciones/admin/instituciones/${encodeURIComponent(String(id))}/verificar`,
+      `/api/v1/admin/instituciones/${encodeURIComponent(String(id))}/verificar`,
       payload,
     );
   }

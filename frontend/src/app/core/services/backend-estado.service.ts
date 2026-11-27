@@ -40,7 +40,7 @@ const OPERACIONES = {
   productos: '/api/v1/productos',
   adminResumen: '/api/v1/admin/resumen',
   adminInstituciones: '/api/v1/admin/instituciones',
-  verificarInstitucion: '/api/v1/instituciones/admin/instituciones/{id}/verificar',
+  verificarInstitucion: '/api/v1/admin/instituciones/{id}/verificar',
   adminUsuarios: '/api/v1/admin/usuarios',
   cambiarEstadoUsuario: '/api/v1/admin/usuarios/{id}/estado',
   adminAuditoria: '/api/v1/admin/auditoria',

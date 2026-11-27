@@ -444,6 +444,7 @@ La seguridad se implementa progresivamente en todas las fases, no solo al final.
 | 08 | Landing definitiva y navegación pública integrada. | Pendiente |
 | 08.2 | CRUD real de usuarios, perfil personal, sesiones revocables y celular cifrado. | Ejecutada e integrada en Avance 01 |
 | 09 | Paneles administrativo e institucional, verificación real, catálogo de productos y necesidades (Avance 02). La autenticación, el registro y las sesiones quedaron cubiertos en 08.2. | Ejecutada |
+| 09.1 | Experiencia pública real: detalle de necesidades, directorio y perfiles SQL, accesos por rol y correcciones de contrato. | Ejecutada |
 | 10 | Registro, verificación y directorio de instituciones. | Pendiente |
 | 11 | Catálogo y gestión de necesidades. | Pendiente |
 | 12 | Compromisos, donaciones y entregas. | Pendiente |
@@ -765,3 +766,35 @@ reactivar cuentas. Catalogación ejecutada dos veces con recuentos idénticos en
 1789/1789 en navegador (28 rutas y 404 × siete anchos), 69/69 pruebas Angular, 24/24 pruebas
 Python y build de 583,23 kB iniciales. Detalle en `docs/informe-paneles-fase-09.md`. La valoración
 estética final sigue pendiente de revisión humana; no se ejecutaron commit, push ni cambio de rama.
+
+### 18.7 Alcance autorizado de la Fase 09.1
+
+- Trabajar exclusivamente en `Andrea`, conservando íntegramente Avance 01 y Fase 09. No modificar
+  `main`, `Jhon` ni `respaldo-avance-01`; no ejecutar commit, push, merge, rebase, `reset --hard`
+  ni `git clean`.
+- Usar solo lecturas reales de `DonaConectaDB_Pruebas`. No ejecutar DDL ni DML de negocio;
+  `DonaConectaDB` permanece intacta y `ALLOW_MAIN_DB_WRITES=no` sigue vigente.
+- Reutilizar los endpoints y repositorios de Fase 09; agregar sólo lecturas públicas mínimas con
+  DTO explícitos, sin coordenadas, correos de representantes, hashes ni auditoría.
+- Convertir Explorar, detalle de necesidades, directorio, perfiles e Inicio en una experiencia
+  con datos SQL reales, estados honestos y accesos por rol. No inventar necesidades,
+  instituciones, contactos, horarios, GPS, chat ni sesiones.
+- Calcular disponibilidad desde `vw_disponibilidad_necesidad` y avance desde
+  `vw_progreso_necesidad`. No sumar unidades incompatibles ni presentar una unidad global.
+- Preparar, sin ejecutar, una propuesta reversible para la codificación mojibake y documentar
+  la normalización de unidades pendiente de autorización.
+- Verificar build, pruebas, API, OpenAPI, CDP responsive, `git diff --check` y `git status`.
+
+**Resultado de la Fase 09.1:** tres lecturas públicas nuevas con DTO Pydantic, filtros reales,
+determinismo en `TOP 1`, escape de comodines `LIKE`, fechas UTC, filtro de punto de acopio activo
+y de su institución, y `response_model` en los dos listados que lo omitían. Frontend con ficha de
+necesidad por producto/unidad, compromiso restringido a donantes, directorio por
+`tipo.codigo`, perfil público sin contactos inventados, tarjeta reutilizable y accesos de Inicio
+por rol. Se corrigió la URL real de verificación administrativa y defectos de accesibilidad y
+estados. Evidencias: **34/34** pruebas Python, **70/70** Angular, **2179/2179** comprobaciones CDP
+en 34 rutas y siete anchos, 10 respuestas API verificadas, OpenAPI de 31 rutas/39 operaciones/
+54 esquemas y build de 585,95 kB iniciales. No se ejecutó DDL, DML, commit, push ni cambio de rama.
+El SP actual no garantiza duplicados por donante en concurrencia verdadera; la corrección de
+mojibake y de unidades queda pendiente de autorización. Detalle en
+`docs/informe-experiencia-directorio-fase-09.1.md`. La valoración estética final sigue pendiente
+de revisión humana.

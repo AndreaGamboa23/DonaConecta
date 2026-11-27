@@ -11,6 +11,7 @@ export interface InstitucionDirectorio {
   readonly estadoVerificacion: string;
   readonly descripcion?: string;
   readonly fotoUrl?: string;
+  readonly necesidadesActivas?: number;
   /** Solo se habilita si existe una ruta de perfil público implementada. */
   readonly perfilRuta?: string;
 }

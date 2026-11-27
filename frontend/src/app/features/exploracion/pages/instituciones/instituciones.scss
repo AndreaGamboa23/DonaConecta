@@ -13,9 +13,13 @@
 }
 
 .dc-tipo-card:hover,
-.dc-tipo-card:focus-within {
+.dc-tipo-card:focus-visible {
   transform: translateY(-3px);
   box-shadow: 0 0.9rem 2rem rgba(18, 48, 74, 0.1);
+}
+
+.dc-tipo-card:active {
+  transform: translateY(0);
 }
 
 .dc-tipo-icon {
@@ -26,15 +30,9 @@
   color: var(--dc-blue, #3679a8);
 }
 
-.dc-tipo-icon app-icon,
-.card-body li app-icon {
-  width: 1.1rem;
-  height: 1.1rem;
-}
-
-.card-body li app-icon {
-  color: var(--dc-blue, #3679a8);
-  flex-shrink: 0;
+.dc-tipo-icon app-icon {
+  width: 1.35rem;
+  height: 1.35rem;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -42,7 +40,9 @@
     transition: none;
   }
 
-  .dc-tipo-card:hover {
+  .dc-tipo-card:hover,
+  .dc-tipo-card:active,
+  .dc-tipo-card:focus-visible {
     transform: none;
   }
 }

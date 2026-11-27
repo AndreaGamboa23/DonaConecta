@@ -71,6 +71,18 @@ export const routes: Routes = [
         },
       },
       {
+        path: 'necesidades/:id',
+        loadComponent: () =>
+          import('./features/exploracion/pages/necesidad-detalle/necesidad-detalle').then(
+            (modulo) => modulo.NecesidadDetallePage,
+          ),
+        title: 'Detalle de una necesidad | DonaConecta',
+        data: {
+          description:
+            'Bienes solicitados, disponibilidad calculada con datos reales y orientación para coordinar la entrega.',
+        },
+      },
+      {
         path: 'instituciones',
         loadComponent: () =>
           import('./features/exploracion/pages/instituciones/instituciones').then(
@@ -80,6 +92,30 @@ export const routes: Routes = [
         data: {
           description:
             'Directorio público de comedores, albergues, refugios y organizaciones sociales verificadas de Huancayo.',
+        },
+      },
+      {
+        path: 'instituciones/tipo/:tipo',
+        loadComponent: () =>
+          import(
+            './features/exploracion/pages/institucion-tipo/institucion-tipo'
+          ).then((modulo) => modulo.InstitucionTipo),
+        title: 'Instituciones por tipo | DonaConecta',
+        data: {
+          description:
+            'Directorio filtrado por tipo de institución con organizaciones verificadas de Huancayo.',
+        },
+      },
+      {
+        path: 'instituciones/:id',
+        loadComponent: () =>
+          import('./features/exploracion/pages/institucion-perfil/institucion-perfil').then(
+            (modulo) => modulo.InstitucionPerfil,
+          ),
+        title: 'Perfil de institución | DonaConecta',
+        data: {
+          description:
+            'Perfil público con datos autorizados, necesidades activas y puntos de acopio registrados.',
         },
       },
       {

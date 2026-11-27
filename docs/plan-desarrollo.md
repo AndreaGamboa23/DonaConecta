@@ -19,6 +19,7 @@ explícita; no se adelanta una fase sin esa autorización.
 | 08 | Landing definitiva y navegación pública integrada. | Ejecutada en avances previos |
 | 08.2 | CRUD real de usuarios, perfil personal, sesiones revocables y celular cifrado. | Ejecutada e integrada en Avance 01 |
 | 09 | Paneles administrativo e institucional, verificación real, catálogo SQL y necesidades (Avance 02). | Ejecutada |
+| 09.1 | Experiencia pública real: detalle de necesidades, directorio y perfiles SQL, accesos por rol y correcciones de contrato. | Ejecutada |
 | 10 | Registro, verificación y directorio de instituciones. | Pendiente |
 | 11 | Catálogo y gestión de necesidades. | Pendiente |
 | 12 | Compromisos, donaciones y entregas. | Pendiente |
@@ -397,3 +398,33 @@ La Fase 07 de backend sigue pendiente y no se inicia sin autorización explícit
 7. Detalle completo en `docs/informe-paneles-fase-09.md`, `docs/contrato-api.md` §9,
    `docs/seguridad-privacidad.md` §11.7 y `docs/decisiones-tecnicas.md`. No se ejecutaron commit,
    push, merge ni cambio de rama; la valoración estética final sigue pendiente de revisión humana.
+
+## 14. Resultado de la Fase 09.1 (experiencia pública y directorio real)
+
+1. Backend: tres operaciones públicas nuevas con DTO Pydantic explícito
+   (`GET /necesidades/{id}`, `GET /instituciones/tipos` y `GET /instituciones/{id}`), filtros
+   reales en listados, determinismo en `TOP 1`, escape de comodines `LIKE`, fechas ISO UTC,
+   filtro de punto de acopio activo y de la institución dueña, y `response_model` en los dos
+   listings que antes no lo tenían. OpenAPI: **31 rutas, 39 operaciones y 54 esquemas**.
+2. Frontend: detalle público con líneas por producto/unidad y compromiso restringido a donantes,
+   directorio por `tipo_codigo` SQL, perfil público sin contactos inventados, tarjeta reutilizable
+   de necesidad, accesos de Inicio por rol y estados honestos de error/vacío/sin servicio.
+3. Correcciones derivadas de auditoría: se retiró la unidad global de totales agregados, se
+   agrupó la disponibilidad por `unidad_id`, se aceptaron cantidades decimales, se corrigió el
+   mapeo ISO de `dia_semana`, el `aria-current` del tipo activo, el movimiento reducido del foco,
+   el texto de estados y la URL real de verificación administrativa.
+4. Datos: solo lecturas reales en `DonaConectaDB_Pruebas`; 6 necesidades publicadas, 2
+   instituciones verificadas, 42 productos activos y 0 puntos/horarios de acopio. No se ejecutó
+   DDL ni DML; `DonaConectaDB` permanece intacta. La propuesta reversible de codificación
+   `database/scripts/011_correcion_codificacion_fase091.sql` quedó validada con `NOEXEC`, sin
+   ejecutar.
+5. Evidencias: **34/34** pruebas Python, **70/70** pruebas Angular en 25 archivos,
+   **2179/2179** comprobaciones CDP en 34 rutas y siete anchos (360–1920 px), 10 respuestas API
+   verificadas, build de **585,95 kB** iniciales y **113,51 kB** transferidos, y
+   `git diff --check` sin errores de whitespace. Capturas guardadas fuera del repositorio en
+   `C:\Users\ANDREA\AppData\Local\Temp\opencode\dc-f091-capturas`.
+6. Límites declarados: la regla de compromiso duplicado es secuencial porque el SP actual no la
+   aplica por donante; la corrección de mojibake y la normalización de unidades requieren DML
+   autorizado; la valoración estética final sigue pendiente de revisión humana. Detalle en
+   `docs/informe-experiencia-directorio-fase-09.1.md`. No se ejecutaron commit, push, merge ni
+   cambio de rama.

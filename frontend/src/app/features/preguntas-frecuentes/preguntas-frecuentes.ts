@@ -39,27 +39,29 @@ export class PreguntasFrecuentes {
         'Deben ser nuevos o estar en buen estado, limpios, completos y con fechas vigentes cuando corresponda. La recomendación busca que la entrega sea respetuosa y útil.',
     },
     {
-      question: '¿Ya puedo registrar una donación o seguir una entrega?',
+      question: '¿Ya puedo registrar una donación?',
       answer:
-        'Todavía no. Por ahora puedes informarte y preparar tus bienes. El registro y el seguimiento se activarán cuando la plataforma de servicios esté lista para usar.',
+        'Sí. Puedes explorar solicitudes publicadas por instituciones verificadas y, con una cuenta de donante, registrar un compromiso indicando bienes y cantidades disponibles. El seguimiento GPS todavía no está habilitado.',
+      action: { label: 'Explorar solicitudes', route: '/explorar' },
     },
   ];
 
   protected readonly privacyQuestions: Pregunta[] = [
     {
-      question: '¿El seguimiento GPS será obligatorio?',
+      question: '¿El seguimiento GPS es obligatorio?',
       answer:
-        'No. Cuando esté disponible, será voluntario, se iniciará manualmente y podrás detenerlo. No se usará como comprobante de entrega ni para rastrear a las personas.',
+        'Todavía no está disponible. Cuando se habilite será voluntario, se iniciará manualmente y podrás detenerlo. No se usará como comprobante de entrega ni para rastrear a las personas.',
     },
     {
-      question: '¿Podré hablar con una institución desde la plataforma?',
+      question: '¿Puedo hablar con una institución desde la plataforma?',
       answer:
-        'La mensajería llegará como parte de los servicios de la plataforma. Será privada entre las personas participantes y no sustituirá la confirmación de recepción de la institución.',
+        'La mensajería privada todavía no está conectada. Puedes visitar el perfil público de una institución verificada y revisar sus solicitudes; la coordinación se realiza al registrar un compromiso real.',
+      action: { label: 'Ver instituciones', route: '/instituciones' },
     },
     {
-      question: '¿Cómo se protegerán mis datos personales?',
+      question: '¿Cómo se protegen mis datos personales?',
       answer:
-        'Consultar estas páginas no solicita datos personales ni los guarda en el navegador. Las futuras funciones de cuenta tendrán acceso limitado, autorización por recurso y contraseñas protegidas.',
+        'Consultar estas páginas no solicita datos personales. Si inicias sesión, la sesión se mantiene solo mientras esté abierta; las contraseñas se protegen con Argon2id y el backend autoriza cada operación sensible.',
     },
     {
       question: '¿Una ubicación compartida confirma que entregué la donación?',

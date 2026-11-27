@@ -13,8 +13,8 @@
         <span class="dc-eyebrow mb-3">Orientación al visitante</span>
         <h1 class="display-4 fw-bold mb-3">Preguntas frecuentes</h1>
         <p class="lead text-secondary mb-0">
-          Respuestas claras sobre qué puedes donar, cómo informarte y qué ocurrirá cuando los
-          servicios de la plataforma estén disponibles.
+          Respuestas claras sobre qué puedes donar, cómo participar hoy y qué servicios siguen sin
+          estar disponibles.
         </p>
       </div>
       <div class="col-12 col-lg-4">
@@ -51,13 +51,18 @@
 
     <div class="col-12 col-lg-5">
       <span class="dc-eyebrow mb-3">Participación</span>
-      <h2 class="display-6 fw-bold mb-4">Privacidad y funciones futuras</h2>
+      <h2 class="display-6 fw-bold mb-4">Privacidad y servicios</h2>
       <div class="accordion" id="preguntasPrivacidad">
         @for (pregunta of privacyQuestions; track pregunta.question) {
           <details class="dc-faq-item card border-0 shadow-sm rounded-4 mb-3 overflow-hidden">
             <summary class="p-3 p-md-4 fw-semibold">{{ pregunta.question }}</summary>
             <div class="px-3 px-md-4 pb-3 pb-md-4 pt-0">
               <p class="text-secondary mb-0">{{ pregunta.answer }}</p>
+              @if (pregunta.action) {
+                <a class="btn btn-sm btn-outline-primary mt-3" [routerLink]="pregunta.action.route">
+                  {{ pregunta.action.label }}
+                </a>
+              }
             </div>
           </details>
         }

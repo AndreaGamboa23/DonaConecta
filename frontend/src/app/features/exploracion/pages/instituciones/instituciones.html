@@ -1,204 +1,252 @@
 <app-page-hero
   eyebrow="Directorio público"
   titulo="Instituciones de Huancayo"
-  descripcion="Conoce los tipos de organización que reciben bienes materiales y prepara tu donación según lo que cada una necesita."
+  descripcion="Explora los tipos registrados, consulta el directorio verificado y conoce el perfil público de cada organización antes de preparar tu donación."
   icono="building"
   tono="green"
 />
 
 <section class="dc-section-space bg-white">
   <div class="container">
-    <div class="row g-4 align-items-end mb-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
       <div class="col-12 col-lg-8">
-        <span class="dc-eyebrow mb-3 d-inline-block">Tipos de organización</span>
+        <span class="dc-eyebrow mb-3 d-inline-block">Tipos registrados</span>
         <h2 class="display-6 fw-bold mb-3">Una comunidad, muchas formas de acompañar</h2>
         <p class="lead text-secondary mb-0">
-          Estas imágenes y descripciones son ilustrativas: presentan tipos de institución, no
-          organizaciones registradas ni verificadas.
+          Los tipos y sus conteos se consultan desde la base de datos. Cada acceso muestra solo
+          instituciones verificadas; las fotografías son ilustrativas y no identifican a una
+          organización concreta.
         </p>
       </div>
-      <div class="col-12 col-lg-4">
-        <label class="form-label small fw-semibold" for="buscarInstitucion">Buscar por tipo o bien</label>
-        <div class="input-group">
-          <span class="input-group-text bg-white">
-            <app-icon name="search" aria-hidden="true" />
-          </span>
-          <input
-            id="buscarInstitucion"
-            type="search"
-            class="form-control"
-            placeholder="Ej. albergue, animales, abrigo"
-            autocomplete="off"
-            [ngModel]="termino()"
-            (ngModelChange)="termino.set($event)"
-          />
-        </div>
-      </div>
-    </div>
-
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-4 g-3 g-lg-4">
-      @for (tipo of tiposVisibles(); track tipo.nombre) {
-        <div class="col">
-          <article class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden dc-tipo-card">
-            <div class="ratio ratio-4x3 overflow-hidden bg-light">
-              <img
-                class="w-100 h-100 object-fit-cover"
-                [src]="tipo.imagen"
-                [alt]="tipo.altImagen"
-                width="548"
-                height="460"
-                [attr.loading]="$first ? 'eager' : 'lazy'"
-                [attr.fetchpriority]="$first ? 'high' : null"
-              />
-            </div>
-            <div class="card-body d-flex flex-column p-3 p-md-4">
-              <span class="dc-tipo-icon d-inline-flex align-items-center justify-content-center rounded-3 mb-3">
-                <app-icon [name]="tipo.icono" aria-hidden="true" />
-              </span>
-              <h3 class="h6 fw-bold mb-2">{{ tipo.nombre }}</h3>
-              <p class="small text-secondary mb-3 flex-grow-1">{{ tipo.descripcion }}</p>
-              <div class="d-flex flex-wrap gap-1 mb-3">
-                @for (bien of tipo.bienes; track bien) {
-                  <span class="badge rounded-pill text-bg-light fw-normal">{{ bien }}</span>
-                }
-              </div>
-              <a
-                class="d-inline-flex align-items-center gap-2 small fw-semibold text-primary text-decoration-none"
-                [routerLink]="['/explorar', tipo.categoriaSlug]"
-              >
-                Ver bienes recomendados
-                <app-icon name="arrow-right" />
-              </a>
-            </div>
-          </article>
-        </div>
-      } @empty {
-        <div class="col-12">
-          <div class="alert alert-light border mb-0">
-            No encontramos ese tipo. Puedes buscar «comedor», «albergue», «animales» o «abrigo».
-          </div>
+      @if (estadoTipos() === 'datos') {
+        <div class="text-lg-end">
+          <span class="d-block display-6 fw-bold text-primary lh-1">{{ totalVerificadas() }}</span>
+          <span class="small text-secondary">instituciones verificadas</span>
         </div>
       }
     </div>
+
+    @switch (estadoTipos()) {
+      @case ('servicio-no-disponible') {
+        <div class="alert alert-info border-0 rounded-4" role="status">
+          El directorio no está disponible en este momento. Puedes revisar la guía de bienes
+          materiales mientras se restablece la consulta.
+        </div>
+      }
+      @case ('cargando') {
+        <div class="d-flex align-items-center gap-2" role="status">
+          <span class="spinner-border spinner-border-sm text-primary" aria-hidden="true"></span>
+          <span>Cargando tipos de institución…</span>
+        </div>
+      }
+      @case ('error') {
+        <div class="alert alert-warning rounded-4" role="alert">
+          No se pudieron consultar los tipos registrados. Vuelve a intentarlo más tarde.
+        </div>
+      }
+      @case ('vacio') {
+        <p class="text-secondary mb-0">El catálogo de tipos de institución está vacío.</p>
+      }
+      @case ('datos') {
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-3 g-lg-4">
+          @for (tipo of tiposVisibles(); track tipo.codigo) {
+            <div class="col">
+              <a
+                class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden text-decoration-none text-reset dc-tipo-card"
+                [routerLink]="['/instituciones/tipo', tipo.codigo]"
+                [attr.aria-label]="'Ver instituciones verificadas del tipo ' + tipo.nombre"
+              >
+                <div class="ratio ratio-16x10 overflow-hidden bg-light">
+                  <img
+                    class="w-100 h-100 object-fit-cover"
+                    [src]="tipo.imagen"
+                    [alt]="tipo.altImagen"
+                    width="548"
+                    height="360"
+                    [attr.loading]="$first ? 'eager' : 'lazy'"
+                    [attr.fetchpriority]="$first ? 'high' : null"
+                  />
+                </div>
+                <div class="card-body d-flex flex-column p-3 p-md-4">
+                  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                    <span class="dc-tipo-icon d-inline-flex align-items-center justify-content-center rounded-3">
+                      <app-icon [name]="tipo.icono" aria-hidden="true" />
+                    </span>
+                    <span class="badge rounded-pill text-bg-light fw-normal">
+                      {{ tipo.total_verificadas }}
+                      {{ tipo.total_verificadas === 1 ? 'verificada' : 'verificadas' }}
+                    </span>
+                  </div>
+                  <h3 class="h6 fw-bold mb-2">{{ tipo.nombre }}</h3>
+                  <p class="small text-secondary mb-3 flex-grow-1">{{ tipo.descripcionPublica }}</p>
+                  @if (tipo.total_verificadas > 0) {
+                    <span class="small fw-bold d-inline-flex align-items-center gap-2 text-primary">
+                      Ver directorio
+                      <app-icon name="arrow-right" aria-hidden="true" />
+                    </span>
+                  } @else {
+                    <span class="small text-secondary">
+                      Sin instituciones verificadas publicadas todavía
+                    </span>
+                  }
+                </div>
+              </a>
+            </div>
+          }
+        </div>
+      }
+    }
+
+    <article class="card border-0 bg-light rounded-4 mt-4 overflow-hidden">
+      <div class="row g-0 align-items-center">
+        <div class="col-12 col-md-4">
+          <img
+            src="/assets/images/institucion-adultos-mayores.webp"
+            class="w-100 h-100 object-fit-cover"
+            alt="Ilustración de una organización que acompaña a adultos mayores"
+            width="548"
+            height="460"
+            loading="lazy"
+          />
+        </div>
+        <div class="col-12 col-md-8 p-3 p-md-4">
+          <span class="badge rounded-pill text-bg-primary mb-2">Guía de donación</span>
+          <h3 class="h5 fw-bold mb-2">También acompañamos a personas adultas mayores</h3>
+          <p class="small text-secondary mb-3">
+            El catálogo no tiene un tipo propio para adultos mayores. Las organizaciones que los
+            acompañan aparecen bajo los tipos registrados, como organización social u otro. Para
+            elegir bienes, revisa la guía de abrigo, higiene y alimentos; no publicamos nombres ni
+            verificaciones que no estén en el directorio.
+          </p>
+          <div class="d-flex flex-wrap gap-2">
+            <a routerLink="/como-donar" fragment="bienes" class="btn btn-outline-primary btn-sm">
+              Ver bienes recomendados
+            </a>
+            <a routerLink="/explorar" fragment="solicitudes" class="btn btn-outline-secondary btn-sm">
+              Ver solicitudes publicadas
+            </a>
+          </div>
+        </div>
+      </div>
+    </article>
   </div>
 </section>
 
 <section class="dc-section-space">
   <div class="container">
     <div class="row g-4 g-lg-5">
-      <div class="col-12 col-lg-7">
+      <div class="col-12 col-lg-4">
         <div class="card border-0 bg-light rounded-4 p-3 p-md-4 mb-4">
-          <h2 class="h5 fw-bold mb-3">Búsqueda y filtros del directorio</h2>
-          <div class="row g-3">
-            <div class="col-12 col-md-6">
-              <label class="form-label small fw-semibold" for="filtroTipo">Tipo de institución</label>
-              <select id="filtroTipo" class="form-select" [ngModel]="tipoId()"
-                (ngModelChange)="tipoId.set($event)">
-                <option [ngValue]="0">Todos los tipos</option>
-                @for (tipo of tipos; track tipo.id) {
-                  <option [ngValue]="tipo.id">{{ tipo.nombre }}</option>
-                }
-              </select>
-            </div>
-            <div class="col-12 col-md-6">
-              <label class="form-label small fw-semibold" for="filtroDistritoInstitucion">Distrito</label>
-              <select id="filtroDistritoInstitucion" class="form-select" [ngModel]="distritoId()"
-                (ngModelChange)="distritoId.set($event)">
-                <option [ngValue]="0">Todos los distritos</option>
-                @for (distrito of distritos; track distrito.id) {
-                  <option [ngValue]="distrito.id">{{ distrito.nombre }}</option>
-                }
-              </select>
-            </div>
-            <div class="col-12">
-              <div class="form-check form-switch">
-                <input
-                  id="soloVerificadas"
-                  class="form-check-input"
-                  type="checkbox"
-                  role="switch"
-                  [ngModel]="soloVerificadas()"
-                  (ngModelChange)="soloVerificadas.set($event)"
-                />
-                <label class="form-check-label small" for="soloVerificadas">
-                  Mostrar solo instituciones verificadas
-                </label>
-              </div>
-            </div>
+          <h2 class="h5 fw-bold mb-3">Buscar en el directorio</h2>
+          <label class="form-label small fw-semibold" for="buscarInstitucion">Nombre o descripción</label>
+          <div class="input-group mb-3">
+            <span class="input-group-text bg-white">
+              <app-icon name="search" aria-hidden="true" />
+            </span>
+            <input
+              id="buscarInstitucion"
+              type="search"
+              class="form-control"
+              placeholder="Ej. comedor, albergue"
+              autocomplete="off"
+              [ngModel]="termino()"
+              (ngModelChange)="termino.set($event)"
+              (keyup.enter)="cargarInstituciones()"
+            />
           </div>
-          @if (filtrosActivos() > 0) {
-            <button type="button" class="btn btn-link btn-sm p-0 mt-3" (click)="limpiarFiltros()">
-              Limpiar filtros ({{ filtrosActivos() }})
+          <label class="form-label small fw-semibold" for="filtroDistritoInstitucion">Distrito</label>
+          <select
+            id="filtroDistritoInstitucion"
+            class="form-select mb-3"
+            [ngModel]="distritoId()"
+            (ngModelChange)="distritoId.set($event); cargarInstituciones()"
+          >
+            <option [ngValue]="0">Todos los distritos</option>
+            @for (distrito of distritos; track distrito.id) {
+              <option [ngValue]="distrito.id">{{ distrito.nombre }}</option>
+            }
+          </select>
+          <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn btn-primary btn-sm" (click)="cargarInstituciones()">
+              Buscar
             </button>
+            @if (filtrosActivos() > 0) {
+              <button type="button" class="btn btn-link btn-sm p-0" (click)="limpiarFiltros()">
+                Limpiar filtros ({{ filtrosActivos() }})
+              </button>
+            }
+          </div>
+        </div>
+
+        <section class="card border-0 shadow-sm rounded-4 p-3 p-md-4">
+          <h2 class="h6 fw-bold mb-3">Cómo usar este directorio</h2>
+          <ul class="list-unstyled small mb-0 d-grid gap-2">
+            <li class="d-flex gap-2">
+              <app-icon name="check-circle" aria-hidden="true" />
+              Solo mostramos instituciones verificadas en SQL Server.
+            </li>
+            <li class="d-flex gap-2">
+              <app-icon name="box" aria-hidden="true" />
+              El perfil publica sus necesidades vigentes y bienes solicitados.
+            </li>
+            <li class="d-flex gap-2">
+              <app-icon name="clock" aria-hidden="true" />
+              Los horarios y puntos de acopio aparecen solo si están registrados.
+            </li>
+          </ul>
+        </section>
+      </div>
+
+      <div class="col-12 col-lg-8">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3" aria-live="polite">
+          <h2 class="h4 fw-bold mb-0">Instituciones verificadas</h2>
+          @if (estadoDirectorio() === 'datos') {
+            <span class="badge rounded-pill text-bg-success">
+              {{ instituciones().length }}
+              {{ instituciones().length === 1 ? 'resultado' : 'resultados' }}
+            </span>
           }
         </div>
 
-        <div class="card border-0 shadow-sm rounded-4 p-3 p-md-4">
-          <h2 class="h5 fw-bold mb-3">Cuando una institución publique su perfil</h2>
-          <div class="row g-3">
-            <div class="col-12 col-md-6">
-              <ul class="list-unstyled small mb-0 d-grid gap-2">
-                <li class="d-flex gap-2"><app-icon name="building" /> Nombre, tipo y distrito</li>
-                <li class="d-flex gap-2"><app-icon name="check-circle" /> Estado de verificación</li>
-                <li class="d-flex gap-2"><app-icon name="clock" /> Horarios de atención</li>
-                <li class="d-flex gap-2"><app-icon name="box" /> Necesidades activas</li>
-              </ul>
+        @switch (estadoDirectorio()) {
+          @case ('servicio-no-disponible') {
+            <div class="alert alert-info border-0 rounded-4" role="status">
+              Por el momento no podemos consultar el directorio.
             </div>
-            <div class="col-12 col-md-6">
-              <ul class="list-unstyled small mb-0 d-grid gap-2">
-                <li class="d-flex gap-2"><app-icon name="pin" /> Puntos de acopio</li>
-                <li class="d-flex gap-2"><app-icon name="chat" /> Contacto autorizado</li>
-                <li class="d-flex gap-2"><app-icon name="heart" /> Experiencias y valoraciones</li>
-                <li class="d-flex gap-2"><app-icon name="gift" /> Favoritos del donante</li>
-              </ul>
+          }
+          @case ('cargando') {
+            <div class="d-flex align-items-center gap-2" role="status">
+              <span class="spinner-border spinner-border-sm text-primary" aria-hidden="true"></span>
+              <span>Cargando instituciones…</span>
             </div>
-          </div>
-          <p class="small text-secondary mt-3 mb-0">
-            Las acciones sobre una institución se habilitarán solo cuando exista un registro
-            verificado y una conversación autorizada.
-          </p>
-        </div>
-      </div>
-
-      <div class="col-12 col-lg-5">
-        <section class="card border-0 shadow-sm rounded-4 h-100" aria-labelledby="resultadosInstituciones">
-          <div class="card-header bg-white border-0 pt-3 px-3 px-md-4">
-            <h2 id="resultadosInstituciones" class="h5 fw-bold mb-0">Directorio de instituciones</h2>
-          </div>
-          <div class="card-body px-3 px-md-4">
-            @switch (estadoDirectorio()) {
-              @case ('servicio-no-disponible') {
-                <div class="alert alert-info border-0 small mb-3" role="status">
-                  Por el momento no podemos consultar el directorio. Mientras tanto, conoce los
-                  tipos de organización y prepara tus bienes con la guía.
-                </div>
-                <a routerLink="/como-donar" class="btn btn-outline-primary btn-sm">Ver la guía</a>
-              }
-              @case ('cargando') {
-                <div class="d-flex align-items-center gap-2" role="status">
-                  <span class="spinner-border spinner-border-sm text-primary" aria-hidden="true"></span>
-                  <span>Cargando directorio…</span>
+          }
+          @case ('error') {
+            <div class="alert alert-warning rounded-4" role="alert">
+              No se pudo cargar el directorio. Vuelve a intentarlo más tarde.
+            </div>
+          }
+          @case ('vacio') {
+            <div class="card border-0 bg-light rounded-4 p-4">
+              <h3 class="h5 fw-bold mb-2">No hay instituciones con estos criterios</h3>
+              <p class="small text-secondary mb-3">
+                Prueba con otro distrito o limpia la búsqueda. Si ninguna organización de un tipo
+                está verificada, ese acceso muestra un estado vacío honesto.
+              </p>
+              <button type="button" class="btn btn-outline-primary" (click)="limpiarFiltros()">
+                Limpiar filtros
+              </button>
+            </div>
+          }
+          @case ('datos') {
+            <div class="row g-3 g-lg-4 row-cols-1 row-cols-md-2">
+              @for (institucion of instituciones(); track institucion.institucionId) {
+                <div class="col">
+                  <app-institucion-card [institucion]="institucion" />
                 </div>
               }
-              @case ('error') {
-                <div class="alert alert-danger mb-0" role="alert">
-                  No se pudo cargar el directorio. Vuelve a intentarlo más tarde.
-                </div>
-              }
-              @case ('vacio') {
-                <p class="fw-semibold mb-1">No hay instituciones con estos filtros.</p>
-                <p class="small text-secondary mb-0">Prueba con otros criterios o limpia los filtros.</p>
-              }
-              @case ('datos') {
-                <div class="d-grid gap-3">
-                  @for (institucion of instituciones(); track institucion.institucionId) {
-                    <app-institucion-card [institucion]="institucion" />
-                  }
-                </div>
-              }
-            }
-          </div>
-        </section>
+            </div>
+          }
+        }
       </div>
     </div>
 

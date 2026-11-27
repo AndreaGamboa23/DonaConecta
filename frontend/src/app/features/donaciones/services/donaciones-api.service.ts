@@ -17,9 +17,18 @@ export interface DonacionResumen {
   readonly creado_en: string;
 }
 
+export interface LineaCompromisoPayload {
+  readonly producto_id: number;
+  readonly unidad_id: number;
+  readonly cantidad: number;
+}
+
 export interface CrearCompromisoPayload {
   readonly id_necesidad: number;
-  readonly cantidad_comprometida: number;
+  /** Una línea por bien solicitado; el backend valida disponibilidad por línea. */
+  readonly lineas?: readonly LineaCompromisoPayload[];
+  /** Atajo heredado para necesidades de una sola línea. */
+  readonly cantidad_comprometida?: number;
   readonly comentario?: string;
 }
 

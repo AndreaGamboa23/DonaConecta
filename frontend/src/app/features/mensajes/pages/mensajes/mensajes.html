@@ -1,7 +1,7 @@
 <app-page-hero
-  eyebrow="Comunicación segura"
+  eyebrow="Comunicación privada"
   titulo="Mensajes"
-  descripcion="Coordina entregas de bienes materiales con las instituciones en un espacio privado y autorizado."
+  descripcion="La mensajería entre donantes e instituciones todavía no está conectada. Mientras tanto, consulta solicitudes reales y prepara tu donación con la guía."
   icono="chat"
 />
 
@@ -9,33 +9,63 @@
   <div class="container">
     <app-pending-notice
       [estado]="estado"
-      titulo="La mensajería aún no está conectada"
+      titulo="La mensajería no está disponible todavía"
       class="d-block mb-4"
     />
 
-    <div class="row g-3 g-lg-4 align-items-stretch dc-chat-layout">
-      <div
-        class="col-12 col-lg-4"
-        [class.d-none]="conversacionId() !== null"
-        [class.d-lg-block]="conversacionId() !== null"
-      >
-        <app-bandeja-conversaciones (abrir)="abrirConversacion($event)" />
+    <div class="row g-4 g-lg-5">
+      <div class="col-12 col-lg-7">
+        <section class="card border-0 shadow-sm rounded-4 p-3 p-md-4 h-100" aria-labelledby="estadoMensajes">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+            <h2 id="estadoMensajes" class="h4 fw-bold mb-0">Estado del servicio</h2>
+            <span class="badge rounded-pill text-bg-secondary">Sin conexión</span>
+          </div>
+          <div class="d-flex gap-3 align-items-start mb-3">
+            <span class="dc-mensajes-icon d-inline-flex align-items-center justify-content-center rounded-3 flex-shrink-0">
+              <app-icon name="lock" aria-hidden="true" />
+            </span>
+            <div>
+              <p class="fw-semibold mb-1">No se muestran conversaciones de ejemplo</p>
+              <p class="small text-secondary mb-0">
+                Cuando el servicio esté disponible, solo participantes autorizados podrán leer y
+                escribir en una conversación. Los mensajes se guardarán en SQL Server, nunca en el
+                navegador.
+              </p>
+            </div>
+          </div>
+          <div class="row g-3 mt-2">
+            <div class="col-12 col-md-6">
+              <div class="border rounded-4 p-3 h-100">
+                <h3 class="h6 fw-bold mb-2">Para donantes</h3>
+                <p class="small text-secondary mb-0">
+                  Revisa las solicitudes publicadas y registra un compromiso con una institución
+                  verificada.
+                </p>
+              </div>
+            </div>
+            <div class="col-12 col-md-6">
+              <div class="border rounded-4 p-3 h-100">
+                <h3 class="h6 fw-bold mb-2">Para instituciones</h3>
+                <p class="small text-secondary mb-0">
+                  Publica necesidades reales desde el panel institucional y gestiona las entregas
+                  registradas.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
-      <div
-        class="col-12 col-lg-8"
-        [class.d-none]="conversacionId() === null"
-        [class.d-lg-block]="conversacionId() === null"
-      >
-        <app-panel-conversacion
-          [conversacionId]="conversacionId()"
-          (volver)="volverABandeja()"
-        />
+
+      <div class="col-12 col-lg-5">
+        <app-bandeja-conversaciones />
       </div>
     </div>
 
     <div class="d-flex flex-wrap gap-2 mt-4">
       @if (sesion.autenticado()) {
-        <a routerLink="/necesidades" class="btn btn-primary">Explorar necesidades</a>
+        <a routerLink="/explorar" fragment="solicitudes" class="btn btn-primary">
+          Explorar solicitudes
+        </a>
       } @else {
         <a routerLink="/iniciar-sesion" class="btn btn-primary">Iniciar sesión</a>
       }

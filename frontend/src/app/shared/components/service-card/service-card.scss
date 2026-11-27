@@ -14,6 +14,16 @@
   box-shadow: 0 0.9rem 2.4rem rgba(18, 48, 74, 0.11);
 }
 
+.dc-service-card:focus-visible {
+  outline: 3px solid #d5a451;
+  outline-offset: 3px;
+}
+
+.dc-service-card:active {
+  transform: translateY(0);
+  box-shadow: 0 0.4rem 1rem rgba(18, 48, 74, 0.08);
+}
+
 .dc-service-card--cream {
   background: #f7f5ef;
 }
@@ -50,4 +60,15 @@
 .dc-service-icon app-icon {
   width: 1.5rem;
   height: 1.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dc-service-card {
+    transition: none;
+  }
+
+  .dc-service-card:hover,
+  .dc-service-card:active {
+    transform: none;
+  }
 }

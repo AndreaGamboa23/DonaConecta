@@ -20,9 +20,14 @@ EXPIRACION_COMPROMISO_MINUTOS = 30
 
 
 def _texto_fecha(valor) -> Optional[str]:
+    """Serializa DATETIME2 UTC con sufijo ISO 8601 explícito."""
+
     if valor is None:
         return None
-    return valor.isoformat() if hasattr(valor, "isoformat") else str(valor)
+    texto = valor.isoformat() if hasattr(valor, "isoformat") else str(valor)
+    if texto.endswith(("Z", "+00:00")):
+        return texto
+    return f"{texto}Z"
 
 
 def _numero(valor) -> float:
@@ -33,21 +38,35 @@ def listar_necesidades_publicas(
     categoria_id: Optional[int] = None,
     distrito_id: Optional[int] = None,
     institucion_id: Optional[int] = None,
+    prioridad: Optional[str] = None,
+    limite: int = 50,
+    desplazamiento: int = 0,
 ) -> list[dict]:
+    """Solicitudes PUBLICADA de instituciones verificadas con progreso real.
+
+    La disponibilidad y el avance se leen de las vistas desplegadas en Fase 06.
+    Los totales del resumen son agregados informativos: el detalle público
+    desglosa producto, unidad y disponibilidad por línea para evitar ambigüedad.
+    """
+
     sql = """
         WITH importes AS (
             SELECT necesidad_id,
                    SUM(cantidad_requerida) AS cantidad_requerida,
                    SUM(cantidad_reservada_vigente) AS cantidad_comprometida,
-                   SUM(cantidad_recibida) AS cantidad_recibida
+                   SUM(cantidad_recibida) AS cantidad_recibida,
+                   SUM(cantidad_disponible) AS cantidad_disponible
             FROM dbo.vw_disponibilidad_necesidad
             GROUP BY necesidad_id
         )
         SELECT n.necesidad_id, n.titulo, n.descripcion, n.prioridad, n.estado,
-               n.fecha_limite, n.institucion_id, i.nombre AS institucion,
-               COALESCE(d.nombre, di.nombre) AS distrito,
-               n.punto_acopio_id, pa.nombre AS nombre_punto, pa.direccion AS direccion_acopio,
-               imp.cantidad_requerida, imp.cantidad_comprometida, imp.cantidad_recibida,
+               n.fecha_publicacion, n.fecha_limite, n.institucion_id,
+               i.nombre AS institucion, COALESCE(d.nombre, di.nombre) AS distrito,
+               n.punto_acopio_id, pa.nombre AS nombre_punto,
+               pa.direccion AS direccion_acopio,
+               imp.cantidad_requerida, imp.cantidad_comprometida,
+               imp.cantidad_recibida, imp.cantidad_disponible,
+               pro.avance_porcentaje, pro.lineas_totales, pro.lineas_cubiertas,
                (
                    SELECT TOP 1 u.simbolo
                    FROM dbo.necesidad_productos np
@@ -74,17 +93,24 @@ def listar_necesidades_publicas(
         INNER JOIN dbo.instituciones i ON i.institucion_id = n.institucion_id
         INNER JOIN dbo.distritos di ON di.distrito_id = i.distrito_id
         LEFT JOIN importes imp ON imp.necesidad_id = n.necesidad_id
-        LEFT JOIN dbo.puntos_acopio pa ON pa.punto_id = n.punto_acopio_id
+        LEFT JOIN dbo.vw_progreso_necesidad pro ON pro.necesidad_id = n.necesidad_id
+        LEFT JOIN dbo.puntos_acopio pa
+               ON pa.punto_id = n.punto_acopio_id
+              AND pa.institucion_id = n.institucion_id
+              AND pa.estado = N'ACTIVO'
         LEFT JOIN dbo.distritos d ON d.distrito_id = pa.distrito_id
         WHERE n.estado = N'PUBLICADA'
+          AND i.estado_verificacion = N'VERIFICADA'
           AND (? IS NULL OR EXISTS (
               SELECT 1 FROM dbo.necesidad_productos np2
               INNER JOIN dbo.productos p2 ON p2.producto_id = np2.producto_id
               WHERE np2.necesidad_id = n.necesidad_id AND p2.categoria_id = ?))
           AND (? IS NULL OR COALESCE(d.distrito_id, di.distrito_id) = ?)
           AND (? IS NULL OR n.institucion_id = ?)
+          AND (? IS NULL OR n.prioridad = ?)
         ORDER BY CASE n.prioridad WHEN N'ALTA' THEN 1 WHEN N'MEDIA' THEN 2 ELSE 3 END,
-                 n.fecha_publicacion DESC;
+                 n.fecha_publicacion DESC, n.necesidad_id DESC
+        OFFSET ? ROWS FETCH NEXT ? ROWS ONLY;
     """
     parametros = (
         categoria_id,
@@ -93,6 +119,10 @@ def listar_necesidades_publicas(
         distrito_id,
         institucion_id,
         institucion_id,
+        prioridad,
+        prioridad,
+        desplazamiento,
+        limite,
     )
     with get_connection() as conn:
         filas = conn.cursor().execute(sql, parametros).fetchall()
@@ -105,9 +135,14 @@ def listar_necesidades_publicas(
                 "cantidad_requerida": _numero(fila.cantidad_requerida),
                 "cantidad_comprometida": _numero(fila.cantidad_comprometida),
                 "cantidad_recibida": _numero(fila.cantidad_recibida),
+                "cantidad_disponible": _numero(fila.cantidad_disponible),
+                "avance_porcentaje": _numero(fila.avance_porcentaje),
+                "lineas_totales": int(fila.lineas_totales or 0),
+                "lineas_cubiertas": int(fila.lineas_cubiertas or 0),
                 "unidad_medida_base": fila.unidad_medida_base or "",
                 "prioridad": fila.prioridad,
                 "estado": fila.estado,
+                "fecha_publicacion": _texto_fecha(fila.fecha_publicacion),
                 "fecha_limite": _texto_fecha(fila.fecha_limite),
                 "id_institucion": int(fila.institucion_id),
                 "institucion": fila.institucion,
@@ -291,6 +326,26 @@ def registrar_compromiso(donante_usuario_id: int, datos: dict) -> dict:
 
     with get_connection(autocommit=True, escritura=True) as conn:
         cursor = conn.cursor()
+        # Un doble clic (o dos pestañas) no debe generar dos compromisos vigentes
+        # del mismo donante para la misma necesidad. Las expiradas sí permiten
+        # un nuevo compromiso porque ya no reservan cantidad disponible.
+        vigente = cursor.execute(
+            """
+            SELECT COUNT(*) AS total
+            FROM dbo.compromisos
+            WHERE donante_usuario_id = ? AND necesidad_id = ?
+              AND estado IN (N'PENDIENTE', N'ACEPTADO')
+              AND (expira_en IS NULL OR expira_en > SYSUTCDATETIME());
+            """,
+            (donante_usuario_id, necesidad_id),
+        ).fetchone()
+        if vigente and int(vigente.total) > 0:
+            raise ErrorNegocio(
+                409,
+                "COMPROMISO_VIGENTE",
+                "Ya tienes un compromiso vigente para esta necesidad. Consulta Mis donaciones.",
+            )
+
         if not lineas:
             if datos.get("cantidad_comprometida") is None:
                 raise ErrorNegocio(
